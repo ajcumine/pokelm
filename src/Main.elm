@@ -5,7 +5,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string)
+import Json.Decode exposing (Decoder, at, field, list, map2, string)
+import Url exposing (..)
+import Url.Parser exposing ((</>), Parser, s)
 
 
 
@@ -25,15 +27,23 @@ main =
 -- MODEL
 
 
+type alias BasePokemon =
+    { name : String, url : String }
+
+
+type alias AllBasePokemon =
+    List BasePokemon
+
+
 type Model
     = Failure
     | Loading
-    | Success String
+    | Success AllBasePokemon
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Loading, getRandomCatGif )
+    ( Loading, getAllPokemon )
 
 
 
@@ -41,20 +51,16 @@ init _ =
 
 
 type Msg
-    = MorePlease
-    | GotGif (Result Http.Error String)
+    = GotAllPokemon (Result Http.Error AllBasePokemon)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        MorePlease ->
-            ( Loading, getRandomCatGif )
-
-        GotGif result ->
+        GotAllPokemon result ->
             case result of
-                Ok url ->
-                    ( Success url, Cmd.none )
+                Ok allPokemon ->
+                    ( Success allPokemon, Cmd.none )
 
                 Err _ ->
                     ( Failure, Cmd.none )
@@ -73,45 +79,63 @@ subscriptions model =
 -- VIEW
 
 
+pokemonUuid : String -> String
+pokemonUuid pokeapiUrl =
+    pokeapiUrl
+
+
+pokemonSpriteUrl : String -> String
+pokemonSpriteUrl pokeapiUrl =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pokemonUuid pokeapiUrl ++ ".png"
+
+
+viewBasePokemon : BasePokemon -> Html Msg
+viewBasePokemon basePokemon =
+    div []
+        [ text basePokemon.name, img [ src (pokemonSpriteUrl basePokemon.url) ] [] ]
+
+
+viewAllBasePokemon : Model -> Html Msg
+viewAllBasePokemon model =
+    case model of
+        Failure ->
+            text "I could not any Pokemon for some reason. "
+
+        Loading ->
+            text "Loading Pokemon..."
+
+        Success allPokemon ->
+            div []
+                (List.map viewBasePokemon allPokemon)
+
+
 view : Model -> Html Msg
 view model =
     div []
-        [ h2 [] [ text "Random Cats" ]
-        , viewGif model
+        [ h2 [] [ text "Pokemon" ]
+        , viewAllBasePokemon model
         ]
-
-
-viewGif : Model -> Html Msg
-viewGif model =
-    case model of
-        Failure ->
-            div []
-                [ text "I could not load a random cat for some reason. "
-                , button [ onClick MorePlease ] [ text "Try Again!" ]
-                ]
-
-        Loading ->
-            text "Loading..."
-
-        Success url ->
-            div []
-                [ button [ onClick MorePlease, style "display" "block" ] [ text "More Please!" ]
-                , img [ src url ] []
-                ]
 
 
 
 -- HTTP
 
 
-getRandomCatGif : Cmd Msg
-getRandomCatGif =
+getAllPokemon : Cmd Msg
+getAllPokemon =
     Http.get
-        { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
-        , expect = Http.expectJson GotGif gifDecoder
+        { url = "https://pokeapi.co/api/v2/pokemon?limit=10000"
+        , expect = Http.expectJson GotAllPokemon allPokemonDecoder
         }
 
 
-gifDecoder : Decoder String
-gifDecoder =
-    field "data" (field "image_url" string)
+pokemonDecoder : Decoder BasePokemon
+pokemonDecoder =
+    map2 BasePokemon
+        (field "name" string)
+        (field "url" string)
+
+
+allPokemonDecoder : Decoder AllBasePokemon
+allPokemonDecoder =
+    at [ "results" ] (list pokemonDecoder)
