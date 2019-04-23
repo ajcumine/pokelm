@@ -16,7 +16,7 @@ import String
 
 
 main =
-    Browser.element
+    Browser.document
         { init = init
         , update = update
         , subscriptions = subscriptions
@@ -121,12 +121,17 @@ viewAllBasePokemon model =
                 (List.map viewBasePokemon allPokemon)
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div [ style "display" "flex", style "flex-direction" "column", style "font-family" "Verdana" ]
-        [ h2 [ style "margin" "auto" ] [ text "Pokemon" ]
-        , viewAllBasePokemon model
+    { title = "PokElm"
+    , body =
+        [ div
+            [ style "display" "flex", style "flex-direction" "column", style "font-family" "Verdana" ]
+            [ h2 [ style "margin" "auto" ] [ text "Pokemon" ]
+            , viewAllBasePokemon model
+            ]
         ]
+    }
 
 
 
