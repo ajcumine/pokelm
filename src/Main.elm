@@ -5,7 +5,10 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, at, field, list, map2, string)
+import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string, succeed)
+import List
+import Maybe
+import String
 import Url exposing (..)
 import Url.Parser exposing ((</>), Parser, s)
 
@@ -28,7 +31,7 @@ main =
 
 
 type alias BasePokemon =
-    { name : String, url : String }
+    { name : String, url : String, uuid : String }
 
 
 type alias AllBasePokemon =
@@ -79,20 +82,15 @@ subscriptions model =
 -- VIEW
 
 
-pokemonUuid : String -> String
-pokemonUuid pokeapiUrl =
-    pokeapiUrl
-
-
 pokemonSpriteUrl : String -> String
-pokemonSpriteUrl pokeapiUrl =
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pokemonUuid pokeapiUrl ++ ".png"
+pokemonSpriteUrl pokemonUuid =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pokemonUuid ++ ".png"
 
 
 viewBasePokemon : BasePokemon -> Html Msg
 viewBasePokemon basePokemon =
     div []
-        [ text basePokemon.name, img [ src (pokemonSpriteUrl basePokemon.url) ] [] ]
+        [ text basePokemon.name, img [ src (pokemonSpriteUrl basePokemon.uuid) ] [] ]
 
 
 viewAllBasePokemon : Model -> Html Msg
@@ -129,11 +127,17 @@ getAllPokemon =
         }
 
 
+getUuid : String -> String
+getUuid url =
+    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
+
+
 pokemonDecoder : Decoder BasePokemon
 pokemonDecoder =
-    map2 BasePokemon
+    map3 BasePokemon
         (field "name" string)
         (field "url" string)
+        (field "url" (string |> map getUuid))
 
 
 allPokemonDecoder : Decoder AllBasePokemon
