@@ -9,8 +9,6 @@ import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, m
 import List
 import Maybe
 import String
-import Url exposing (..)
-import Url.Parser exposing ((</>), Parser, s)
 
 
 
