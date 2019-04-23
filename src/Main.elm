@@ -87,8 +87,24 @@ pokemonSpriteUrl pokemonUuid =
 
 viewBasePokemon : BasePokemon -> Html Msg
 viewBasePokemon basePokemon =
-    div []
-        [ text basePokemon.name, img [ src (pokemonSpriteUrl basePokemon.uuid) ] [] ]
+    div
+        [ style "border" "solid #ddd 1px"
+        , style "margin" "4px"
+        , style "padding" "8px"
+        , style "display" "flex"
+        , style "flex-direction" "column"
+        ]
+        [ span
+            [ style "text-align" "center"
+            , style "text-transform" "capitalize"
+            ]
+            [ text basePokemon.name ]
+        , img
+            [ src (pokemonSpriteUrl basePokemon.uuid)
+            , style "align-self" "center"
+            ]
+            []
+        ]
 
 
 viewAllBasePokemon : Model -> Html Msg
@@ -101,14 +117,14 @@ viewAllBasePokemon model =
             text "Loading Pokemon..."
 
         Success allPokemon ->
-            div []
+            div [ style "display" "flex", style "flex-wrap" "wrap", style "justify-content" "center" ]
                 (List.map viewBasePokemon allPokemon)
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h2 [] [ text "Pokemon" ]
+    div [ style "display" "flex", style "flex-direction" "column", style "font-family" "Verdana" ]
+        [ h2 [ style "margin" "auto" ] [ text "Pokemon" ]
         , viewAllBasePokemon model
         ]
 
@@ -120,7 +136,7 @@ view model =
 getAllPokemon : Cmd Msg
 getAllPokemon =
     Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon?limit=10000"
+        { url = "https://pokeapi.co/api/v2/pokemon?limit=151"
         , expect = Http.expectJson GotAllPokemon allPokemonDecoder
         }
 
