@@ -1,9 +1,10 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (css, src)
 import Http
 import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string, succeed)
 import List
@@ -20,7 +21,7 @@ main =
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view
+        , view = view >> toUnstyledDocument
         }
 
 
@@ -88,20 +89,26 @@ pokemonSpriteUrl pokemonUuid =
 viewBasePokemon : BasePokemon -> Html Msg
 viewBasePokemon basePokemon =
     div
-        [ style "border" "solid #ddd 1px"
-        , style "margin" "4px"
-        , style "padding" "8px"
-        , style "display" "flex"
-        , style "flex-direction" "column"
+        [ css
+            [ displayFlex
+            , flexDirection column
+            , padding (px 8)
+            , margin (px 4)
+            , border3 (px 1) solid (hex "#ddd")
+            ]
         ]
         [ span
-            [ style "text-align" "center"
-            , style "text-transform" "capitalize"
+            [ css
+                [ textAlign center
+                , textTransform capitalize
+                ]
             ]
             [ text basePokemon.name ]
         , img
             [ src (pokemonSpriteUrl basePokemon.uuid)
-            , style "align-self" "center"
+            , css
+                [ alignSelf center
+                ]
             ]
             []
         ]
@@ -117,17 +124,45 @@ viewAllBasePokemon model =
             text "Loading Pokemon..."
 
         Success allPokemon ->
-            div [ style "display" "flex", style "flex-wrap" "wrap", style "justify-content" "center" ]
+            div
+                [ css
+                    [ displayFlex
+                    , flexWrap wrap
+                    , justifyContent center
+                    ]
+                ]
                 (List.map viewBasePokemon allPokemon)
 
 
-view : Model -> Browser.Document Msg
+type alias Document msg =
+    { title : String
+    , body : List (Html msg)
+    }
+
+
+toUnstyledDocument : Document Msg -> Browser.Document Msg
+toUnstyledDocument doc =
+    { title = doc.title
+    , body = List.map Html.Styled.toUnstyled doc.body
+    }
+
+
+view : Model -> Document Msg
 view model =
     { title = "PokElm"
     , body =
         [ div
-            [ style "display" "flex", style "flex-direction" "column", style "font-family" "Verdana" ]
-            [ h2 [ style "margin" "auto" ] [ text "Pokemon" ]
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , fontFamilies [ "Verdana" ]
+                , marginTop (px 40)
+                ]
+            ]
+            [ h2
+                [ css [ margin3 (px 0) auto (px 20) ]
+                ]
+                [ text "Pokémon" ]
             , viewAllBasePokemon model
             ]
         ]
