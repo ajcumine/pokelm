@@ -5,7 +5,7 @@ import Css exposing (..)
 import Css.Transitions exposing (easeInOut, transition)
 import Html
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes exposing (css, href, src)
 import Http
 import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string, succeed)
 import List
@@ -94,19 +94,23 @@ pokemonSpriteUrl pokemonUuid =
 
 viewBasePokemon : BasePokemon -> Html Msg
 viewBasePokemon basePokemon =
-    div
+    a
         [ css
             [ displayFlex
             , flexDirection column
             , padding (px 8)
             , margin (px 4)
             , border3 (px 1) solid (hex "#ddd")
+            , textDecoration none
+            , color (hex "#000")
             ]
+        , href ("/pokemon/" ++ basePokemon.uuid)
         ]
         [ span
             [ css
                 [ textAlign center
                 , textTransform capitalize
+                , textDecoration none
                 ]
             ]
             [ text basePokemon.name ]
