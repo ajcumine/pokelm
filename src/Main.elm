@@ -2,6 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Css exposing (..)
+import Css.Transitions exposing (easeInOut, transition)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, src)
@@ -81,6 +82,11 @@ subscriptions model =
 -- VIEW
 
 
+pokemonShinySpriteUrl : String -> String
+pokemonShinySpriteUrl pokemonUuid =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ pokemonUuid ++ ".png"
+
+
 pokemonSpriteUrl : String -> String
 pokemonSpriteUrl pokemonUuid =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pokemonUuid ++ ".png"
@@ -104,10 +110,18 @@ viewBasePokemon basePokemon =
                 ]
             ]
             [ text basePokemon.name ]
-        , img
-            [ src (pokemonSpriteUrl basePokemon.uuid)
-            , css
+        , div
+            [ css
                 [ alignSelf center
+                , width (px 96)
+                , height (px 96)
+                , backgroundImage (url (pokemonSpriteUrl basePokemon.uuid))
+                , transition
+                    [ Css.Transitions.background 500
+                    ]
+                , hover
+                    [ backgroundImage (url (pokemonShinySpriteUrl basePokemon.uuid))
+                    ]
                 ]
             ]
             []
