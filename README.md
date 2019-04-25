@@ -1,22 +1,17 @@
 # PokElm
 
-run `elm reactor`
+A Pokédex written in Elm
+
+Uses node/yarn for build and development tooling
 
 ```
-        , div
-            [ css
-                [ alignSelf center
-                , width (px 96)
-                , height (px 96)
-                , backgroundImage (url (pokemonSpriteUrl pokemon.uuid))
-                , transition
-                    [ Css.Transitions.background 500
-                    ]
-                , hover
-                    [ backgroundImage (url (pokemonShinySpriteUrl pokemon.uuid))
-                    ]
-                ]
-            ]
-            []
-        ]
+yarn build
+```
+
+```
+yarn dev
+```
+
+```
+yarn start
 ```
