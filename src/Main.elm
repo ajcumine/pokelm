@@ -131,7 +131,7 @@ contentView model =
             H.div [] [ Pokedex.view model.pokedex ]
 
         Route.Pokemon number ->
-            H.div [] [ H.text "POKEMON PAGE" ]
+            H.div [] [ Pokemon.view model.pokemon ]
 
 
 
