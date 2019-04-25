@@ -3,7 +3,7 @@ module Page.Pokedex exposing (Model, fetch, init, view)
 import Browser
 import Html as H exposing (Html)
 import Http
-import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string, succeed)
+import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string)
 import RemoteData exposing (WebData)
 
 
@@ -24,13 +24,6 @@ type alias Pokemon =
     , url : String
     , uuid : String
     }
-
-
-type Status a
-    = Failure
-    | NotAsked
-    | Loading
-    | Success a
 
 
 init : Model
@@ -62,8 +55,8 @@ viewPokemon pokemon =
         ]
 
 
-viewAllBasePokemon : Model -> Html msg
-viewAllBasePokemon model =
+viewPokedex : Model -> Html msg
+viewPokedex model =
     case model of
         RemoteData.NotAsked ->
             H.text "Not Asked"
@@ -87,20 +80,12 @@ view model =
         [ H.h2
             []
             [ H.text "Pokédex" ]
-        , viewAllBasePokemon model
+        , viewPokedex model
         ]
 
 
 
--- HTTP
-
-
-fetch : Cmd Model
-fetch =
-    Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon?limit=151"
-        , expect = Http.expectJson RemoteData.fromResult pokedexDecoder
-        }
+-- SERIALISATION
 
 
 getUuid : String -> String
@@ -119,3 +104,15 @@ pokemonDecoder =
 pokedexDecoder : Decoder Pokedex
 pokedexDecoder =
     at [ "results" ] (list pokemonDecoder)
+
+
+
+-- HTTP
+
+
+fetch : Cmd Model
+fetch =
+    Http.get
+        { url = "https://pokeapi.co/api/v2/pokemon?limit=151"
+        , expect = Http.expectJson RemoteData.fromResult pokedexDecoder
+        }

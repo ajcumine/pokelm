@@ -6528,7 +6528,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 					]))
 			]));
 };
-var author$project$Page$Pokedex$viewAllBasePokemon = function (model) {
+var author$project$Page$Pokedex$viewPokedex = function (model) {
 	switch (model.$) {
 		case 'NotAsked':
 			return elm$html$Html$text('Not Asked');
@@ -6559,7 +6559,7 @@ var author$project$Page$Pokedex$view = function (model) {
 					[
 						elm$html$Html$text('Pokédex')
 					])),
-				author$project$Page$Pokedex$viewAllBasePokemon(model)
+				author$project$Page$Pokedex$viewPokedex(model)
 			]));
 };
 var author$project$Main$contentView = function (model) {
