@@ -5,6 +5,7 @@ import Browser.Navigation as Nav
 import Html as H exposing (Html)
 import Http
 import Page.Pokedex as Pokedex
+import Page.Pokemon as Pokemon
 import Route exposing (Route)
 import Url exposing (Url)
 
@@ -17,11 +18,8 @@ type alias Model =
     { key : Nav.Key
     , route : Route
     , pokedex : Pokedex.Model
+    , pokemon : Pokemon.Model
     }
-
-
-
--- Home Home.Model
 
 
 init : a -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -34,6 +32,7 @@ init flags url navKey =
             { key = navKey
             , route = route
             , pokedex = Pokedex.init
+            , pokemon = Pokemon.init
             }
 
         cmd =
@@ -50,6 +49,7 @@ type Msg
     = UrlChange Url
     | UrlRequest Browser.UrlRequest
     | PokedexFetchResponse Pokedex.Model
+    | PokemonFetchResponse Pokemon.Model
 
 
 
@@ -62,15 +62,14 @@ update msg model =
         UrlRequest urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    case url.fragment of
-                        Nothing ->
-                            ( model, Cmd.none )
-
-                        Just _ ->
-                            ( model, Nav.pushUrl model.key (Url.toString url) )
+                    ( model
+                    , Nav.pushUrl model.key (Url.toString url)
+                    )
 
                 Browser.External href ->
-                    ( model, Nav.load href )
+                    ( model
+                    , Nav.load href
+                    )
 
         UrlChange url ->
             let
@@ -89,12 +88,20 @@ update msg model =
             , Cmd.none
             )
 
+        PokemonFetchResponse response ->
+            ( { model | pokemon = response }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
     case route of
         Route.Pokedex ->
             Pokedex.fetch |> Cmd.map PokedexFetchResponse
+
+        Route.Pokemon number ->
+            Pokemon.fetch number |> Cmd.map PokemonFetchResponse
 
         _ ->
             Cmd.none
@@ -117,11 +124,14 @@ view model =
 contentView : Model -> Html Msg
 contentView model =
     case model.route of
+        Route.NotFound ->
+            H.div [] [ H.text "Not Found" ]
+
         Route.Pokedex ->
             H.div [] [ Pokedex.view model.pokedex ]
 
-        Route.NotFound ->
-            H.div [] [ H.text "Not Found" ]
+        Route.Pokemon number ->
+            H.div [] [ H.text "POKEMON PAGE" ]
 
 
 

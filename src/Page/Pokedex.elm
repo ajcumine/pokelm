@@ -8,6 +8,7 @@ import Html.Styled.Attributes exposing (css, href, src)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import RemoteData exposing (WebData)
+import Route
 
 
 
@@ -59,8 +60,10 @@ viewPokemon pokemon =
             , border3 (px 1) solid (hex "#ddd")
             , textDecoration none
             , color (hex "#000")
+            , width (px 100)
+            , height (px 120)
             ]
-        , href ("/pokemon/" ++ pokemon.uuid)
+        , Route.styledHref (Route.Pokemon pokemon.uuid)
         ]
         [ Styled.span
             [ css
