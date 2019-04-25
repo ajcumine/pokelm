@@ -1,9 +1,10 @@
 module Page.Pokedex exposing (Model, fetch, init, view)
 
 import Browser
-import Html as H exposing (Html)
+import Html exposing (Html)
+import Html.Styled as Styled
 import Http
-import Json.Decode as Decode exposing (Decoder, andThen, at, field, list, map, map3, string)
+import Json.Decode as Decode exposing (Decoder)
 import RemoteData exposing (WebData)
 
 
@@ -45,43 +46,44 @@ pokemonSpriteUrl pokemonUuid =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pokemonUuid ++ ".png"
 
 
-viewPokemon : Pokemon -> Html msg
+viewPokemon : Pokemon -> Styled.Html msg
 viewPokemon pokemon =
-    H.div
+    Styled.div
         []
-        [ H.span
+        [ Styled.span
             []
-            [ H.text pokemon.name ]
+            [ Styled.text pokemon.name ]
         ]
 
 
-viewPokedex : Model -> Html msg
+viewPokedex : Model -> Styled.Html msg
 viewPokedex model =
     case model of
         RemoteData.NotAsked ->
-            H.text "Not Asked"
+            Styled.text "Not Asked"
 
         RemoteData.Loading ->
-            H.text "Loading Pokemon..."
+            Styled.text "Loading Pokemon..."
 
         RemoteData.Failure error ->
-            H.text "There was an error fetching your Pokemon"
+            Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokedex ->
-            H.div
+            Styled.div
                 []
                 (List.map viewPokemon pokedex)
 
 
 view : Model -> Html msg
 view model =
-    H.div
-        []
-        [ H.h2
+    Styled.toUnstyled <|
+        Styled.div
             []
-            [ H.text "Pokédex" ]
-        , viewPokedex model
-        ]
+            [ Styled.h2
+                []
+                [ Styled.text "Pokédex" ]
+            , viewPokedex model
+            ]
 
 
 
@@ -95,15 +97,15 @@ getUuid url =
 
 pokemonDecoder : Decoder Pokemon
 pokemonDecoder =
-    map3 Pokemon
-        (field "name" string)
-        (field "url" string)
-        (field "url" (string |> map getUuid))
+    Decode.map3 Pokemon
+        (Decode.field "name" Decode.string)
+        (Decode.field "url" Decode.string)
+        (Decode.field "url" (Decode.string |> Decode.map getUuid))
 
 
 pokedexDecoder : Decoder Pokedex
 pokedexDecoder =
-    at [ "results" ] (list pokemonDecoder)
+    Decode.at [ "results" ] (Decode.list pokemonDecoder)
 
 
 
