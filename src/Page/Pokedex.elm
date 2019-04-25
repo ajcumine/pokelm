@@ -1,8 +1,10 @@
 module Page.Pokedex exposing (Model, fetch, init, view)
 
-import Browser
+import Css exposing (..)
+import Css.Transitions exposing (transition)
 import Html exposing (Html)
 import Html.Styled as Styled
+import Html.Styled.Attributes exposing (css, href, src)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import RemoteData exposing (WebData)
@@ -48,11 +50,41 @@ pokemonSpriteUrl pokemonUuid =
 
 viewPokemon : Pokemon -> Styled.Html msg
 viewPokemon pokemon =
-    Styled.div
-        []
+    Styled.a
+        [ css
+            [ displayFlex
+            , flexDirection column
+            , padding (px 8)
+            , margin (px 4)
+            , border3 (px 1) solid (hex "#ddd")
+            , textDecoration none
+            , color (hex "#000")
+            ]
+        , href ("/pokemon/" ++ pokemon.uuid)
+        ]
         [ Styled.span
-            []
+            [ css
+                [ textAlign center
+                , textTransform capitalize
+                , textDecoration none
+                ]
+            ]
             [ Styled.text pokemon.name ]
+        , Styled.div
+            [ css
+                [ alignSelf center
+                , width (px 96)
+                , height (px 96)
+                , backgroundImage (url (pokemonSpriteUrl pokemon.uuid))
+                , transition
+                    [ Css.Transitions.background 500
+                    ]
+                , hover
+                    [ backgroundImage (url (pokemonShinySpriteUrl pokemon.uuid))
+                    ]
+                ]
+            ]
+            []
         ]
 
 
@@ -70,7 +102,12 @@ viewPokedex model =
 
         RemoteData.Success pokedex ->
             Styled.div
-                []
+                [ css
+                    [ displayFlex
+                    , flexWrap wrap
+                    , justifyContent center
+                    ]
+                ]
                 (List.map viewPokemon pokedex)
 
 
@@ -78,9 +115,15 @@ view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
-            []
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , fontFamilies [ "Verdana" ]
+                , marginTop (px 40)
+                ]
+            ]
             [ Styled.h2
-                []
+                [ css [ margin3 (px 0) auto (px 20) ] ]
                 [ Styled.text "Pokédex" ]
             , viewPokedex model
             ]
