@@ -30,6 +30,7 @@ type alias PokemonType =
 
 type alias Pokemon =
     { name : String
+    , order : Int
     , types : List PokemonType
     , sprites : Sprites
     }
@@ -56,7 +57,7 @@ viewPokemonDetails pokemon =
         [ Styled.h2
             [ css [ margin3 (px 0) auto (px 20) ]
             ]
-            [ Styled.text pokemon.name ]
+            [ Styled.text (String.fromInt pokemon.order ++ ": " ++ pokemon.name) ]
         , Styled.img [ src pokemon.sprites.default ] []
         , Styled.img [ src pokemon.sprites.shiny ] []
         , Styled.div []
@@ -126,6 +127,7 @@ pokemonDecoder : Decoder Pokemon
 pokemonDecoder =
     Decode.succeed Pokemon
         |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "order" Decode.int
         |> Pipeline.required "types" (Decode.list pokemonTypeDecoder)
         |> Pipeline.required "sprites" spriteDecoder
 
