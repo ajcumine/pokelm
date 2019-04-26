@@ -6002,7 +6002,7 @@ var krisajenkins$remotedata$RemoteData$fromResult = function (result) {
 var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	{
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
-		url: 'https://pokeapi.co/api/v2/pokemon?limit=151'
+		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=151'
 	});
 var elm$json$Json$Decode$map2 = _Json_map2;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
@@ -6868,6 +6868,15 @@ var rtfeldman$elm_css$Css$prop1 = F2(
 		return A2(rtfeldman$elm_css$Css$property, key, arg.value);
 	});
 var rtfeldman$elm_css$Css$backgroundImage = rtfeldman$elm_css$Css$prop1('background-image');
+var rtfeldman$elm_css$Css$backgroundPosition = function (fn) {
+	return A3(
+		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'backgroundPosition',
+		'background-position',
+		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+};
+var rtfeldman$elm_css$Css$backgroundRepeat = rtfeldman$elm_css$Css$prop1('background-repeat');
+var rtfeldman$elm_css$Css$backgroundSize = rtfeldman$elm_css$Css$prop1('background-size');
 var rtfeldman$elm_css$Css$prop3 = F4(
 	function (key, argA, argB, argC) {
 		return A2(
@@ -6889,6 +6898,7 @@ var rtfeldman$elm_css$Css$row = {flexDirection: rtfeldman$elm_css$Css$Structure$
 var rtfeldman$elm_css$Css$column = _Utils_update(
 	rtfeldman$elm_css$Css$row,
 	{value: 'column'});
+var rtfeldman$elm_css$Css$contain = {lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, value: 'contain'};
 var rtfeldman$elm_css$Css$displayFlex = A2(rtfeldman$elm_css$Css$property, 'display', 'flex');
 var rtfeldman$elm_css$Css$flexDirection = rtfeldman$elm_css$Css$prop1('flex-direction');
 var rtfeldman$elm_css$Css$height = rtfeldman$elm_css$Css$prop1('height');
@@ -7265,6 +7275,7 @@ var rtfeldman$elm_css$Css$pseudoClass = function (_class) {
 };
 var rtfeldman$elm_css$Css$hover = rtfeldman$elm_css$Css$pseudoClass('hover');
 var rtfeldman$elm_css$Css$margin = rtfeldman$elm_css$Css$prop1('margin');
+var rtfeldman$elm_css$Css$noRepeat = {backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, value: 'no-repeat'};
 var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
 var rtfeldman$elm_css$Css$padding = rtfeldman$elm_css$Css$prop1('padding');
 var rtfeldman$elm_css$Css$PxUnits = {$: 'PxUnits'};
@@ -9341,6 +9352,9 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 								rtfeldman$elm_css$Css$backgroundImage(
 								rtfeldman$elm_css$Css$url(
 									author$project$Page$Pokedex$pokemonSpriteUrl(pokemon.uuid))),
+								rtfeldman$elm_css$Css$backgroundSize(rtfeldman$elm_css$Css$contain),
+								rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
+								rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
 								rtfeldman$elm_css$Css$Transitions$transition(
 								_List_fromArray(
 									[

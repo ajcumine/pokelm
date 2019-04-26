@@ -79,6 +79,9 @@ viewPokemon pokemon =
                 , width (px 96)
                 , height (px 96)
                 , backgroundImage (url (pokemonSpriteUrl pokemon.uuid))
+                , backgroundSize contain
+                , backgroundPosition center
+                , backgroundRepeat noRepeat
                 , transition
                     [ Css.Transitions.background 500
                     ]
@@ -161,6 +164,6 @@ pokedexDecoder =
 fetch : Cmd Model
 fetch =
     Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon?limit=151"
+        { url = "https://pokeapi.co/api/v2/pokemon-species?limit=151"
         , expect = Http.expectJson RemoteData.fromResult pokedexDecoder
         }
