@@ -100,8 +100,8 @@ fetchRouteData model route =
         Route.Pokedex ->
             Pokedex.fetch |> Cmd.map PokedexFetchResponse
 
-        Route.Pokemon number ->
-            Pokemon.fetch number |> Cmd.map PokemonFetchResponse
+        Route.Pokemon order ->
+            Pokemon.fetch order |> Cmd.map PokemonFetchResponse
 
         _ ->
             Cmd.none

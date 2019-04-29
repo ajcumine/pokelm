@@ -8,6 +8,8 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
+import RemoteData.Http
+import Task exposing (Task)
 
 
 
@@ -133,12 +135,52 @@ pokemonDecoder =
 
 
 
+-- TASK BASED DATA FETCH
+-- type alias StandardPokemon =
+--     { name : String
+--     , order : Int
+--     , types : List PokemonType
+--     , sprites : Sprites
+--     , evolutionChainUrl : String
+--     }
+-- type alias BasicPokemon =
+--     { name : String
+--     , order : Int
+--     , types : List PokemonType
+--     , sprites : Sprites
+--     }
+-- type alias Species =
+--     { evolutionChainUrl : String
+--     }
+-- buildPokemon : BasicPokemon -> Species -> StandardPokemon
+-- buildPokemon pokemon species =
+--     { name = pokemon.name
+--     , order = pokemon.order
+--     , types = pokemon.types
+--     , sprites = pokemon.sprites
+--     , evolutionChainUrl = species.evolutionChainUrl
+--     }
 -- HTTP
 
 
-fetch : String -> Cmd Model
-fetch pokemonNumber =
-    Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon/" ++ pokemonNumber
-        , expect = Http.expectJson RemoteData.fromResult pokemonDecoder
-        }
+type alias Msg =
+    Model
+
+
+getPokemon : String -> Task () (WebData Pokemon)
+getPokemon order =
+    RemoteData.Http.getTask ("https://pokeapi.co/api/v2/pokemon/" ++ order) pokemonDecoder
+
+
+fetch : String -> Cmd Msg
+fetch string =
+    getPokemon string
+        |> Task.attempt
+            (\result ->
+                case result of
+                    Ok response ->
+                        response
+
+                    Err _ ->
+                        RemoteData.NotAsked
+            )

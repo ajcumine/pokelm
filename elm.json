@@ -15,6 +15,7 @@
             "elm/random": "1.0.0",
             "elm/url": "1.0.0",
             "krisajenkins/remotedata": "6.0.1",
+            "ohanhi/remotedata-http": "4.0.0",
             "rtfeldman/elm-css": "16.0.1"
         },
         "indirect": {

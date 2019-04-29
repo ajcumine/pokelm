@@ -4562,8 +4562,8 @@ var author$project$Main$PokemonFetchResponse = function (a) {
 	return {$: 'PokemonFetchResponse', a: a};
 };
 var author$project$Page$Pokedex$Pokemon = F3(
-	function (name, url, uuid) {
-		return {name: name, url: url, uuid: uuid};
+	function (name, url, order) {
+		return {name: name, order: order, url: url};
 	});
 var elm$core$Basics$apR = F2(
 	function (x, f) {
@@ -4707,7 +4707,7 @@ var elm$core$String$split = F2(
 		return _List_fromArray(
 			A2(_String_split, sep, string));
 	});
-var author$project$Page$Pokedex$getUuid = function (url) {
+var author$project$Page$Pokedex$getOrder = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
 		'1',
@@ -5092,7 +5092,7 @@ var author$project$Page$Pokedex$pokemonDecoder = A4(
 	A2(
 		elm$json$Json$Decode$field,
 		'url',
-		A2(elm$json$Json$Decode$map, author$project$Page$Pokedex$getUuid, elm$json$Json$Decode$string)));
+		A2(elm$json$Json$Decode$map, author$project$Page$Pokedex$getOrder, elm$json$Json$Decode$string)));
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -6065,39 +6065,133 @@ var author$project$Page$Pokemon$pokemonDecoder = A3(
 				'name',
 				elm$json$Json$Decode$string,
 				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Pokemon)))));
-var author$project$Page$Pokemon$fetch = function (pokemonNumber) {
-	return elm$http$Http$get(
-		{
-			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokemon$pokemonDecoder),
-			url: 'https://pokeapi.co/api/v2/pokemon/' + pokemonNumber
+var elm$core$Task$fail = _Scheduler_fail;
+var elm$http$Http$resultToTask = function (result) {
+	if (result.$ === 'Ok') {
+		var a = result.a;
+		return elm$core$Task$succeed(a);
+	} else {
+		var x = result.a;
+		return elm$core$Task$fail(x);
+	}
+};
+var elm$http$Http$riskyTask = function (r) {
+	return A3(
+		_Http_toTask,
+		_Utils_Tuple0,
+		elm$http$Http$resultToTask,
+		{allowCookiesFromOtherDomains: true, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
+};
+var elm$http$Http$task = function (r) {
+	return A3(
+		_Http_toTask,
+		_Utils_Tuple0,
+		elm$http$Http$resultToTask,
+		{allowCookiesFromOtherDomains: false, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
+};
+var ohanhi$remotedata_http$RemoteData$Http$createTask = function (_n0) {
+	var risky = _n0.risky;
+	return risky ? elm$http$Http$riskyTask : elm$http$Http$task;
+};
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$http$Http$stringResolver = A2(_Http_expect, '', elm$core$Basics$identity);
+var ohanhi$remotedata_http$RemoteData$Http$taskResolver = function (fromGoodStatus) {
+	var fail = A2(elm$core$Basics$composeL, elm$core$Result$Ok, krisajenkins$remotedata$RemoteData$Failure);
+	return elm$http$Http$stringResolver(
+		function (response) {
+			switch (response.$) {
+				case 'BadUrl_':
+					var url = response.a;
+					return fail(
+						elm$http$Http$BadUrl(url));
+				case 'Timeout_':
+					return fail(elm$http$Http$Timeout);
+				case 'NetworkError_':
+					return fail(elm$http$Http$NetworkError);
+				case 'BadStatus_':
+					var metadata = response.a;
+					var body = response.b;
+					return fail(
+						elm$http$Http$BadStatus(metadata.statusCode));
+				default:
+					var metadata = response.a;
+					var body = response.b;
+					return fromGoodStatus(body);
+			}
 		});
 };
-var elm$core$Platform$Cmd$map = _Platform_map;
-var elm$core$Platform$Cmd$batch = _Platform_batch;
-var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Main$fetchRouteData = F2(
-	function (model, route) {
-		switch (route.$) {
-			case 'Pokedex':
-				return A2(elm$core$Platform$Cmd$map, author$project$Main$PokedexFetchResponse, author$project$Page$Pokedex$fetch);
-			case 'Pokemon':
-				var number = route.a;
-				return A2(
-					elm$core$Platform$Cmd$map,
-					author$project$Main$PokemonFetchResponse,
-					author$project$Page$Pokemon$fetch(number));
-			default:
-				return elm$core$Platform$Cmd$none;
-		}
-	});
-var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Route$NotFound = {$: 'NotFound'};
-var author$project$Route$Pokedex = {$: 'Pokedex'};
-var author$project$Route$Pokemon = function (a) {
-	return {$: 'Pokemon', a: a};
+var ohanhi$remotedata_http$RemoteData$Http$jsonResolver = function (decoder) {
+	return ohanhi$remotedata_http$RemoteData$Http$taskResolver(
+		function (body) {
+			var _n0 = A2(elm$json$Json$Decode$decodeString, decoder, body);
+			if (_n0.$ === 'Ok') {
+				var value = _n0.a;
+				return elm$core$Result$Ok(
+					krisajenkins$remotedata$RemoteData$Success(value));
+			} else {
+				var err = _n0.a;
+				return elm$core$Result$Ok(
+					krisajenkins$remotedata$RemoteData$Failure(
+						elm$http$Http$BadBody(
+							elm$json$Json$Decode$errorToString(err))));
+			}
+		});
 };
+var ohanhi$remotedata_http$RemoteData$Http$requestTask = F5(
+	function (method, config, url, decoder, body) {
+		return A2(
+			ohanhi$remotedata_http$RemoteData$Http$createTask,
+			config,
+			{
+				body: body,
+				headers: config.headers,
+				method: method,
+				resolver: ohanhi$remotedata_http$RemoteData$Http$jsonResolver(decoder),
+				timeout: config.timeout,
+				url: url
+			});
+	});
+var ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig = F3(
+	function (config, url, decoder) {
+		return A5(ohanhi$remotedata_http$RemoteData$Http$requestTask, 'GET', config, url, decoder, elm$http$Http$emptyBody);
+	});
+var elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 'Header', a: a, b: b};
+	});
+var elm$http$Http$header = elm$http$Http$Header;
+var ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2(elm$http$Http$header, 'Accept', 'application/json');
+var ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
+	headers: _List_fromArray(
+		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	risky: false,
+	timeout: elm$core$Maybe$Nothing,
+	tracker: elm$core$Maybe$Nothing
+};
+var ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig = {
+	headers: _List_fromArray(
+		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	risky: false,
+	timeout: elm$core$Maybe$Nothing
+};
+var ohanhi$remotedata_http$RemoteData$Http$noCache = A2(elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
+var ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig = _Utils_update(
+	ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig,
+	{
+		headers: A2(elm$core$List$cons, ohanhi$remotedata_http$RemoteData$Http$noCache, ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
+	});
+var ohanhi$remotedata_http$RemoteData$Http$getTask = ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig(ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig);
+var author$project$Page$Pokemon$getPokemon = function (order) {
+	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon/' + order, author$project$Page$Pokemon$pokemonDecoder);
+};
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -6112,6 +6206,108 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var elm$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			elm$core$Task$andThen,
+			function (a) {
+				return elm$core$Task$succeed(
+					func(a));
+			},
+			taskA);
+	});
+var elm$core$Task$spawnCmd = F2(
+	function (router, _n0) {
+		var task = _n0.a;
+		return _Scheduler_spawn(
+			A2(
+				elm$core$Task$andThen,
+				elm$core$Platform$sendToApp(router),
+				task));
+	});
+var elm$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			elm$core$Task$map,
+			function (_n0) {
+				return _Utils_Tuple0;
+			},
+			elm$core$Task$sequence(
+				A2(
+					elm$core$List$map,
+					elm$core$Task$spawnCmd(router),
+					commands)));
+	});
+var elm$core$Task$onSelfMsg = F3(
+	function (_n0, _n1, _n2) {
+		return elm$core$Task$succeed(_Utils_Tuple0);
+	});
+var elm$core$Task$cmdMap = F2(
+	function (tagger, _n0) {
+		var task = _n0.a;
+		return elm$core$Task$Perform(
+			A2(elm$core$Task$map, tagger, task));
+	});
+_Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
+var elm$core$Task$command = _Platform_leaf('Task');
+var elm$core$Task$onError = _Scheduler_onError;
+var elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return elm$core$Task$command(
+			elm$core$Task$Perform(
+				A2(
+					elm$core$Task$onError,
+					A2(
+						elm$core$Basics$composeL,
+						A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+						elm$core$Result$Err),
+					A2(
+						elm$core$Task$andThen,
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+							elm$core$Result$Ok),
+						task))));
+	});
+var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
+var author$project$Page$Pokemon$fetch = function (string) {
+	return A2(
+		elm$core$Task$attempt,
+		function (result) {
+			if (result.$ === 'Ok') {
+				var response = result.a;
+				return response;
+			} else {
+				return krisajenkins$remotedata$RemoteData$NotAsked;
+			}
+		},
+		author$project$Page$Pokemon$getPokemon(string));
+};
+var elm$core$Platform$Cmd$map = _Platform_map;
+var elm$core$Platform$Cmd$batch = _Platform_batch;
+var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
+var author$project$Main$fetchRouteData = F2(
+	function (model, route) {
+		switch (route.$) {
+			case 'Pokedex':
+				return A2(elm$core$Platform$Cmd$map, author$project$Main$PokedexFetchResponse, author$project$Page$Pokedex$fetch);
+			case 'Pokemon':
+				var order = route.a;
+				return A2(
+					elm$core$Platform$Cmd$map,
+					author$project$Main$PokemonFetchResponse,
+					author$project$Page$Pokemon$fetch(order));
+			default:
+				return elm$core$Platform$Cmd$none;
+		}
+	});
+var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsked;
+var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
+var author$project$Route$NotFound = {$: 'NotFound'};
+var author$project$Route$Pokedex = {$: 'Pokedex'};
+var author$project$Route$Pokemon = function (a) {
+	return {$: 'Pokemon', a: a};
+};
 var elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
@@ -6422,54 +6618,6 @@ var elm$core$Basics$never = function (_n0) {
 		continue never;
 	}
 };
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
-var elm$core$Task$map = F2(
-	function (func, taskA) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return elm$core$Task$succeed(
-					func(a));
-			},
-			taskA);
-	});
-var elm$core$Task$spawnCmd = F2(
-	function (router, _n0) {
-		var task = _n0.a;
-		return _Scheduler_spawn(
-			A2(
-				elm$core$Task$andThen,
-				elm$core$Platform$sendToApp(router),
-				task));
-	});
-var elm$core$Task$onEffects = F3(
-	function (router, commands, state) {
-		return A2(
-			elm$core$Task$map,
-			function (_n0) {
-				return _Utils_Tuple0;
-			},
-			elm$core$Task$sequence(
-				A2(
-					elm$core$List$map,
-					elm$core$Task$spawnCmd(router),
-					commands)));
-	});
-var elm$core$Task$onSelfMsg = F3(
-	function (_n0, _n1, _n2) {
-		return elm$core$Task$succeed(_Utils_Tuple0);
-	});
-var elm$core$Task$cmdMap = F2(
-	function (tagger, _n0) {
-		var task = _n0.a;
-		return elm$core$Task$Perform(
-			A2(elm$core$Task$map, tagger, task));
-	});
-_Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
-var elm$core$Task$command = _Platform_leaf('Task');
 var elm$core$Task$perform = F2(
 	function (toMessage, task) {
 		return elm$core$Task$command(
@@ -6707,11 +6855,11 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Page$Pokedex$pokemonShinySpriteUrl = function (pokemonUuid) {
-	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/' + (pokemonUuid + '.png');
+var author$project$Page$Pokedex$pokemonShinySpriteUrl = function (order) {
+	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/' + (order + '.png');
 };
-var author$project$Page$Pokedex$pokemonSpriteUrl = function (pokemonUuid) {
-	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + (pokemonUuid + '.png');
+var author$project$Page$Pokedex$pokemonSpriteUrl = function (order) {
+	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + (order + '.png');
 };
 var author$project$Route$routeToString = function (route) {
 	var pieces = function () {
@@ -8793,11 +8941,6 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_n0) {
 		A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
 	return {charset: charset, declarations: declarations, imports: imports, namespaces: namespaces};
 };
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -9322,7 +9465,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 						rtfeldman$elm_css$Css$px(120))
 					])),
 				author$project$Route$styledHref(
-				author$project$Route$Pokemon(pokemon.uuid))
+				author$project$Route$Pokemon(pokemon.order))
 			]),
 		_List_fromArray(
 			[
@@ -9356,7 +9499,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 								rtfeldman$elm_css$Css$px(96)),
 								rtfeldman$elm_css$Css$backgroundImage(
 								rtfeldman$elm_css$Css$url(
-									author$project$Page$Pokedex$pokemonSpriteUrl(pokemon.uuid))),
+									author$project$Page$Pokedex$pokemonSpriteUrl(pokemon.order))),
 								rtfeldman$elm_css$Css$backgroundSize(rtfeldman$elm_css$Css$contain),
 								rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
 								rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
@@ -9370,7 +9513,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 									[
 										rtfeldman$elm_css$Css$backgroundImage(
 										rtfeldman$elm_css$Css$url(
-											author$project$Page$Pokedex$pokemonShinySpriteUrl(pokemon.uuid)))
+											author$project$Page$Pokedex$pokemonShinySpriteUrl(pokemon.order)))
 									]))
 							]))
 					]),
