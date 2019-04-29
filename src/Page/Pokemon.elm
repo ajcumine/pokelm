@@ -30,11 +30,25 @@ type alias PokemonType =
     { name : String }
 
 
+type alias BasePokemon =
+    { name : String
+    , order : Int
+    , types : List PokemonType
+    , sprites : Sprites
+    }
+
+
+type alias Species =
+    { evolutionChainUrl : String
+    }
+
+
 type alias Pokemon =
     { name : String
     , order : Int
     , types : List PokemonType
     , sprites : Sprites
+    , evolutionChainUrl : String
     }
 
 
@@ -64,6 +78,7 @@ viewPokemonDetails pokemon =
         , Styled.img [ src pokemon.sprites.shiny ] []
         , Styled.div []
             (List.map viewPokemonType pokemon.types)
+        , Styled.text pokemon.evolutionChainUrl
         ]
 
 
@@ -125,9 +140,9 @@ pokemonTypeDecoder =
         |> Pipeline.requiredAt [ "type", "name" ] Decode.string
 
 
-pokemonDecoder : Decoder Pokemon
+pokemonDecoder : Decoder BasePokemon
 pokemonDecoder =
-    Decode.succeed Pokemon
+    Decode.succeed BasePokemon
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "order" Decode.int
         |> Pipeline.required "types" (Decode.list pokemonTypeDecoder)
@@ -136,45 +151,45 @@ pokemonDecoder =
 
 
 -- TASK BASED DATA FETCH
--- type alias StandardPokemon =
---     { name : String
---     , order : Int
---     , types : List PokemonType
---     , sprites : Sprites
---     , evolutionChainUrl : String
---     }
--- type alias BasicPokemon =
---     { name : String
---     , order : Int
---     , types : List PokemonType
---     , sprites : Sprites
---     }
--- type alias Species =
---     { evolutionChainUrl : String
---     }
--- buildPokemon : BasicPokemon -> Species -> StandardPokemon
--- buildPokemon pokemon species =
---     { name = pokemon.name
---     , order = pokemon.order
---     , types = pokemon.types
---     , sprites = pokemon.sprites
---     , evolutionChainUrl = species.evolutionChainUrl
---     }
+
+
+speciesDecoder : Decoder Species
+speciesDecoder =
+    Decode.succeed Species
+        |> Pipeline.requiredAt [ "evolution_chain", "url" ] Decode.string
+
+
+buildPokemon pokemon species =
+    { name = pokemon.name
+    , order = pokemon.order
+    , types = pokemon.types
+    , sprites = pokemon.sprites
+    , evolutionChainUrl = species.evolutionChainUrl
+    }
+
+
+buildPokemonResponse : WebData BasePokemon -> WebData Species -> WebData Pokemon
+buildPokemonResponse pokemonResponse speciesResponse =
+    RemoteData.map2 buildPokemon pokemonResponse speciesResponse
+
+
+
 -- HTTP
 
 
-type alias Msg =
-    Model
+getSpecies : String -> Task () (WebData Species)
+getSpecies order =
+    RemoteData.Http.getTask ("https://pokeapi.co/api/v2/pokemon-species/" ++ order) speciesDecoder
 
 
-getPokemon : String -> Task () (WebData Pokemon)
+getPokemon : String -> Task () (WebData BasePokemon)
 getPokemon order =
     RemoteData.Http.getTask ("https://pokeapi.co/api/v2/pokemon/" ++ order) pokemonDecoder
 
 
-fetch : String -> Cmd Msg
-fetch string =
-    getPokemon string
+fetch : String -> Cmd Model
+fetch order =
+    Task.map2 buildPokemonResponse (getPokemon order) (getSpecies order)
         |> Task.attempt
             (\result ->
                 case result of
