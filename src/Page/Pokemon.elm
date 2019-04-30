@@ -9,6 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
 import RemoteData.Http
+import Route
 import Task exposing (Task)
 
 
@@ -44,7 +45,9 @@ type alias Species =
 
 
 type alias Evolution =
-    { name : String }
+    { name : String
+    , order : String
+    }
 
 
 type alias Evolutions =
@@ -56,7 +59,7 @@ type alias Pokemon =
     , order : Int
     , types : List PokemonType
     , sprites : Sprites
-    , evolutionChain : Evolutions
+    , evolutions : Evolutions
     }
 
 
@@ -72,11 +75,18 @@ init =
 viewEvolution : Evolution -> Styled.Html msg
 viewEvolution evolution =
     Styled.div
-        [ css
-            [ textTransform capitalize
+        []
+        [ Styled.a
+            [ Route.styledHref (Route.Pokemon evolution.order)
+            ]
+            [ Styled.span
+                [ css
+                    [ textTransform capitalize
+                    ]
+                ]
+                [ Styled.text evolution.name ]
             ]
         ]
-        [ Styled.text evolution.name ]
 
 
 viewType : PokemonType -> Styled.Html msg
@@ -106,7 +116,7 @@ viewPokemonDetails pokemon =
             (List.map viewType pokemon.types)
         , Styled.h3 [] [ Styled.text "Evolutions" ]
         , Styled.div []
-            (List.map viewEvolution pokemon.evolutionChain)
+            (List.map viewEvolution pokemon.evolutions)
         ]
 
 
@@ -177,10 +187,16 @@ pokemonDecoder =
 -- TASK BASED DATA FETCH
 
 
+getOrder : String -> String
+getOrder url =
+    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
+
+
 evolutionDecoder : Decoder Evolution
 evolutionDecoder =
     Decode.succeed Evolution
         |> Pipeline.optionalAt [ "species", "name" ] Decode.string "NONE"
+        |> Pipeline.optionalAt [ "species", "url" ] (Decode.string |> Decode.map getOrder) "1"
 
 
 evolutionsDecoder : Decoder Evolutions
@@ -199,7 +215,7 @@ buildPokemon pokemon evolutionChain =
     , order = pokemon.order
     , types = pokemon.types
     , sprites = pokemon.sprites
-    , evolutionChain = evolutionChain
+    , evolutions = evolutionChain
     }
 
 

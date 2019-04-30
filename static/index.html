@@ -6006,7 +6006,7 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	});
 var author$project$Page$Pokemon$buildPokemon = F2(
 	function (pokemon, evolutionChain) {
-		return {evolutionChain: evolutionChain, name: pokemon.name, order: pokemon.order, sprites: pokemon.sprites, types: pokemon.types};
+		return {evolutions: evolutionChain, name: pokemon.name, order: pokemon.order, sprites: pokemon.sprites, types: pokemon.types};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
@@ -6155,16 +6155,36 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt = F4(
 				fallback),
 			decoder);
 	});
-var author$project$Page$Pokemon$Evolution = function (name) {
-	return {name: name};
+var author$project$Page$Pokemon$Evolution = F2(
+	function (name, order) {
+		return {name: name, order: order};
+	});
+var author$project$Page$Pokemon$getOrder = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		'1',
+		elm$core$List$head(
+			A2(
+				elm$core$Maybe$withDefault,
+				_List_fromArray(
+					['1']),
+				elm$core$List$tail(
+					elm$core$List$reverse(
+						A2(elm$core$String$split, '/', url))))));
 };
 var author$project$Page$Pokemon$evolutionDecoder = A4(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
 	_List_fromArray(
-		['species', 'name']),
-	elm$json$Json$Decode$string,
-	'NONE',
-	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Evolution));
+		['species', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getOrder, elm$json$Json$Decode$string),
+	'1',
+	A4(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
+		_List_fromArray(
+			['species', 'name']),
+		elm$json$Json$Decode$string,
+		'NONE',
+		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Evolution)));
 var author$project$Page$Pokemon$evolutionsDecoder = A2(
 	elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -10303,17 +10323,33 @@ var author$project$Page$Pokedex$view = function (model) {
 var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				A2(
+				rtfeldman$elm_css$Html$Styled$a,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+						author$project$Route$styledHref(
+						author$project$Route$Pokemon(evolution.order))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						rtfeldman$elm_css$Html$Styled$span,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+									]))
+							]),
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$text(evolution.name)
+							]))
 					]))
-			]),
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$text(evolution.name)
 			]));
 };
 var author$project$Page$Pokemon$viewType = function (pokemonType) {
@@ -10398,7 +10434,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
-				A2(elm$core$List$map, author$project$Page$Pokemon$viewEvolution, pokemon.evolutionChain))
+				A2(elm$core$List$map, author$project$Page$Pokemon$viewEvolution, pokemon.evolutions))
 			]));
 };
 var author$project$Page$Pokemon$viewPokemon = function (model) {
