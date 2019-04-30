@@ -6004,10 +6004,8 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
 		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=151'
 	});
-var elm$core$Debug$log = _Debug_log;
 var author$project$Page$Pokemon$buildPokemon = F2(
 	function (pokemon, evolutionChain) {
-		var _n0 = A2(elm$core$Debug$log, 'evolutionChain', evolutionChain);
 		return {evolutions: evolutionChain, name: pokemon.name, order: pokemon.order, sprites: pokemon.sprites, types: pokemon.types};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
@@ -10367,7 +10365,7 @@ var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 				_List_fromArray(
 					[
 						A2(
-						rtfeldman$elm_css$Html$Styled$span,
+						rtfeldman$elm_css$Html$Styled$div,
 						_List_fromArray(
 							[
 								rtfeldman$elm_css$Html$Styled$Attributes$css(
@@ -10378,7 +10376,15 @@ var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 							]),
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Html$Styled$text(evolution.name)
+								rtfeldman$elm_css$Html$Styled$text(evolution.name),
+								function () {
+								var _n0 = evolution.evolutions;
+								var evolutions = _n0.a;
+								return A2(
+									rtfeldman$elm_css$Html$Styled$div,
+									_List_Nil,
+									A2(elm$core$List$map, author$project$Page$Pokemon$viewEvolution, evolutions));
+							}()
 							]))
 					]))
 			]));

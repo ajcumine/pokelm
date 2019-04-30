@@ -80,12 +80,16 @@ viewEvolution evolution =
         [ Styled.a
             [ Route.styledHref (Route.Pokemon evolution.order)
             ]
-            [ Styled.span
+            [ Styled.div
                 [ css
                     [ textTransform capitalize
                     ]
                 ]
-                [ Styled.text evolution.name ]
+                [ Styled.text evolution.name
+                , case evolution.evolutions of
+                    Evolutions evolutions ->
+                        Styled.div [] (List.map viewEvolution evolutions)
+                ]
             ]
         ]
 
@@ -184,33 +188,9 @@ pokemonDecoder =
         |> Pipeline.required "sprites" spriteDecoder
 
 
-
--- TASK BASED DATA FETCH
-
-
 getOrder : String -> String
 getOrder url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
-
-
-
--- {
---     "chain": {
---         "species": {
---             "name": String,
---             "url": String
---         },
---         "evolves_to": [
---             {
---                 "species": {
---                     "name": String,
---                     "url": String
---                 },
---             "evolves_to": []
---             }
---         ]
---     }
--- }
 
 
 evolutionDecoder : Decoder Evolution
@@ -233,10 +213,6 @@ speciesDecoder =
 
 
 buildPokemon pokemon evolutionChain =
-    let
-        _ =
-            Debug.log "evolutionChain" evolutionChain
-    in
     { name = pokemon.name
     , order = pokemon.order
     , types = pokemon.types
