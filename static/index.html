@@ -6004,8 +6004,10 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
 		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=151'
 	});
+var elm$core$Debug$log = _Debug_log;
 var author$project$Page$Pokemon$buildPokemon = F2(
 	function (pokemon, evolutionChain) {
+		var _n0 = A2(elm$core$Debug$log, 'evolutionChain', evolutionChain);
 		return {evolutions: evolutionChain, name: pokemon.name, order: pokemon.order, sprites: pokemon.sprites, types: pokemon.types};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
@@ -6155,10 +6157,20 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt = F4(
 				fallback),
 			decoder);
 	});
-var author$project$Page$Pokemon$Evolution = F2(
-	function (name, order) {
-		return {name: name, order: order};
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$field, key, valDecoder),
+			decoder);
 	});
+var author$project$Page$Pokemon$Evolution = F3(
+	function (name, order, evolutions) {
+		return {evolutions: evolutions, name: name, order: order};
+	});
+var author$project$Page$Pokemon$Evolutions = function (a) {
+	return {$: 'Evolutions', a: a};
+};
 var author$project$Page$Pokemon$getOrder = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -6172,19 +6184,45 @@ var author$project$Page$Pokemon$getOrder = function (url) {
 					elm$core$List$reverse(
 						A2(elm$core$String$split, '/', url))))));
 };
-var author$project$Page$Pokemon$evolutionDecoder = A4(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
-	_List_fromArray(
-		['species', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getOrder, elm$json$Json$Decode$string),
-	'1',
-	A4(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
-		_List_fromArray(
-			['species', 'name']),
-		elm$json$Json$Decode$string,
-		'NONE',
-		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Evolution)));
+var elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		elm$json$Json$Decode$andThen,
+		thunk,
+		elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
+	return A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'evolves_to',
+		A2(
+			elm$json$Json$Decode$map,
+			author$project$Page$Pokemon$Evolutions,
+			elm$json$Json$Decode$list(
+				elm$json$Json$Decode$lazy(
+					function (_n0) {
+						return author$project$Page$Pokemon$cyclic$evolutionDecoder();
+					}))),
+		A4(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
+			_List_fromArray(
+				['species', 'url']),
+			A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getOrder, elm$json$Json$Decode$string),
+			'1',
+			A4(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalAt,
+				_List_fromArray(
+					['species', 'name']),
+				elm$json$Json$Decode$string,
+				'NONE',
+				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Evolution))));
+}
+try {
+	var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
+	author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
+		return author$project$Page$Pokemon$evolutionDecoder;
+	};
+} catch ($) {
+throw 'Some top-level definitions from `Page.Pokemon` are causing infinite recursion:\n\n  ┌─────┐\n  │    evolutionDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
 var author$project$Page$Pokemon$evolutionsDecoder = A2(
 	elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -6364,13 +6402,6 @@ var author$project$Page$Pokemon$getEvolutions = function (order) {
 		},
 		author$project$Page$Pokemon$getSpecies(order));
 };
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
-	function (key, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$field, key, valDecoder),
-			decoder);
-	});
 var author$project$Page$Pokemon$BasePokemon = F4(
 	function (name, order, types, sprites) {
 		return {name: name, order: order, sprites: sprites, types: types};

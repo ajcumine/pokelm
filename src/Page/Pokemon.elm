@@ -47,11 +47,12 @@ type alias Species =
 type alias Evolution =
     { name : String
     , order : String
+    , evolutions : Evolutions
     }
 
 
-type alias Evolutions =
-    List Evolution
+type Evolutions
+    = Evolutions (List Evolution)
 
 
 type alias Pokemon =
@@ -59,7 +60,7 @@ type alias Pokemon =
     , order : Int
     , types : List PokemonType
     , sprites : Sprites
-    , evolutions : Evolutions
+    , evolutions : List Evolution
     }
 
 
@@ -192,14 +193,35 @@ getOrder url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
 
 
+
+-- {
+--     "chain": {
+--         "species": {
+--             "name": String,
+--             "url": String
+--         },
+--         "evolves_to": [
+--             {
+--                 "species": {
+--                     "name": String,
+--                     "url": String
+--                 },
+--             "evolves_to": []
+--             }
+--         ]
+--     }
+-- }
+
+
 evolutionDecoder : Decoder Evolution
 evolutionDecoder =
     Decode.succeed Evolution
         |> Pipeline.optionalAt [ "species", "name" ] Decode.string "NONE"
         |> Pipeline.optionalAt [ "species", "url" ] (Decode.string |> Decode.map getOrder) "1"
+        |> Pipeline.required "evolves_to" (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
-evolutionsDecoder : Decoder Evolutions
+evolutionsDecoder : Decoder (List Evolution)
 evolutionsDecoder =
     Decode.at [ "chain", "evolves_to" ] (Decode.list evolutionDecoder)
 
@@ -211,6 +233,10 @@ speciesDecoder =
 
 
 buildPokemon pokemon evolutionChain =
+    let
+        _ =
+            Debug.log "evolutionChain" evolutionChain
+    in
     { name = pokemon.name
     , order = pokemon.order
     , types = pokemon.types
@@ -219,7 +245,7 @@ buildPokemon pokemon evolutionChain =
     }
 
 
-buildPokemonResponse : WebData BasePokemon -> WebData Evolutions -> WebData Pokemon
+buildPokemonResponse : WebData BasePokemon -> WebData (List Evolution) -> WebData Pokemon
 buildPokemonResponse pokemonResponse evolutionsResponse =
     RemoteData.map2 buildPokemon pokemonResponse evolutionsResponse
 
@@ -228,7 +254,7 @@ buildPokemonResponse pokemonResponse evolutionsResponse =
 -- HTTP
 
 
-getEvolutions : String -> Task () (WebData Evolutions)
+getEvolutions : String -> Task () (WebData (List Evolution))
 getEvolutions order =
     getSpecies order
         |> Task.andThen
