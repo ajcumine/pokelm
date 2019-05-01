@@ -164,6 +164,6 @@ pokedexDecoder =
 fetch : Cmd Model
 fetch =
     Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon-species?limit=151"
+        { url = "https://pokeapi.co/api/v2/pokemon-species?limit=809"
         , expect = Http.expectJson RemoteData.fromResult pokedexDecoder
         }
