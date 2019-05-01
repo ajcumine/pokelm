@@ -44,15 +44,15 @@ type alias Species =
     }
 
 
-type alias Evolution =
+type alias EvolutionChain =
     { name : String
     , order : String
-    , evolutions : Evolutions
+    , evolutionChain : Evolutions
     }
 
 
 type Evolutions
-    = Evolutions (List Evolution)
+    = Evolutions (List EvolutionChain)
 
 
 type alias Pokemon =
@@ -60,7 +60,7 @@ type alias Pokemon =
     , order : Int
     , types : List PokemonType
     , sprites : Sprites
-    , evolutions : List Evolution
+    , evolutionChain : EvolutionChain
     }
 
 
@@ -73,7 +73,7 @@ init =
 --VIEW
 
 
-viewEvolution : Evolution -> Styled.Html msg
+viewEvolution : EvolutionChain -> Styled.Html msg
 viewEvolution evolution =
     Styled.div
         []
@@ -86,9 +86,15 @@ viewEvolution evolution =
                     ]
                 ]
                 [ Styled.text evolution.name
-                , case evolution.evolutions of
+                , case evolution.evolutionChain of
                     Evolutions evolutions ->
-                        Styled.div [] (List.map viewEvolution evolutions)
+                        Styled.div
+                            [ css
+                                [ display inlineBlock
+                                , marginLeft (px 20)
+                                ]
+                            ]
+                            (List.map viewEvolution evolutions)
                 ]
             ]
         ]
@@ -99,6 +105,7 @@ viewType pokemonType =
     Styled.div
         [ css
             [ textTransform capitalize
+            , width (px 72)
             ]
         ]
         [ Styled.text pokemonType.name ]
@@ -117,11 +124,15 @@ viewPokemonDetails pokemon =
         , Styled.img [ src pokemon.sprites.default ] []
         , Styled.img [ src pokemon.sprites.shiny ] []
         , Styled.h3 [] [ Styled.text "Types" ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ displayFlex
+                ]
+            ]
             (List.map viewType pokemon.types)
-        , Styled.h3 [] [ Styled.text "Evolutions" ]
+        , Styled.h3 [] [ Styled.text "Evolution Chain" ]
         , Styled.div []
-            (List.map viewEvolution pokemon.evolutions)
+            [ viewEvolution pokemon.evolutionChain ]
         ]
 
 
@@ -193,17 +204,20 @@ getOrder url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
 
 
-evolutionDecoder : Decoder Evolution
+evolutionDecoder : Decoder EvolutionChain
 evolutionDecoder =
-    Decode.succeed Evolution
-        |> Pipeline.optionalAt [ "species", "name" ] Decode.string "NONE"
-        |> Pipeline.optionalAt [ "species", "url" ] (Decode.string |> Decode.map getOrder) "1"
+    Decode.succeed EvolutionChain
+        |> Pipeline.requiredAt [ "species", "name" ] Decode.string
+        |> Pipeline.requiredAt [ "species", "url" ] (Decode.string |> Decode.map getOrder)
         |> Pipeline.required "evolves_to" (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
-evolutionsDecoder : Decoder (List Evolution)
+evolutionsDecoder : Decoder EvolutionChain
 evolutionsDecoder =
-    Decode.at [ "chain", "evolves_to" ] (Decode.list evolutionDecoder)
+    Decode.succeed EvolutionChain
+        |> Pipeline.requiredAt [ "chain", "species", "name" ] Decode.string
+        |> Pipeline.requiredAt [ "chain", "species", "url" ] (Decode.string |> Decode.map getOrder)
+        |> Pipeline.requiredAt [ "chain", "evolves_to" ] (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
 speciesDecoder : Decoder Species
@@ -212,16 +226,21 @@ speciesDecoder =
         |> Pipeline.requiredAt [ "evolution_chain", "url" ] Decode.string
 
 
-buildPokemon pokemon evolutionChain =
-    { name = pokemon.name
-    , order = pokemon.order
-    , types = pokemon.types
-    , sprites = pokemon.sprites
-    , evolutions = evolutionChain
+buildPokemon : BasePokemon -> EvolutionChain -> Pokemon
+buildPokemon basePokemon evolutionChain =
+    let
+        _ =
+            Debug.log "evolutionChain" evolutionChain
+    in
+    { name = basePokemon.name
+    , order = basePokemon.order
+    , types = basePokemon.types
+    , sprites = basePokemon.sprites
+    , evolutionChain = evolutionChain
     }
 
 
-buildPokemonResponse : WebData BasePokemon -> WebData (List Evolution) -> WebData Pokemon
+buildPokemonResponse : WebData BasePokemon -> WebData EvolutionChain -> WebData Pokemon
 buildPokemonResponse pokemonResponse evolutionsResponse =
     RemoteData.map2 buildPokemon pokemonResponse evolutionsResponse
 
@@ -230,7 +249,15 @@ buildPokemonResponse pokemonResponse evolutionsResponse =
 -- HTTP
 
 
-getEvolutions : String -> Task () (WebData (List Evolution))
+emptyEvolutionChain : EvolutionChain
+emptyEvolutionChain =
+    { name = ""
+    , order = "0"
+    , evolutionChain = Evolutions []
+    }
+
+
+getEvolutions : String -> Task () (WebData EvolutionChain)
 getEvolutions order =
     getSpecies order
         |> Task.andThen
@@ -243,7 +270,7 @@ getEvolutions order =
                         Task.fail error |> RemoteData.fromTask
 
                     _ ->
-                        Task.succeed [] |> RemoteData.fromTask
+                        Task.succeed emptyEvolutionChain |> RemoteData.fromTask
             )
 
 
