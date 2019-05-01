@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Html as H exposing (Html)
 import Http
+import Navigation
 import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
 import Route exposing (Route)
@@ -100,8 +101,8 @@ fetchRouteData model route =
         Route.Pokedex ->
             Pokedex.fetch |> Cmd.map PokedexFetchResponse
 
-        Route.Pokemon order ->
-            Pokemon.fetch order |> Cmd.map PokemonFetchResponse
+        Route.Pokemon nameOrId ->
+            Pokemon.fetch nameOrId |> Cmd.map PokemonFetchResponse
 
         _ ->
             Cmd.none
@@ -116,7 +117,9 @@ view model =
     { title = "PokElm"
     , body =
         [ H.div []
-            [ contentView model ]
+            [ Navigation.view
+            , contentView model
+            ]
         ]
     }
 
@@ -130,7 +133,7 @@ contentView model =
         Route.Pokedex ->
             H.div [] [ Pokedex.view model.pokedex ]
 
-        Route.Pokemon number ->
+        Route.Pokemon id ->
             H.div [] [ Pokemon.view model.pokemon ]
 
 

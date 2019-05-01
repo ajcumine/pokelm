@@ -26,7 +26,7 @@ type alias Pokedex =
 type alias Pokemon =
     { name : String
     , url : String
-    , order : String
+    , id : Int
     }
 
 
@@ -39,14 +39,14 @@ init =
 -- VIEW
 
 
-pokemonShinySpriteUrl : String -> String
-pokemonShinySpriteUrl order =
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ order ++ ".png"
+pokemonShinySpriteUrl : Int -> String
+pokemonShinySpriteUrl id =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ String.fromInt id ++ ".png"
 
 
-pokemonSpriteUrl : String -> String
-pokemonSpriteUrl order =
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ order ++ ".png"
+pokemonSpriteUrl : Int -> String
+pokemonSpriteUrl id =
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ String.fromInt id ++ ".png"
 
 
 viewPokemon : Pokemon -> Styled.Html msg
@@ -63,7 +63,7 @@ viewPokemon pokemon =
             , width (px 100)
             , height (px 120)
             ]
-        , Route.styledHref (Route.Pokemon pokemon.order)
+        , Route.styledHref (Route.Pokemon (String.fromInt pokemon.id))
         ]
         [ Styled.span
             [ css
@@ -78,7 +78,7 @@ viewPokemon pokemon =
                 [ alignSelf center
                 , width (px 96)
                 , height (px 96)
-                , backgroundImage (url (pokemonSpriteUrl pokemon.order))
+                , backgroundImage (url (pokemonSpriteUrl pokemon.id))
                 , backgroundSize contain
                 , backgroundPosition center
                 , backgroundRepeat noRepeat
@@ -86,7 +86,7 @@ viewPokemon pokemon =
                     [ Css.Transitions.background 500
                     ]
                 , hover
-                    [ backgroundImage (url (pokemonShinySpriteUrl pokemon.order))
+                    [ backgroundImage (url (pokemonShinySpriteUrl pokemon.id))
                     ]
                 ]
             ]
@@ -139,9 +139,9 @@ view model =
 -- SERIALISATION
 
 
-getOrder : String -> String
-getOrder url =
-    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "1"
+getId : String -> Int
+getId url =
+    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
 
 
 pokemonDecoder : Decoder Pokemon
@@ -149,7 +149,7 @@ pokemonDecoder =
     Decode.map3 Pokemon
         (Decode.field "name" Decode.string)
         (Decode.field "url" Decode.string)
-        (Decode.field "url" (Decode.string |> Decode.map getOrder))
+        (Decode.field "url" (Decode.string |> Decode.map getId))
 
 
 pokedexDecoder : Decoder Pokedex

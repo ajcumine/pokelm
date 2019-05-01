@@ -43,7 +43,7 @@ routeToString route =
                 Pokedex ->
                     []
 
-                Pokemon number ->
-                    [ "pokemon", number ]
+                Pokemon nameOrId ->
+                    [ "pokemon", nameOrId ]
     in
     "#/" ++ String.join "/" pieces
