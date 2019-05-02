@@ -248,14 +248,6 @@ buildPokemonResponse pokemonResponse evolutionsResponse =
 -- HTTP
 
 
-emptyEvolutionChain : EvolutionChain
-emptyEvolutionChain =
-    { name = ""
-    , id = 0
-    , evolutionChain = Evolutions []
-    }
-
-
 getEvolutions : String -> Task () (WebData EvolutionChain)
 getEvolutions nameOrId =
     getSpecies nameOrId
@@ -269,7 +261,7 @@ getEvolutions nameOrId =
                         Task.fail error |> RemoteData.fromTask
 
                     _ ->
-                        Task.succeed emptyEvolutionChain |> RemoteData.fromTask
+                        Task.fail Http.NetworkError |> RemoteData.fromTask
             )
 
 

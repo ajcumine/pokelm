@@ -6108,14 +6108,6 @@ var author$project$Page$Pokemon$buildPokemonResponse = F2(
 	function (pokemonResponse, evolutionsResponse) {
 		return A3(krisajenkins$remotedata$RemoteData$map2, author$project$Page$Pokemon$buildPokemon, pokemonResponse, evolutionsResponse);
 	});
-var author$project$Page$Pokemon$Evolutions = function (a) {
-	return {$: 'Evolutions', a: a};
-};
-var author$project$Page$Pokemon$emptyEvolutionChain = {
-	evolutionChain: author$project$Page$Pokemon$Evolutions(_List_Nil),
-	id: 0,
-	name: ''
-};
 var elm$json$Json$Decode$map2 = _Json_map2;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
@@ -6129,6 +6121,9 @@ var author$project$Page$Pokemon$EvolutionChain = F3(
 	function (name, id, evolutionChain) {
 		return {evolutionChain: evolutionChain, id: id, name: name};
 	});
+var author$project$Page$Pokemon$Evolutions = function (a) {
+	return {$: 'Evolutions', a: a};
+};
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
 		return A2(
@@ -6377,7 +6372,7 @@ var author$project$Page$Pokemon$getEvolutions = function (nameOrId) {
 						elm$core$Task$fail(error));
 				default:
 					return krisajenkins$remotedata$RemoteData$fromTask(
-						elm$core$Task$succeed(author$project$Page$Pokemon$emptyEvolutionChain));
+						elm$core$Task$fail(elm$http$Http$NetworkError));
 			}
 		},
 		author$project$Page$Pokemon$getSpecies(nameOrId));
