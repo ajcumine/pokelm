@@ -119,6 +119,11 @@ pokemonImageSrc id =
     "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
 
 
+shinyImageSrc : Int -> String
+shinyImageSrc id =
+    "/assets/images/shiny/" ++ String.fromInt id ++ ".png"
+
+
 viewPokemonDetails : Pokemon -> Styled.Html msg
 viewPokemonDetails pokemon =
     Styled.div []
@@ -130,7 +135,7 @@ viewPokemonDetails pokemon =
             ]
             [ Styled.text (String.fromInt pokemon.id ++ ": " ++ pokemon.name) ]
         , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
-        , Styled.img [ src pokemon.sprites.shiny ] []
+        , Styled.img [ src (shinyImageSrc pokemon.id) ] []
         , Styled.h3 [] [ Styled.text "Types" ]
         , Styled.div
             [ css
@@ -202,7 +207,7 @@ pokemonDecoder : Decoder BasePokemon
 pokemonDecoder =
     Decode.succeed BasePokemon
         |> Pipeline.required "name" Decode.string
-        |> Pipeline.required "order" Decode.int
+        |> Pipeline.required "id" Decode.int
         |> Pipeline.required "types" (Decode.list pokemonTypeDecoder)
         |> Pipeline.required "sprites" spriteDecoder
 

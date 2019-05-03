@@ -39,14 +39,14 @@ init =
 -- VIEW
 
 
-pokemonShinySpriteUrl : Int -> String
-pokemonShinySpriteUrl id =
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ String.fromInt id ++ ".png"
+pokemonImageSrc : Int -> String
+pokemonImageSrc id =
+    "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
 
 
-pokemonSpriteUrl : Int -> String
-pokemonSpriteUrl id =
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ String.fromInt id ++ ".png"
+shinyImageSrc : Int -> String
+shinyImageSrc id =
+    "/assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
 viewPokemon : Pokemon -> Styled.Html msg
@@ -78,7 +78,7 @@ viewPokemon pokemon =
                 [ alignSelf center
                 , width (px 96)
                 , height (px 96)
-                , backgroundImage (url (pokemonSpriteUrl pokemon.id))
+                , backgroundImage (url (pokemonImageSrc pokemon.id))
                 , backgroundSize contain
                 , backgroundPosition center
                 , backgroundRepeat noRepeat
@@ -86,7 +86,7 @@ viewPokemon pokemon =
                     [ Css.Transitions.background 500
                     ]
                 , hover
-                    [ backgroundImage (url (pokemonShinySpriteUrl pokemon.id))
+                    [ backgroundImage (url (shinyImageSrc pokemon.id))
                     ]
                 ]
             ]

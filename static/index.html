@@ -6417,7 +6417,7 @@ var author$project$Page$Pokemon$pokemonDecoder = A3(
 		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
 		A3(
 			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'order',
+			'id',
 			elm$json$Json$Decode$int,
 			A3(
 				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -7140,11 +7140,11 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Page$Pokedex$pokemonShinySpriteUrl = function (id) {
-	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/' + (elm$core$String$fromInt(id) + '.png');
+var author$project$Page$Pokedex$pokemonImageSrc = function (id) {
+	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
 };
-var author$project$Page$Pokedex$pokemonSpriteUrl = function (id) {
-	return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+var author$project$Page$Pokedex$shinyImageSrc = function (id) {
+	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
 var author$project$Route$routeToString = function (route) {
 	var pieces = function () {
@@ -9788,7 +9788,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 								rtfeldman$elm_css$Css$px(96)),
 								rtfeldman$elm_css$Css$backgroundImage(
 								rtfeldman$elm_css$Css$url(
-									author$project$Page$Pokedex$pokemonSpriteUrl(pokemon.id))),
+									author$project$Page$Pokedex$pokemonImageSrc(pokemon.id))),
 								rtfeldman$elm_css$Css$backgroundSize(rtfeldman$elm_css$Css$contain),
 								rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
 								rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
@@ -9802,7 +9802,7 @@ var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 									[
 										rtfeldman$elm_css$Css$backgroundImage(
 										rtfeldman$elm_css$Css$url(
-											author$project$Page$Pokedex$pokemonShinySpriteUrl(pokemon.id)))
+											author$project$Page$Pokedex$shinyImageSrc(pokemon.id)))
 									]))
 							]))
 					]),
@@ -10390,6 +10390,9 @@ var author$project$Page$Pokedex$view = function (model) {
 var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
 	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
 };
+var author$project$Page$Pokemon$shinyImageSrc = function (id) {
+	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
+};
 var rtfeldman$elm_css$Css$alignItems = function (fn) {
 	return A3(
 		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
@@ -10516,7 +10519,8 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 				rtfeldman$elm_css$Html$Styled$img,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$src(pokemon.sprites.shiny)
+						rtfeldman$elm_css$Html$Styled$Attributes$src(
+						author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
 					]),
 				_List_Nil),
 				A2(
