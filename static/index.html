@@ -4561,6 +4561,9 @@ var author$project$Main$PokedexFetchResponse = function (a) {
 var author$project$Main$PokemonFetchResponse = function (a) {
 	return {$: 'PokemonFetchResponse', a: a};
 };
+var author$project$Main$PokemonTypeFetchResponse = function (a) {
+	return {$: 'PokemonTypeFetchResponse', a: a};
+};
 var author$project$Main$TypesFetchResponse = function (a) {
 	return {$: 'TypesFetchResponse', a: a};
 };
@@ -6514,6 +6517,62 @@ var author$project$Page$Pokemon$fetch = function (nameOrId) {
 			author$project$Page$Pokemon$getPokemon(nameOrId),
 			author$project$Page$Pokemon$getEvolutions(nameOrId)));
 };
+var author$project$Page$PokemonType$PokemonType = F3(
+	function (name, id, pokemon) {
+		return {id: id, name: name, pokemon: pokemon};
+	});
+var author$project$Page$PokemonType$Pokemon = F2(
+	function (name, id) {
+		return {id: id, name: name};
+	});
+var author$project$Page$PokemonType$getId = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(
+			A2(
+				elm$core$Maybe$withDefault,
+				'0',
+				elm$core$List$head(
+					A2(
+						elm$core$Maybe$withDefault,
+						_List_fromArray(
+							['1']),
+						elm$core$List$tail(
+							elm$core$List$reverse(
+								A2(elm$core$String$split, '/', url))))))));
+};
+var author$project$Page$PokemonType$pokemonDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['pokemon', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Page$PokemonType$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['pokemon', 'name']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Page$PokemonType$Pokemon)));
+var author$project$Page$PokemonType$pokemonTypeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'pokemon',
+	elm$json$Json$Decode$list(author$project$Page$PokemonType$pokemonDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'id',
+		elm$json$Json$Decode$int,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'name',
+			elm$json$Json$Decode$string,
+			elm$json$Json$Decode$succeed(author$project$Page$PokemonType$PokemonType))));
+var author$project$Page$PokemonType$fetch = function (idOrName) {
+	return elm$http$Http$get(
+		{
+			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonType$pokemonTypeDecoder),
+			url: 'https://pokeapi.co/api/v2/type/' + idOrName
+		});
+};
 var author$project$Page$Types$Type = F2(
 	function (name, id) {
 		return {id: id, name: name};
@@ -6570,17 +6629,27 @@ var author$project$Main$fetchRouteData = F2(
 					author$project$Page$Pokemon$fetch(nameOrId));
 			case 'Types':
 				return A2(elm$core$Platform$Cmd$map, author$project$Main$TypesFetchResponse, author$project$Page$Types$fetch);
+			case 'PokemonType':
+				var nameOrId = route.a;
+				return A2(
+					elm$core$Platform$Cmd$map,
+					author$project$Main$PokemonTypeFetchResponse,
+					author$project$Page$PokemonType$fetch(nameOrId));
 			default:
 				return elm$core$Platform$Cmd$none;
 		}
 	});
 var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
+var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Types$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Route$NotFound = {$: 'NotFound'};
 var author$project$Route$Pokedex = {$: 'Pokedex'};
 var author$project$Route$Pokemon = function (a) {
 	return {$: 'Pokemon', a: a};
+};
+var author$project$Route$PokemonType = function (a) {
+	return {$: 'PokemonType', a: a};
 };
 var author$project$Route$Types = {$: 'Types'};
 var elm$url$Url$Parser$Parser = function (a) {
@@ -6741,7 +6810,14 @@ var author$project$Route$parser = elm$url$Url$Parser$oneOf(
 			A2(
 			elm$url$Url$Parser$map,
 			author$project$Route$Types,
-			elm$url$Url$Parser$s('types'))
+			elm$url$Url$Parser$s('types')),
+			A2(
+			elm$url$Url$Parser$map,
+			author$project$Route$PokemonType,
+			A2(
+				elm$url$Url$Parser$slash,
+				elm$url$Url$Parser$s('types'),
+				elm$url$Url$Parser$string))
 		]));
 var elm$url$Url$Parser$getFirstMatch = function (states) {
 	getFirstMatch:
@@ -6875,7 +6951,7 @@ var author$project$Route$fromUrl = function (url) {
 var author$project$Main$init = F3(
 	function (flags, url, navKey) {
 		var route = author$project$Route$fromUrl(url);
-		var model = {key: navKey, pokedex: author$project$Page$Pokedex$init, pokemon: author$project$Page$Pokemon$init, route: route, types: author$project$Page$Types$init};
+		var model = {key: navKey, pokedex: author$project$Page$Pokedex$init, pokemon: author$project$Page$Pokemon$init, pokemonType: author$project$Page$PokemonType$init, route: route, types: author$project$Page$Types$init};
 		var cmd = A2(author$project$Main$fetchRouteData, model, route);
 		return _Utils_Tuple2(model, cmd);
 	});
@@ -7131,12 +7207,19 @@ var author$project$Main$update = F2(
 						model,
 						{pokemon: response}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'TypesFetchResponse':
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{types: response}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var response = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{pokemonType: response}),
 					elm$core$Platform$Cmd$none);
 		}
 	});
@@ -7158,9 +7241,13 @@ var author$project$Route$routeToString = function (route) {
 				var nameOrId = route.a;
 				return _List_fromArray(
 					['pokemon', nameOrId]);
-			default:
+			case 'Types':
 				return _List_fromArray(
 					['types']);
+			default:
+				var nameOrId = route.a;
+				return _List_fromArray(
+					['types', nameOrId]);
 		}
 	}();
 	return '#/' + A2(elm$core$String$join, '/', pieces);
@@ -10607,6 +10694,110 @@ var author$project$Page$Pokemon$view = function (model) {
 					author$project$Page$Pokemon$viewPokemon(model)
 				])));
 };
+var author$project$Page$PokemonType$pokemonImageSrc = function (id) {
+	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+};
+var author$project$Page$PokemonType$viewPokemon = function (pokemon) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$text(pokemon.name),
+				A2(
+				rtfeldman$elm_css$Html$Styled$img,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$src(
+						author$project$Page$PokemonType$pokemonImageSrc(pokemon.id))
+					]),
+				_List_Nil)
+			]));
+};
+var author$project$Page$PokemonType$viewType = function (pokemonType) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				rtfeldman$elm_css$Html$Styled$h2,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								A3(
+								rtfeldman$elm_css$Css$margin3,
+								rtfeldman$elm_css$Css$px(0),
+								rtfeldman$elm_css$Css$auto,
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
+				A2(elm$core$List$map, author$project$Page$PokemonType$viewPokemon, pokemonType.pokemon))
+			]));
+};
+var elm$core$Debug$log = _Debug_log;
+var author$project$Page$PokemonType$viewPokemonType = function (model) {
+	var _n0 = A2(elm$core$Debug$log, 'model', model);
+	switch (model.$) {
+		case 'NotAsked':
+			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
+		case 'Loading':
+			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Type...');
+		case 'Failure':
+			var error = model.a;
+			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon Type');
+		default:
+			var pokemonType = model.a;
+			return A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
+					]),
+				_List_fromArray(
+					[
+						author$project$Page$PokemonType$viewType(pokemonType)
+					]));
+	}
+};
+var author$project$Page$PokemonType$view = function (model) {
+	return rtfeldman$elm_css$Html$Styled$toUnstyled(
+		A2(
+			rtfeldman$elm_css$Html$Styled$div,
+			_List_fromArray(
+				[
+					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Css$displayFlex,
+							rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
+							rtfeldman$elm_css$Css$fontFamilies(
+							_List_fromArray(
+								['Verdana'])),
+							rtfeldman$elm_css$Css$marginTop(
+							rtfeldman$elm_css$Css$px(40))
+						]))
+				]),
+			_List_fromArray(
+				[
+					author$project$Page$PokemonType$viewPokemonType(model)
+				])));
+};
 var author$project$Page$Types$viewType = function (pokemonType) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
@@ -10653,8 +10844,9 @@ var author$project$Page$Types$view = function (model) {
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {
-	var _n0 = model.route;
-	switch (_n0.$) {
+	var _n0 = A2(elm$core$Debug$log, 'model', model.route);
+	var _n1 = model.route;
+	switch (_n1.$) {
 		case 'NotFound':
 			return A2(
 				elm$html$Html$div,
@@ -10672,7 +10864,7 @@ var author$project$Main$contentView = function (model) {
 						author$project$Page$Pokedex$view(model.pokedex)
 					]));
 		case 'Pokemon':
-			var id = _n0.a;
+			var id = _n1.a;
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
@@ -10680,13 +10872,22 @@ var author$project$Main$contentView = function (model) {
 					[
 						author$project$Page$Pokemon$view(model.pokemon)
 					]));
-		default:
+		case 'Types':
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						author$project$Page$Types$view(model.types)
+					]));
+		default:
+			var id = _n1.a;
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Page$PokemonType$view(model.pokemonType)
 					]));
 	}
 };

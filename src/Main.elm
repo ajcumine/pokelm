@@ -7,6 +7,7 @@ import Http
 import Navigation
 import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
+import Page.PokemonType as PokemonType
 import Page.Types as Types
 import Route exposing (Route)
 import Url exposing (Url)
@@ -22,6 +23,7 @@ type alias Model =
     , pokedex : Pokedex.Model
     , pokemon : Pokemon.Model
     , types : Types.Model
+    , pokemonType : PokemonType.Model
     }
 
 
@@ -37,6 +39,7 @@ init flags url navKey =
             , pokedex = Pokedex.init
             , pokemon = Pokemon.init
             , types = Types.init
+            , pokemonType = PokemonType.init
             }
 
         cmd =
@@ -55,6 +58,7 @@ type Msg
     | PokedexFetchResponse Pokedex.Model
     | PokemonFetchResponse Pokemon.Model
     | TypesFetchResponse Types.Model
+    | PokemonTypeFetchResponse PokemonType.Model
 
 
 
@@ -103,6 +107,11 @@ update msg model =
             , Cmd.none
             )
 
+        PokemonTypeFetchResponse response ->
+            ( { model | pokemonType = response }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
@@ -115,6 +124,9 @@ fetchRouteData model route =
 
         Route.Types ->
             Types.fetch |> Cmd.map TypesFetchResponse
+
+        Route.PokemonType nameOrId ->
+            PokemonType.fetch nameOrId |> Cmd.map PokemonTypeFetchResponse
 
         _ ->
             Cmd.none
@@ -138,6 +150,10 @@ view model =
 
 contentView : Model -> Html Msg
 contentView model =
+    let
+        _ =
+            Debug.log "model" model.route
+    in
     case model.route of
         Route.NotFound ->
             H.div [] [ H.text "Not Found" ]
@@ -150,6 +166,9 @@ contentView model =
 
         Route.Types ->
             H.div [] [ Types.view model.types ]
+
+        Route.PokemonType id ->
+            H.div [] [ PokemonType.view model.pokemonType ]
 
 
 
