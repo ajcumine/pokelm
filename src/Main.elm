@@ -7,6 +7,7 @@ import Http
 import Navigation
 import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
+import Page.Types as Types
 import Route exposing (Route)
 import Url exposing (Url)
 
@@ -20,6 +21,7 @@ type alias Model =
     , route : Route
     , pokedex : Pokedex.Model
     , pokemon : Pokemon.Model
+    , types : Types.Model
     }
 
 
@@ -34,6 +36,7 @@ init flags url navKey =
             , route = route
             , pokedex = Pokedex.init
             , pokemon = Pokemon.init
+            , types = Types.init
             }
 
         cmd =
@@ -51,6 +54,7 @@ type Msg
     | UrlRequest Browser.UrlRequest
     | PokedexFetchResponse Pokedex.Model
     | PokemonFetchResponse Pokemon.Model
+    | TypesFetchResponse Types.Model
 
 
 
@@ -94,6 +98,11 @@ update msg model =
             , Cmd.none
             )
 
+        TypesFetchResponse response ->
+            ( { model | types = response }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
@@ -103,6 +112,9 @@ fetchRouteData model route =
 
         Route.Pokemon nameOrId ->
             Pokemon.fetch nameOrId |> Cmd.map PokemonFetchResponse
+
+        Route.Types ->
+            Types.fetch |> Cmd.map TypesFetchResponse
 
         _ ->
             Cmd.none
@@ -135,6 +147,9 @@ contentView model =
 
         Route.Pokemon id ->
             H.div [] [ Pokemon.view model.pokemon ]
+
+        Route.Types ->
+            H.div [] [ Types.view model.types ]
 
 
 

@@ -114,6 +114,11 @@ viewType pokemonType =
         [ Styled.text pokemonType.name ]
 
 
+pokemonImageSrc : Int -> String
+pokemonImageSrc id =
+    "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
+
+
 viewPokemonDetails : Pokemon -> Styled.Html msg
 viewPokemonDetails pokemon =
     Styled.div []
@@ -124,7 +129,7 @@ viewPokemonDetails pokemon =
                 ]
             ]
             [ Styled.text (String.fromInt pokemon.id ++ ": " ++ pokemon.name) ]
-        , Styled.img [ src pokemon.sprites.default ] []
+        , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
         , Styled.img [ src pokemon.sprites.shiny ] []
         , Styled.h3 [] [ Styled.text "Types" ]
         , Styled.div
