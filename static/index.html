@@ -10560,7 +10560,30 @@ var author$project$Page$Pokemon$viewType = function (pokemonType) {
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
+				A2(
+				rtfeldman$elm_css$Html$Styled$a,
+				_List_fromArray(
+					[
+						author$project$Route$styledHref(
+						author$project$Route$PokemonType(pokemonType.name))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+									]))
+							]),
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
+							]))
+					]))
 			]));
 };
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
@@ -10703,7 +10726,31 @@ var author$project$Page$PokemonType$viewPokemon = function (pokemon) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(pokemon.name),
+				A2(
+				rtfeldman$elm_css$Html$Styled$a,
+				_List_fromArray(
+					[
+						author$project$Route$styledHref(
+						author$project$Route$Pokemon(
+							elm$core$String$fromInt(pokemon.id)))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+									]))
+							]),
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$text(pokemon.name)
+							]))
+					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$img,
 				_List_fromArray(
@@ -10744,9 +10791,7 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 				A2(elm$core$List$map, author$project$Page$PokemonType$viewPokemon, pokemonType.pokemon))
 			]));
 };
-var elm$core$Debug$log = _Debug_log;
 var author$project$Page$PokemonType$viewPokemonType = function (model) {
-	var _n0 = A2(elm$core$Debug$log, 'model', model);
 	switch (model.$) {
 		case 'NotAsked':
 			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
@@ -10806,12 +10851,37 @@ var author$project$Page$Types$viewType = function (pokemonType) {
 				rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
+						rtfeldman$elm_css$Css$width(
+						rtfeldman$elm_css$Css$px(72))
 					]))
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
+				A2(
+				rtfeldman$elm_css$Html$Styled$a,
+				_List_fromArray(
+					[
+						author$project$Route$styledHref(
+						author$project$Route$PokemonType(pokemonType.name))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+									]))
+							]),
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
+							]))
+					]))
 			]));
 };
 var author$project$Page$Types$viewTypes = function (model) {
@@ -10827,7 +10897,16 @@ var author$project$Page$Types$viewTypes = function (model) {
 			var pokemonType = model.a;
 			return A2(
 				rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
+					]),
 				A2(elm$core$List$map, author$project$Page$Types$viewType, pokemonType));
 	}
 };
@@ -10835,18 +10914,48 @@ var author$project$Page$Types$view = function (model) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
 			rtfeldman$elm_css$Html$Styled$div,
-			_List_Nil,
 			_List_fromArray(
 				[
+					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Css$displayFlex,
+							rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
+							rtfeldman$elm_css$Css$fontFamilies(
+							_List_fromArray(
+								['Verdana'])),
+							rtfeldman$elm_css$Css$marginTop(
+							rtfeldman$elm_css$Css$px(40))
+						]))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					rtfeldman$elm_css$Html$Styled$h2,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									A3(
+									rtfeldman$elm_css$Css$margin3,
+									rtfeldman$elm_css$Css$px(0),
+									rtfeldman$elm_css$Css$auto,
+									rtfeldman$elm_css$Css$px(20))
+								]))
+						]),
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Types')
+						])),
 					author$project$Page$Types$viewTypes(model)
 				])));
 };
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {
-	var _n0 = A2(elm$core$Debug$log, 'model', model.route);
-	var _n1 = model.route;
-	switch (_n1.$) {
+	var _n0 = model.route;
+	switch (_n0.$) {
 		case 'NotFound':
 			return A2(
 				elm$html$Html$div,
@@ -10864,7 +10973,7 @@ var author$project$Main$contentView = function (model) {
 						author$project$Page$Pokedex$view(model.pokedex)
 					]));
 		case 'Pokemon':
-			var id = _n1.a;
+			var id = _n0.a;
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
@@ -10881,7 +10990,7 @@ var author$project$Main$contentView = function (model) {
 						author$project$Page$Types$view(model.types)
 					]));
 		default:
-			var id = _n1.a;
+			var id = _n0.a;
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,

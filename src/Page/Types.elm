@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
+import Route
 
 
 
@@ -39,8 +40,23 @@ init =
 
 viewType : Type -> Styled.Html msg
 viewType pokemonType =
-    Styled.div [ css [ textTransform capitalize ] ]
-        [ Styled.text pokemonType.name
+    Styled.div
+        [ css
+            [ textTransform capitalize
+            , width (px 72)
+            ]
+        ]
+        [ Styled.a
+            [ Route.styledHref (Route.PokemonType pokemonType.name)
+            ]
+            [ Styled.div
+                [ css
+                    [ textTransform capitalize
+                    ]
+                ]
+                [ Styled.text pokemonType.name
+                ]
+            ]
         ]
 
 
@@ -58,7 +74,12 @@ viewTypes model =
 
         RemoteData.Success pokemonType ->
             Styled.div
-                []
+                [ css
+                    [ displayFlex
+                    , flexWrap wrap
+                    , justifyContent center
+                    ]
+                ]
                 (List.map viewType pokemonType)
 
 
@@ -66,8 +87,18 @@ view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
-            []
-            [ viewTypes model ]
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , fontFamilies [ "Verdana" ]
+                , marginTop (px 40)
+                ]
+            ]
+            [ Styled.h2
+                [ css [ margin3 (px 0) auto (px 20) ] ]
+                [ Styled.text "Types" ]
+            , viewTypes model
+            ]
 
 
 

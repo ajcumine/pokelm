@@ -150,10 +150,6 @@ view model =
 
 contentView : Model -> Html Msg
 contentView model =
-    let
-        _ =
-            Debug.log "model" model.route
-    in
     case model.route of
         Route.NotFound ->
             H.div [] [ H.text "Not Found" ]

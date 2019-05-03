@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
+import Route
 
 
 
@@ -48,7 +49,17 @@ pokemonImageSrc id =
 viewPokemon : Pokemon -> Styled.Html msg
 viewPokemon pokemon =
     Styled.div []
-        [ Styled.text pokemon.name
+        [ Styled.a
+            [ Route.styledHref (Route.Pokemon (String.fromInt pokemon.id))
+            ]
+            [ Styled.div
+                [ css
+                    [ textTransform capitalize
+                    ]
+                ]
+                [ Styled.text pokemon.name
+                ]
+            ]
         , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
         ]
 
@@ -66,10 +77,6 @@ viewType pokemonType =
 
 viewPokemonType : Model -> Styled.Html msg
 viewPokemonType model =
-    let
-        _ =
-            Debug.log "model" model
-    in
     case model of
         RemoteData.NotAsked ->
             Styled.text "Not Asked"

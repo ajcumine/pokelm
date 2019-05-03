@@ -111,7 +111,18 @@ viewType pokemonType =
             , width (px 72)
             ]
         ]
-        [ Styled.text pokemonType.name ]
+        [ Styled.a
+            [ Route.styledHref (Route.PokemonType pokemonType.name)
+            ]
+            [ Styled.div
+                [ css
+                    [ textTransform capitalize
+                    ]
+                ]
+                [ Styled.text pokemonType.name
+                ]
+            ]
+        ]
 
 
 pokemonImageSrc : Int -> String
