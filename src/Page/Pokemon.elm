@@ -297,8 +297,8 @@ buildSpeciesEvolution species evolutionChainResponse =
 -- HTTP
 
 
-getSpeciesEvolutions : String -> Task () (WebData PokemonDetail)
-getSpeciesEvolutions nameOrId =
+getPokemonDetails : String -> Task () (WebData PokemonDetail)
+getPokemonDetails nameOrId =
     getSpecies nameOrId
         |> Task.andThen
             (\speciesResponse ->
@@ -326,7 +326,7 @@ getPokemon nameOrId =
 
 fetch : String -> Cmd Model
 fetch nameOrId =
-    Task.map2 buildPokemonResponse (getPokemon nameOrId) (getSpeciesEvolutions nameOrId)
+    Task.map2 buildPokemonResponse (getPokemon nameOrId) (getPokemonDetails nameOrId)
         |> Task.attempt
             (\result ->
                 case result of

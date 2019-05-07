@@ -6428,7 +6428,7 @@ var krisajenkins$remotedata$RemoteData$fromTask = A2(
 	elm$core$Task$map(krisajenkins$remotedata$RemoteData$Success),
 	elm$core$Task$onError(
 		A2(elm$core$Basics$composeR, krisajenkins$remotedata$RemoteData$Failure, elm$core$Task$succeed)));
-var author$project$Page$Pokemon$getSpeciesEvolutions = function (nameOrId) {
+var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 	return A2(
 		elm$core$Task$andThen,
 		function (speciesResponse) {
@@ -6536,7 +6536,7 @@ var author$project$Page$Pokemon$fetch = function (nameOrId) {
 			elm$core$Task$map2,
 			author$project$Page$Pokemon$buildPokemonResponse,
 			author$project$Page$Pokemon$getPokemon(nameOrId),
-			author$project$Page$Pokemon$getSpeciesEvolutions(nameOrId)));
+			author$project$Page$Pokemon$getPokemonDetails(nameOrId)));
 };
 var author$project$Page$PokemonType$PokemonType = F3(
 	function (name, id, pokemon) {
