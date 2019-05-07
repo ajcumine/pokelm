@@ -6418,22 +6418,6 @@ var author$project$Page$Pokemon$speciesDecoder = A3(
 var author$project$Page$Pokemon$getSpecies = function (nameOrId) {
 	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon-species/' + nameOrId, author$project$Page$Pokemon$speciesDecoder);
 };
-var elm$core$Task$map = F2(
-	function (func, taskA) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return elm$core$Task$succeed(
-					func(a));
-			},
-			taskA);
-	});
-var elm$core$Task$onError = _Scheduler_onError;
-var krisajenkins$remotedata$RemoteData$fromTask = A2(
-	elm$core$Basics$composeR,
-	elm$core$Task$map(krisajenkins$remotedata$RemoteData$Success),
-	elm$core$Task$onError(
-		A2(elm$core$Basics$composeR, krisajenkins$remotedata$RemoteData$Failure, elm$core$Task$succeed)));
 var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 	return A2(
 		elm$core$Task$andThen,
@@ -6448,11 +6432,12 @@ var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 						author$project$Page$Pokemon$getEvolutions(species.evolutionChainUrl));
 				case 'Failure':
 					var error = speciesResponse.a;
-					return krisajenkins$remotedata$RemoteData$fromTask(
-						elm$core$Task$fail(error));
+					return elm$core$Task$succeed(
+						krisajenkins$remotedata$RemoteData$Failure(error));
+				case 'NotAsked':
+					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$NotAsked);
 				default:
-					return krisajenkins$remotedata$RemoteData$fromTask(
-						elm$core$Task$fail(elm$http$Http$NetworkError));
+					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$Loading);
 			}
 		},
 		author$project$Page$Pokemon$getSpecies(nameOrId));
@@ -6474,6 +6459,16 @@ var elm$core$List$map = F2(
 				}),
 			_List_Nil,
 			xs);
+	});
+var elm$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			elm$core$Task$andThen,
+			function (a) {
+				return elm$core$Task$succeed(
+					func(a));
+			},
+			taskA);
 	});
 var elm$core$Task$spawnCmd = F2(
 	function (router, _n0) {
@@ -6509,6 +6504,7 @@ var elm$core$Task$cmdMap = F2(
 	});
 _Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
 var elm$core$Task$command = _Platform_leaf('Task');
+var elm$core$Task$onError = _Scheduler_onError;
 var elm$core$Task$attempt = F2(
 	function (resultToMessage, task) {
 		return elm$core$Task$command(

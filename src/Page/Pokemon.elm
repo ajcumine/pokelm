@@ -303,10 +303,13 @@ getPokemonDetails nameOrId =
                         Task.map2 buildSpeciesEvolution (Task.succeed species) (getEvolutions species.evolutionChainUrl)
 
                     RemoteData.Failure error ->
-                        Task.fail error |> RemoteData.fromTask
+                        Task.succeed (RemoteData.Failure error)
 
-                    _ ->
-                        Task.fail Http.NetworkError |> RemoteData.fromTask
+                    RemoteData.NotAsked ->
+                        Task.succeed RemoteData.NotAsked
+
+                    RemoteData.Loading ->
+                        Task.succeed RemoteData.Loading
             )
 
 
