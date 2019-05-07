@@ -55,6 +55,12 @@ type Evolutions
     = Evolutions (List EvolutionChain)
 
 
+type alias PokemonDetail =
+    { evolutionChain : EvolutionChain
+    , evolutionChainUrl : String
+    }
+
+
 type alias Pokemon =
     { name : String
     , id : Int
@@ -252,7 +258,7 @@ speciesDecoder =
         |> Pipeline.requiredAt [ "evolution_chain", "url" ] Decode.string
 
 
-buildPokemon : BasePokemon -> SpeciesEvolution -> Pokemon
+buildPokemon : BasePokemon -> PokemonDetail -> Pokemon
 buildPokemon basePokemon speciesEvolution =
     { name = basePokemon.name
     , id = basePokemon.id
@@ -263,18 +269,12 @@ buildPokemon basePokemon speciesEvolution =
     }
 
 
-buildPokemonResponse : WebData BasePokemon -> WebData SpeciesEvolution -> WebData Pokemon
+buildPokemonResponse : WebData BasePokemon -> WebData PokemonDetail -> WebData Pokemon
 buildPokemonResponse pokemonResponse evolutionsResponse =
     RemoteData.map2 buildPokemon pokemonResponse evolutionsResponse
 
 
-type alias SpeciesEvolution =
-    { evolutionChain : EvolutionChain
-    , evolutionChainUrl : String
-    }
-
-
-buildSpeciesEvolution : Species -> WebData EvolutionChain -> WebData SpeciesEvolution
+buildSpeciesEvolution : Species -> WebData EvolutionChain -> WebData PokemonDetail
 buildSpeciesEvolution species evolutionChainResponse =
     case evolutionChainResponse of
         RemoteData.Success evolutionChain ->
@@ -297,7 +297,7 @@ buildSpeciesEvolution species evolutionChainResponse =
 -- HTTP
 
 
-getSpeciesEvolutions : String -> Task () (WebData SpeciesEvolution)
+getSpeciesEvolutions : String -> Task () (WebData PokemonDetail)
 getSpeciesEvolutions nameOrId =
     getSpecies nameOrId
         |> Task.andThen
