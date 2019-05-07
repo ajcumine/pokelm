@@ -39,8 +39,15 @@ type alias BasePokemon =
     }
 
 
+type alias Variety =
+    { name : String
+    , id : Int
+    }
+
+
 type alias Species =
     { evolutionChainUrl : String
+    , varieties : List Variety
     }
 
 
@@ -57,7 +64,7 @@ type Evolutions
 
 type alias PokemonDetail =
     { evolutionChain : EvolutionChain
-    , evolutionChainUrl : String
+    , varieties : List Variety
     }
 
 
@@ -67,7 +74,7 @@ type alias Pokemon =
     , types : List PokemonType
     , sprites : Sprites
     , evolutionChain : EvolutionChain
-    , evolutionChainUrl : String
+    , varieties : List Variety
     }
 
 
@@ -142,6 +149,13 @@ shinyImageSrc id =
     "/assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
+viewVariety : Variety -> Styled.Html msg
+viewVariety variety =
+    Styled.div []
+        [ Styled.text variety.name
+        ]
+
+
 viewPokemonDetails : Pokemon -> Styled.Html msg
 viewPokemonDetails pokemon =
     Styled.div []
@@ -162,9 +176,11 @@ viewPokemonDetails pokemon =
             ]
             (List.map viewType pokemon.types)
         , Styled.h3 [] [ Styled.text "Evolution Chain" ]
-        , Styled.h3 [] [ Styled.text pokemon.evolutionChainUrl ]
         , Styled.div []
             [ viewEvolution pokemon.evolutionChain ]
+        , Styled.h3 [] [ Styled.text "Varieties" ]
+        , Styled.div []
+            (List.map viewVariety pokemon.varieties)
         ]
 
 
@@ -252,10 +268,18 @@ evolutionsDecoder =
         |> Pipeline.requiredAt [ "chain", "evolves_to" ] (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
+varietyDecoder : Decoder Variety
+varietyDecoder =
+    Decode.succeed Variety
+        |> Pipeline.requiredAt [ "pokemon", "name" ] Decode.string
+        |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map getId)
+
+
 speciesDecoder : Decoder Species
 speciesDecoder =
     Decode.succeed Species
         |> Pipeline.requiredAt [ "evolution_chain", "url" ] Decode.string
+        |> Pipeline.required "varieties" (Decode.list varietyDecoder)
 
 
 buildPokemon : BasePokemon -> PokemonDetail -> Pokemon
@@ -265,7 +289,7 @@ buildPokemon basePokemon speciesEvolution =
     , types = basePokemon.types
     , sprites = basePokemon.sprites
     , evolutionChain = speciesEvolution.evolutionChain
-    , evolutionChainUrl = speciesEvolution.evolutionChainUrl
+    , varieties = speciesEvolution.varieties
     }
 
 
@@ -280,7 +304,7 @@ buildSpeciesEvolution species evolutionChainResponse =
         RemoteData.Success evolutionChain ->
             RemoteData.succeed
                 { evolutionChain = evolutionChain
-                , evolutionChainUrl = species.evolutionChainUrl
+                , varieties = species.varieties
                 }
 
         RemoteData.Failure error ->

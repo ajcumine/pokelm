@@ -6017,7 +6017,7 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	});
 var author$project$Page$Pokemon$buildPokemon = F2(
 	function (basePokemon, speciesEvolution) {
-		return {evolutionChain: speciesEvolution.evolutionChain, evolutionChainUrl: speciesEvolution.evolutionChainUrl, id: basePokemon.id, name: basePokemon.name, sprites: basePokemon.sprites, types: basePokemon.types};
+		return {evolutionChain: speciesEvolution.evolutionChain, id: basePokemon.id, name: basePokemon.name, sprites: basePokemon.sprites, types: basePokemon.types, varieties: speciesEvolution.varieties};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
@@ -6305,7 +6305,7 @@ var author$project$Page$Pokemon$buildSpeciesEvolution = F2(
 			case 'Success':
 				var evolutionChain = evolutionChainResponse.a;
 				return krisajenkins$remotedata$RemoteData$succeed(
-					{evolutionChain: evolutionChain, evolutionChainUrl: species.evolutionChainUrl});
+					{evolutionChain: evolutionChain, varieties: species.varieties});
 			case 'Failure':
 				var error = evolutionChainResponse.a;
 				return krisajenkins$remotedata$RemoteData$Failure(error);
@@ -6403,15 +6403,35 @@ var author$project$Page$Pokemon$evolutionsDecoder = A3(
 var author$project$Page$Pokemon$getEvolutions = function (evolutionChainUrl) {
 	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder);
 };
-var author$project$Page$Pokemon$Species = function (evolutionChainUrl) {
-	return {evolutionChainUrl: evolutionChainUrl};
-};
-var author$project$Page$Pokemon$speciesDecoder = A3(
+var author$project$Page$Pokemon$Species = F2(
+	function (evolutionChainUrl, varieties) {
+		return {evolutionChainUrl: evolutionChainUrl, varieties: varieties};
+	});
+var author$project$Page$Pokemon$Variety = F2(
+	function (name, id) {
+		return {id: id, name: name};
+	});
+var author$project$Page$Pokemon$varietyDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
-		['evolution_chain', 'url']),
-	elm$json$Json$Decode$string,
-	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Species));
+		['pokemon', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['pokemon', 'name']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Variety)));
+var author$project$Page$Pokemon$speciesDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'varieties',
+	elm$json$Json$Decode$list(author$project$Page$Pokemon$varietyDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['evolution_chain', 'url']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Species)));
 var author$project$Page$Pokemon$getSpecies = function (nameOrId) {
 	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon-species/' + nameOrId, author$project$Page$Pokemon$speciesDecoder);
 };
@@ -10617,6 +10637,15 @@ var author$project$Page$Pokemon$viewType = function (pokemonType) {
 					]))
 			]));
 };
+var author$project$Page$Pokemon$viewVariety = function (variety) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$text(variety.name)
+			]));
+};
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
 var rtfeldman$elm_css$Html$Styled$Attributes$src = function (url) {
@@ -10688,19 +10717,23 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 						rtfeldman$elm_css$Html$Styled$text('Evolution Chain')
 					])),
 				A2(
-				rtfeldman$elm_css$Html$Styled$h3,
-				_List_Nil,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text(pokemon.evolutionChainUrl)
-					])),
-				A2(
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
-					]))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$h3,
+				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('Varieties')
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
+				A2(elm$core$List$map, author$project$Page$Pokemon$viewVariety, pokemon.varieties))
 			]));
 };
 var author$project$Page$Pokemon$viewPokemon = function (model) {
