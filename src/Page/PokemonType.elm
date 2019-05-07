@@ -9,6 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
 import Route
+import View
 
 
 
@@ -48,20 +49,7 @@ pokemonImageSrc id =
 
 viewPokemon : Pokemon -> Styled.Html msg
 viewPokemon pokemon =
-    Styled.div []
-        [ Styled.a
-            [ Route.styledHref (Route.Pokemon (String.fromInt pokemon.id))
-            ]
-            [ Styled.div
-                [ css
-                    [ textTransform capitalize
-                    ]
-                ]
-                [ Styled.text pokemon.name
-                ]
-            ]
-        , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
-        ]
+    View.pokemon pokemon.name pokemon.id
 
 
 viewType : PokemonType -> Styled.Html msg
@@ -70,7 +58,13 @@ viewType pokemonType =
         [ Styled.h2
             [ css [ margin3 (px 0) auto (px 20) ] ]
             [ Styled.text pokemonType.name ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ displayFlex
+                , flexWrap wrap
+                , justifyContent center
+                ]
+            ]
             (List.map viewPokemon pokemonType.pokemon)
         ]
 

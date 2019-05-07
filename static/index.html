@@ -10741,49 +10741,8 @@ var author$project$Page$Pokemon$view = function (model) {
 					author$project$Page$Pokemon$viewPokemon(model)
 				])));
 };
-var author$project$Page$PokemonType$pokemonImageSrc = function (id) {
-	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
-};
 var author$project$Page$PokemonType$viewPokemon = function (pokemon) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				rtfeldman$elm_css$Html$Styled$a,
-				_List_fromArray(
-					[
-						author$project$Route$styledHref(
-						author$project$Route$Pokemon(
-							elm$core$String$fromInt(pokemon.id)))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(
-								_List_fromArray(
-									[
-										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
-									]))
-							]),
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$text(pokemon.name)
-							]))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$img,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$src(
-						author$project$Page$PokemonType$pokemonImageSrc(pokemon.id))
-					]),
-				_List_Nil)
-			]));
+	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 };
 var author$project$Page$PokemonType$viewType = function (pokemonType) {
 	return A2(
@@ -10811,7 +10770,16 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
+					]),
 				A2(elm$core$List$map, author$project$Page$PokemonType$viewPokemon, pokemonType.pokemon))
 			]));
 };
