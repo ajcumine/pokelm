@@ -30,6 +30,7 @@ type alias BasePokemon =
     { name : String
     , id : Int
     , types : List PokemonType
+    , speciesUrl : String
     }
 
 
@@ -218,6 +219,7 @@ pokemonDecoder =
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "id" Decode.int
         |> Pipeline.required "types" (Decode.list pokemonTypeDecoder)
+        |> Pipeline.requiredAt [ "species", "url" ] Decode.string
 
 
 getId : String -> Int
@@ -255,19 +257,26 @@ speciesDecoder =
         |> Pipeline.required "varieties" (Decode.list varietyDecoder)
 
 
-buildPokemon : BasePokemon -> PokemonDetail -> Pokemon
-buildPokemon basePokemon speciesEvolution =
-    { name = basePokemon.name
-    , id = basePokemon.id
-    , types = basePokemon.types
-    , evolutionChain = speciesEvolution.evolutionChain
-    , varieties = speciesEvolution.varieties
-    }
+buildPokemonData : BasePokemon -> WebData PokemonDetail -> WebData Pokemon
+buildPokemonData basePokemon pokemonDetailResponse =
+    case pokemonDetailResponse of
+        RemoteData.Success pokemonDetail ->
+            RemoteData.succeed
+                { name = basePokemon.name
+                , id = basePokemon.id
+                , types = basePokemon.types
+                , evolutionChain = pokemonDetail.evolutionChain
+                , varieties = pokemonDetail.varieties
+                }
 
+        RemoteData.Failure error ->
+            RemoteData.Failure error
 
-buildPokemonResponse : WebData BasePokemon -> WebData PokemonDetail -> WebData Pokemon
-buildPokemonResponse pokemonResponse evolutionsResponse =
-    RemoteData.map2 buildPokemon pokemonResponse evolutionsResponse
+        RemoteData.NotAsked ->
+            RemoteData.NotAsked
+
+        RemoteData.Loading ->
+            RemoteData.Loading
 
 
 buildSpeciesEvolution : Species -> WebData EvolutionChain -> WebData PokemonDetail
@@ -319,8 +328,8 @@ getEvolutions evolutionChainUrl =
 
 
 getSpecies : String -> Task () (WebData Species)
-getSpecies nameOrId =
-    RemoteData.Http.getTask ("https://pokeapi.co/api/v2/pokemon-species/" ++ nameOrId) speciesDecoder
+getSpecies speciesUrl =
+    RemoteData.Http.getTask speciesUrl speciesDecoder
 
 
 getPokemon : String -> Task () (WebData BasePokemon)
@@ -330,7 +339,22 @@ getPokemon nameOrId =
 
 fetch : String -> Cmd Model
 fetch nameOrId =
-    Task.map2 buildPokemonResponse (getPokemon nameOrId) (getPokemonDetails nameOrId)
+    getPokemon nameOrId
+        |> Task.andThen
+            (\basePokemonResponse ->
+                case basePokemonResponse of
+                    RemoteData.Success basePokemon ->
+                        Task.map2 buildPokemonData (Task.succeed basePokemon) (getPokemonDetails basePokemon.speciesUrl)
+
+                    RemoteData.Failure error ->
+                        Task.succeed (RemoteData.Failure error)
+
+                    RemoteData.NotAsked ->
+                        Task.succeed RemoteData.NotAsked
+
+                    RemoteData.Loading ->
+                        Task.succeed RemoteData.Loading
+            )
         |> Task.attempt
             (\result ->
                 case result of
