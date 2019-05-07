@@ -6400,6 +6400,9 @@ var author$project$Page$Pokemon$evolutionsDecoder = A3(
 				['chain', 'species', 'name']),
 			elm$json$Json$Decode$string,
 			elm$json$Json$Decode$succeed(author$project$Page$Pokemon$EvolutionChain))));
+var author$project$Page$Pokemon$getEvolutions = function (evolutionChainUrl) {
+	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder);
+};
 var author$project$Page$Pokemon$Species = function (evolutionChainUrl) {
 	return {evolutionChainUrl: evolutionChainUrl};
 };
@@ -6439,7 +6442,7 @@ var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 						elm$core$Task$map2,
 						author$project$Page$Pokemon$buildSpeciesEvolution,
 						elm$core$Task$succeed(species),
-						A2(ohanhi$remotedata_http$RemoteData$Http$getTask, species.evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder));
+						author$project$Page$Pokemon$getEvolutions(species.evolutionChainUrl));
 				case 'Failure':
 					var error = speciesResponse.a;
 					return krisajenkins$remotedata$RemoteData$fromTask(

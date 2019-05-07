@@ -304,7 +304,7 @@ getPokemonDetails nameOrId =
             (\speciesResponse ->
                 case speciesResponse of
                     RemoteData.Success species ->
-                        Task.map2 buildSpeciesEvolution (Task.succeed species) (RemoteData.Http.getTask species.evolutionChainUrl evolutionsDecoder)
+                        Task.map2 buildSpeciesEvolution (Task.succeed species) (getEvolutions species.evolutionChainUrl)
 
                     RemoteData.Failure error ->
                         Task.fail error |> RemoteData.fromTask
@@ -312,6 +312,11 @@ getPokemonDetails nameOrId =
                     _ ->
                         Task.fail Http.NetworkError |> RemoteData.fromTask
             )
+
+
+getEvolutions : String -> Task () (WebData EvolutionChain)
+getEvolutions evolutionChainUrl =
+    RemoteData.Http.getTask evolutionChainUrl evolutionsDecoder
 
 
 getSpecies : String -> Task () (WebData Species)
