@@ -21,12 +21,6 @@ type alias Model =
     WebData Pokemon
 
 
-type alias Sprites =
-    { default : String
-    , shiny : String
-    }
-
-
 type alias PokemonType =
     { name : String }
 
@@ -35,7 +29,6 @@ type alias BasePokemon =
     { name : String
     , id : Int
     , types : List PokemonType
-    , sprites : Sprites
     }
 
 
@@ -72,7 +65,6 @@ type alias Pokemon =
     { name : String
     , id : Int
     , types : List PokemonType
-    , sprites : Sprites
     , evolutionChain : EvolutionChain
     , varieties : List Variety
     }
@@ -225,13 +217,6 @@ view model =
 -- SERIALISATION
 
 
-spriteDecoder : Decoder Sprites
-spriteDecoder =
-    Decode.succeed Sprites
-        |> Pipeline.required "front_default" Decode.string
-        |> Pipeline.required "front_shiny" Decode.string
-
-
 pokemonTypeDecoder : Decoder PokemonType
 pokemonTypeDecoder =
     Decode.succeed PokemonType
@@ -244,7 +229,6 @@ pokemonDecoder =
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "id" Decode.int
         |> Pipeline.required "types" (Decode.list pokemonTypeDecoder)
-        |> Pipeline.required "sprites" spriteDecoder
 
 
 getId : String -> Int
@@ -287,7 +271,6 @@ buildPokemon basePokemon speciesEvolution =
     { name = basePokemon.name
     , id = basePokemon.id
     , types = basePokemon.types
-    , sprites = basePokemon.sprites
     , evolutionChain = speciesEvolution.evolutionChain
     , varieties = speciesEvolution.varieties
     }

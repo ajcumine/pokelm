@@ -6017,7 +6017,7 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	});
 var author$project$Page$Pokemon$buildPokemon = F2(
 	function (basePokemon, speciesEvolution) {
-		return {evolutionChain: speciesEvolution.evolutionChain, id: basePokemon.id, name: basePokemon.name, sprites: basePokemon.sprites, types: basePokemon.types, varieties: speciesEvolution.varieties};
+		return {evolutionChain: speciesEvolution.evolutionChain, id: basePokemon.id, name: basePokemon.name, types: basePokemon.types, varieties: speciesEvolution.varieties};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
@@ -6123,9 +6123,9 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2(elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var author$project$Page$Pokemon$BasePokemon = F4(
-	function (name, id, types, sprites) {
-		return {id: id, name: name, sprites: sprites, types: types};
+var author$project$Page$Pokemon$BasePokemon = F3(
+	function (name, id, types) {
+		return {id: id, name: name, types: types};
 	});
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
 	function (path, valDecoder, decoder) {
@@ -6144,37 +6144,20 @@ var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
 		['type', 'name']),
 	elm$json$Json$Decode$string,
 	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$PokemonType));
-var author$project$Page$Pokemon$Sprites = F2(
-	function (_default, shiny) {
-		return {_default: _default, shiny: shiny};
-	});
-var author$project$Page$Pokemon$spriteDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'front_shiny',
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'front_default',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Sprites)));
 var elm$json$Json$Decode$int = _Json_decodeInt;
 var author$project$Page$Pokemon$pokemonDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'sprites',
-	author$project$Page$Pokemon$spriteDecoder,
+	'types',
+	elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'types',
-		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
+		'id',
+		elm$json$Json$Decode$int,
 		A3(
 			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$BasePokemon)))));
+			'name',
+			elm$json$Json$Decode$string,
+			elm$json$Json$Decode$succeed(author$project$Page$Pokemon$BasePokemon))));
 var elm$core$Task$fail = _Scheduler_fail;
 var elm$http$Http$resultToTask = function (result) {
 	if (result.$ === 'Ok') {
