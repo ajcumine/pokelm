@@ -88,24 +88,11 @@ viewEvolution evolution =
             , alignItems center
             ]
         ]
-        [ Styled.a
-            [ Route.styledHref (Route.Pokemon (String.fromInt evolution.id))
-            ]
-            [ Styled.div
-                [ css
-                    [ textTransform capitalize
-                    ]
-                ]
-                [ Styled.text evolution.name
-                ]
-            ]
+        [ View.pokemon evolution.name evolution.id
         , case evolution.evolutionChain of
             Evolutions evolutions ->
                 Styled.div
-                    [ css
-                        [ marginLeft (px 20)
-                        ]
-                    ]
+                    []
                     (List.map viewEvolution evolutions)
         ]
 
