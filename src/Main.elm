@@ -9,6 +9,7 @@ import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
 import Page.PokemonType as PokemonType
 import Page.Types as Types
+import RemoteData
 import Route exposing (Route)
 import Url exposing (Url)
 
@@ -117,13 +118,21 @@ fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
     case route of
         Route.Pokedex ->
-            Pokedex.fetch |> Cmd.map PokedexFetchResponse
+            if RemoteData.isNotAsked model.pokedex then
+                Pokedex.fetch |> Cmd.map PokedexFetchResponse
+
+            else
+                Cmd.none
 
         Route.Pokemon nameOrId ->
             Pokemon.fetch nameOrId |> Cmd.map PokemonFetchResponse
 
         Route.Types ->
-            Types.fetch |> Cmd.map TypesFetchResponse
+            if RemoteData.isNotAsked model.types then
+                Types.fetch |> Cmd.map TypesFetchResponse
+
+            else
+                Cmd.none
 
         Route.PokemonType nameOrId ->
             PokemonType.fetch nameOrId |> Cmd.map PokemonTypeFetchResponse

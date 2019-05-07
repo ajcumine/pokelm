@@ -6616,11 +6616,18 @@ var author$project$Page$Types$fetch = elm$http$Http$get(
 var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
+var krisajenkins$remotedata$RemoteData$isNotAsked = function (data) {
+	if (data.$ === 'NotAsked') {
+		return true;
+	} else {
+		return false;
+	}
+};
 var author$project$Main$fetchRouteData = F2(
 	function (model, route) {
 		switch (route.$) {
 			case 'Pokedex':
-				return A2(elm$core$Platform$Cmd$map, author$project$Main$PokedexFetchResponse, author$project$Page$Pokedex$fetch);
+				return krisajenkins$remotedata$RemoteData$isNotAsked(model.pokedex) ? A2(elm$core$Platform$Cmd$map, author$project$Main$PokedexFetchResponse, author$project$Page$Pokedex$fetch) : elm$core$Platform$Cmd$none;
 			case 'Pokemon':
 				var nameOrId = route.a;
 				return A2(
@@ -6628,7 +6635,7 @@ var author$project$Main$fetchRouteData = F2(
 					author$project$Main$PokemonFetchResponse,
 					author$project$Page$Pokemon$fetch(nameOrId));
 			case 'Types':
-				return A2(elm$core$Platform$Cmd$map, author$project$Main$TypesFetchResponse, author$project$Page$Types$fetch);
+				return krisajenkins$remotedata$RemoteData$isNotAsked(model.types) ? A2(elm$core$Platform$Cmd$map, author$project$Main$TypesFetchResponse, author$project$Page$Types$fetch) : elm$core$Platform$Cmd$none;
 			case 'PokemonType':
 				var nameOrId = route.a;
 				return A2(
