@@ -61,6 +61,7 @@ type alias Pokemon =
     , types : List PokemonType
     , sprites : Sprites
     , evolutionChain : EvolutionChain
+    , evolutionChainUrl : String
     }
 
 
@@ -155,6 +156,7 @@ viewPokemonDetails pokemon =
             ]
             (List.map viewType pokemon.types)
         , Styled.h3 [] [ Styled.text "Evolution Chain" ]
+        , Styled.h3 [] [ Styled.text pokemon.evolutionChainUrl ]
         , Styled.div []
             [ viewEvolution pokemon.evolutionChain ]
         ]
@@ -250,33 +252,59 @@ speciesDecoder =
         |> Pipeline.requiredAt [ "evolution_chain", "url" ] Decode.string
 
 
-buildPokemon : BasePokemon -> EvolutionChain -> Pokemon
-buildPokemon basePokemon evolutionChain =
+buildPokemon : BasePokemon -> SpeciesEvolution -> Pokemon
+buildPokemon basePokemon speciesEvolution =
     { name = basePokemon.name
     , id = basePokemon.id
     , types = basePokemon.types
     , sprites = basePokemon.sprites
-    , evolutionChain = evolutionChain
+    , evolutionChain = speciesEvolution.evolutionChain
+    , evolutionChainUrl = speciesEvolution.evolutionChainUrl
     }
 
 
-buildPokemonResponse : WebData BasePokemon -> WebData EvolutionChain -> WebData Pokemon
+buildPokemonResponse : WebData BasePokemon -> WebData SpeciesEvolution -> WebData Pokemon
 buildPokemonResponse pokemonResponse evolutionsResponse =
     RemoteData.map2 buildPokemon pokemonResponse evolutionsResponse
+
+
+type alias SpeciesEvolution =
+    { evolutionChain : EvolutionChain
+    , evolutionChainUrl : String
+    }
+
+
+buildSpeciesEvolution : Species -> WebData EvolutionChain -> WebData SpeciesEvolution
+buildSpeciesEvolution species evolutionChainResponse =
+    case evolutionChainResponse of
+        RemoteData.Success evolutionChain ->
+            RemoteData.succeed
+                { evolutionChain = evolutionChain
+                , evolutionChainUrl = species.evolutionChainUrl
+                }
+
+        RemoteData.Failure error ->
+            RemoteData.Failure error
+
+        RemoteData.NotAsked ->
+            RemoteData.NotAsked
+
+        RemoteData.Loading ->
+            RemoteData.Loading
 
 
 
 -- HTTP
 
 
-getEvolutions : String -> Task () (WebData EvolutionChain)
-getEvolutions nameOrId =
+getSpeciesEvolutions : String -> Task () (WebData SpeciesEvolution)
+getSpeciesEvolutions nameOrId =
     getSpecies nameOrId
         |> Task.andThen
-            (\speciesData ->
-                case speciesData of
-                    RemoteData.Success result ->
-                        RemoteData.Http.getTask result.evolutionChainUrl evolutionsDecoder
+            (\speciesResponse ->
+                case speciesResponse of
+                    RemoteData.Success species ->
+                        Task.map2 buildSpeciesEvolution (Task.succeed species) (RemoteData.Http.getTask species.evolutionChainUrl evolutionsDecoder)
 
                     RemoteData.Failure error ->
                         Task.fail error |> RemoteData.fromTask
@@ -298,7 +326,7 @@ getPokemon nameOrId =
 
 fetch : String -> Cmd Model
 fetch nameOrId =
-    Task.map2 buildPokemonResponse (getPokemon nameOrId) (getEvolutions nameOrId)
+    Task.map2 buildPokemonResponse (getPokemon nameOrId) (getSpeciesEvolutions nameOrId)
         |> Task.attempt
             (\result ->
                 case result of

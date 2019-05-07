@@ -6016,8 +6016,8 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
 	});
 var author$project$Page$Pokemon$buildPokemon = F2(
-	function (basePokemon, evolutionChain) {
-		return {evolutionChain: evolutionChain, id: basePokemon.id, name: basePokemon.name, sprites: basePokemon.sprites, types: basePokemon.types};
+	function (basePokemon, speciesEvolution) {
+		return {evolutionChain: speciesEvolution.evolutionChain, evolutionChainUrl: speciesEvolution.evolutionChainUrl, id: basePokemon.id, name: basePokemon.name, sprites: basePokemon.sprites, types: basePokemon.types};
 	});
 var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
 var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
@@ -6116,20 +6116,6 @@ var author$project$Page$Pokemon$buildPokemonResponse = F2(
 	});
 var elm$json$Json$Decode$map2 = _Json_map2;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
-	function (path, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$at, path, valDecoder),
-			decoder);
-	});
-var author$project$Page$Pokemon$EvolutionChain = F3(
-	function (name, id, evolutionChain) {
-		return {evolutionChain: evolutionChain, id: id, name: name};
-	});
-var author$project$Page$Pokemon$Evolutions = function (a) {
-	return {$: 'Evolutions', a: a};
-};
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
 		return A2(
@@ -6137,94 +6123,58 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2(elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var author$project$Page$Pokemon$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
+var author$project$Page$Pokemon$BasePokemon = F4(
+	function (name, id, types, sprites) {
+		return {id: id, name: name, sprites: sprites, types: types};
+	});
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$at, path, valDecoder),
+			decoder);
+	});
+var author$project$Page$Pokemon$PokemonType = function (name) {
+	return {name: name};
 };
-var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$succeed = _Json_succeed;
-var elm$json$Json$Decode$lazy = function (thunk) {
-	return A2(
-		elm$json$Json$Decode$andThen,
-		thunk,
-		elm$json$Json$Decode$succeed(_Utils_Tuple0));
-};
-function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
-	return A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'evolves_to',
-		A2(
-			elm$json$Json$Decode$map,
-			author$project$Page$Pokemon$Evolutions,
-			elm$json$Json$Decode$list(
-				elm$json$Json$Decode$lazy(
-					function (_n0) {
-						return author$project$Page$Pokemon$cyclic$evolutionDecoder();
-					}))),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['species', 'url']),
-			A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-				_List_fromArray(
-					['species', 'name']),
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$EvolutionChain))));
-}
-try {
-	var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
-	author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
-		return author$project$Page$Pokemon$evolutionDecoder;
-	};
-} catch ($) {
-throw 'Some top-level definitions from `Page.Pokemon` are causing infinite recursion:\n\n  ┌─────┐\n  │    evolutionDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
-var author$project$Page$Pokemon$evolutionsDecoder = A3(
+var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
-		['chain', 'evolves_to']),
-	A2(
-		elm$json$Json$Decode$map,
-		author$project$Page$Pokemon$Evolutions,
-		elm$json$Json$Decode$list(
-			elm$json$Json$Decode$lazy(
-				function (_n0) {
-					return author$project$Page$Pokemon$evolutionDecoder;
-				}))),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['chain', 'species', 'url']),
-		A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['chain', 'species', 'name']),
-			elm$json$Json$Decode$string,
-			elm$json$Json$Decode$succeed(author$project$Page$Pokemon$EvolutionChain))));
-var author$project$Page$Pokemon$Species = function (evolutionChainUrl) {
-	return {evolutionChainUrl: evolutionChainUrl};
-};
-var author$project$Page$Pokemon$speciesDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['evolution_chain', 'url']),
+		['type', 'name']),
 	elm$json$Json$Decode$string,
-	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Species));
+	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$PokemonType));
+var author$project$Page$Pokemon$Sprites = F2(
+	function (_default, shiny) {
+		return {_default: _default, shiny: shiny};
+	});
+var author$project$Page$Pokemon$spriteDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'front_shiny',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'front_default',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Sprites)));
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var author$project$Page$Pokemon$pokemonDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'sprites',
+	author$project$Page$Pokemon$spriteDecoder,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'types',
+		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			elm$json$Json$Decode$int,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'name',
+				elm$json$Json$Decode$string,
+				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$BasePokemon)))));
 var elm$core$Task$fail = _Scheduler_fail;
 var elm$http$Http$resultToTask = function (result) {
 	if (result.$ === 'Ok') {
@@ -6345,6 +6295,120 @@ var ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig = _Utils_update(
 		headers: A2(elm$core$List$cons, ohanhi$remotedata_http$RemoteData$Http$noCache, ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
 	});
 var ohanhi$remotedata_http$RemoteData$Http$getTask = ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig(ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig);
+var author$project$Page$Pokemon$getPokemon = function (nameOrId) {
+	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon/' + nameOrId, author$project$Page$Pokemon$pokemonDecoder);
+};
+var krisajenkins$remotedata$RemoteData$succeed = krisajenkins$remotedata$RemoteData$Success;
+var author$project$Page$Pokemon$buildSpeciesEvolution = F2(
+	function (species, evolutionChainResponse) {
+		switch (evolutionChainResponse.$) {
+			case 'Success':
+				var evolutionChain = evolutionChainResponse.a;
+				return krisajenkins$remotedata$RemoteData$succeed(
+					{evolutionChain: evolutionChain, evolutionChainUrl: species.evolutionChainUrl});
+			case 'Failure':
+				var error = evolutionChainResponse.a;
+				return krisajenkins$remotedata$RemoteData$Failure(error);
+			case 'NotAsked':
+				return krisajenkins$remotedata$RemoteData$NotAsked;
+			default:
+				return krisajenkins$remotedata$RemoteData$Loading;
+		}
+	});
+var author$project$Page$Pokemon$EvolutionChain = F3(
+	function (name, id, evolutionChain) {
+		return {evolutionChain: evolutionChain, id: id, name: name};
+	});
+var author$project$Page$Pokemon$Evolutions = function (a) {
+	return {$: 'Evolutions', a: a};
+};
+var author$project$Page$Pokemon$getId = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(
+			A2(
+				elm$core$Maybe$withDefault,
+				'0',
+				elm$core$List$head(
+					A2(
+						elm$core$Maybe$withDefault,
+						_List_fromArray(
+							['1']),
+						elm$core$List$tail(
+							elm$core$List$reverse(
+								A2(elm$core$String$split, '/', url))))))));
+};
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		elm$json$Json$Decode$andThen,
+		thunk,
+		elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
+	return A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'evolves_to',
+		A2(
+			elm$json$Json$Decode$map,
+			author$project$Page$Pokemon$Evolutions,
+			elm$json$Json$Decode$list(
+				elm$json$Json$Decode$lazy(
+					function (_n0) {
+						return author$project$Page$Pokemon$cyclic$evolutionDecoder();
+					}))),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['species', 'url']),
+			A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+				_List_fromArray(
+					['species', 'name']),
+				elm$json$Json$Decode$string,
+				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$EvolutionChain))));
+}
+try {
+	var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
+	author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
+		return author$project$Page$Pokemon$evolutionDecoder;
+	};
+} catch ($) {
+throw 'Some top-level definitions from `Page.Pokemon` are causing infinite recursion:\n\n  ┌─────┐\n  │    evolutionDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
+var author$project$Page$Pokemon$evolutionsDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['chain', 'evolves_to']),
+	A2(
+		elm$json$Json$Decode$map,
+		author$project$Page$Pokemon$Evolutions,
+		elm$json$Json$Decode$list(
+			elm$json$Json$Decode$lazy(
+				function (_n0) {
+					return author$project$Page$Pokemon$evolutionDecoder;
+				}))),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['chain', 'species', 'url']),
+		A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['chain', 'species', 'name']),
+			elm$json$Json$Decode$string,
+			elm$json$Json$Decode$succeed(author$project$Page$Pokemon$EvolutionChain))));
+var author$project$Page$Pokemon$Species = function (evolutionChainUrl) {
+	return {evolutionChainUrl: evolutionChainUrl};
+};
+var author$project$Page$Pokemon$speciesDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['evolution_chain', 'url']),
+	elm$json$Json$Decode$string,
+	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Species));
 var author$project$Page$Pokemon$getSpecies = function (nameOrId) {
 	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon-species/' + nameOrId, author$project$Page$Pokemon$speciesDecoder);
 };
@@ -6364,16 +6428,20 @@ var krisajenkins$remotedata$RemoteData$fromTask = A2(
 	elm$core$Task$map(krisajenkins$remotedata$RemoteData$Success),
 	elm$core$Task$onError(
 		A2(elm$core$Basics$composeR, krisajenkins$remotedata$RemoteData$Failure, elm$core$Task$succeed)));
-var author$project$Page$Pokemon$getEvolutions = function (nameOrId) {
+var author$project$Page$Pokemon$getSpeciesEvolutions = function (nameOrId) {
 	return A2(
 		elm$core$Task$andThen,
-		function (speciesData) {
-			switch (speciesData.$) {
+		function (speciesResponse) {
+			switch (speciesResponse.$) {
 				case 'Success':
-					var result = speciesData.a;
-					return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, result.evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder);
+					var species = speciesResponse.a;
+					return A3(
+						elm$core$Task$map2,
+						author$project$Page$Pokemon$buildSpeciesEvolution,
+						elm$core$Task$succeed(species),
+						A2(ohanhi$remotedata_http$RemoteData$Http$getTask, species.evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder));
 				case 'Failure':
-					var error = speciesData.a;
+					var error = speciesResponse.a;
 					return krisajenkins$remotedata$RemoteData$fromTask(
 						elm$core$Task$fail(error));
 				default:
@@ -6382,53 +6450,6 @@ var author$project$Page$Pokemon$getEvolutions = function (nameOrId) {
 			}
 		},
 		author$project$Page$Pokemon$getSpecies(nameOrId));
-};
-var author$project$Page$Pokemon$BasePokemon = F4(
-	function (name, id, types, sprites) {
-		return {id: id, name: name, sprites: sprites, types: types};
-	});
-var author$project$Page$Pokemon$PokemonType = function (name) {
-	return {name: name};
-};
-var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['type', 'name']),
-	elm$json$Json$Decode$string,
-	elm$json$Json$Decode$succeed(author$project$Page$Pokemon$PokemonType));
-var author$project$Page$Pokemon$Sprites = F2(
-	function (_default, shiny) {
-		return {_default: _default, shiny: shiny};
-	});
-var author$project$Page$Pokemon$spriteDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'front_shiny',
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'front_default',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Page$Pokemon$Sprites)));
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var author$project$Page$Pokemon$pokemonDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'sprites',
-	author$project$Page$Pokemon$spriteDecoder,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'types',
-		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Page$Pokemon$BasePokemon)))));
-var author$project$Page$Pokemon$getPokemon = function (nameOrId) {
-	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon/' + nameOrId, author$project$Page$Pokemon$pokemonDecoder);
 };
 var elm$core$Task$Perform = function (a) {
 	return {$: 'Perform', a: a};
@@ -6515,7 +6536,7 @@ var author$project$Page$Pokemon$fetch = function (nameOrId) {
 			elm$core$Task$map2,
 			author$project$Page$Pokemon$buildPokemonResponse,
 			author$project$Page$Pokemon$getPokemon(nameOrId),
-			author$project$Page$Pokemon$getEvolutions(nameOrId)));
+			author$project$Page$Pokemon$getSpeciesEvolutions(nameOrId)));
 };
 var author$project$Page$PokemonType$PokemonType = F3(
 	function (name, id, pokemon) {
@@ -10662,6 +10683,13 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 				_List_fromArray(
 					[
 						rtfeldman$elm_css$Html$Styled$text('Evolution Chain')
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$h3,
+				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text(pokemon.evolutionChainUrl)
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
