@@ -6,9 +6,9 @@
   "author": "ajcumine <ajcumine@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "elm make ./src/Main.elm --output ./static/index.html",
-    "dev": "ecstatic ./static --port 9966 & chokidar 'src/**/*.elm' -c 'yarn build'",
-    "start": "ecstatic ./static --port 9966"
+    "build": "elm make ./src/Main.elm --output elm.js",
+    "dev": "ecstatic . --port 9966 & chokidar 'src/**/*.elm' -c 'yarn build'",
+    "start": "ecstatic . --port 9966"
   },
   "devDependencies": {
     "chokidar-cli": "^1.2.2",
