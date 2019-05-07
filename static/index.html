@@ -7257,12 +7257,6 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Page$Pokedex$pokemonImageSrc = function (id) {
-	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
-};
-var author$project$Page$Pokedex$shinyImageSrc = function (id) {
-	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
-};
 var author$project$Route$routeToString = function (route) {
 	var pieces = function () {
 		switch (route.$) {
@@ -7319,6 +7313,12 @@ var rtfeldman$elm_css$Html$Styled$Attributes$href = function (url) {
 var author$project$Route$styledHref = function (targetRoute) {
 	return rtfeldman$elm_css$Html$Styled$Attributes$href(
 		author$project$Route$routeToString(targetRoute));
+};
+var author$project$View$pokemonImageSrc = function (id) {
+	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+};
+var author$project$View$shinyImageSrc = function (id) {
+	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
 var rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
 	return {$: 'AppendProperty', a: a};
@@ -9846,89 +9846,93 @@ var rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
 	return A3(rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, styles, classname);
 };
 var rtfeldman$elm_css$Html$Styled$Attributes$css = rtfeldman$elm_css$Html$Styled$Internal$css;
+var author$project$View$pokemon = F2(
+	function (name, id) {
+		return A2(
+			rtfeldman$elm_css$Html$Styled$a,
+			_List_fromArray(
+				[
+					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Css$displayFlex,
+							rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
+							rtfeldman$elm_css$Css$padding(
+							rtfeldman$elm_css$Css$px(8)),
+							rtfeldman$elm_css$Css$margin(
+							rtfeldman$elm_css$Css$px(4)),
+							A3(
+							rtfeldman$elm_css$Css$border3,
+							rtfeldman$elm_css$Css$px(1),
+							rtfeldman$elm_css$Css$solid,
+							rtfeldman$elm_css$Css$hex('#ddd')),
+							rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
+							rtfeldman$elm_css$Css$color(
+							rtfeldman$elm_css$Css$hex('#000')),
+							rtfeldman$elm_css$Css$width(
+							rtfeldman$elm_css$Css$px(100)),
+							rtfeldman$elm_css$Css$height(
+							rtfeldman$elm_css$Css$px(120))
+						])),
+					author$project$Route$styledHref(
+					author$project$Route$Pokemon(
+						elm$core$String$fromInt(id)))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					rtfeldman$elm_css$Html$Styled$span,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
+									rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
+									rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none)
+								]))
+						]),
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text(name)
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$alignSelf(rtfeldman$elm_css$Css$center),
+									rtfeldman$elm_css$Css$width(
+									rtfeldman$elm_css$Css$px(96)),
+									rtfeldman$elm_css$Css$height(
+									rtfeldman$elm_css$Css$px(96)),
+									rtfeldman$elm_css$Css$backgroundImage(
+									rtfeldman$elm_css$Css$url(
+										author$project$View$pokemonImageSrc(id))),
+									rtfeldman$elm_css$Css$backgroundSize(rtfeldman$elm_css$Css$contain),
+									rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
+									rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
+									rtfeldman$elm_css$Css$Transitions$transition(
+									_List_fromArray(
+										[
+											rtfeldman$elm_css$Css$Transitions$background(500)
+										])),
+									rtfeldman$elm_css$Css$hover(
+									_List_fromArray(
+										[
+											rtfeldman$elm_css$Css$backgroundImage(
+											rtfeldman$elm_css$Css$url(
+												author$project$View$shinyImageSrc(id)))
+										]))
+								]))
+						]),
+					_List_Nil)
+				]));
+	});
 var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$a,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
-						rtfeldman$elm_css$Css$padding(
-						rtfeldman$elm_css$Css$px(8)),
-						rtfeldman$elm_css$Css$margin(
-						rtfeldman$elm_css$Css$px(4)),
-						A3(
-						rtfeldman$elm_css$Css$border3,
-						rtfeldman$elm_css$Css$px(1),
-						rtfeldman$elm_css$Css$solid,
-						rtfeldman$elm_css$Css$hex('#ddd')),
-						rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
-						rtfeldman$elm_css$Css$color(
-						rtfeldman$elm_css$Css$hex('#000')),
-						rtfeldman$elm_css$Css$width(
-						rtfeldman$elm_css$Css$px(100)),
-						rtfeldman$elm_css$Css$height(
-						rtfeldman$elm_css$Css$px(120))
-					])),
-				author$project$Route$styledHref(
-				author$project$Route$Pokemon(
-					elm$core$String$fromInt(pokemon.id)))
-			]),
-		_List_fromArray(
-			[
-				A2(
-				rtfeldman$elm_css$Html$Styled$span,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-								rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
-								rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none)
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text(pokemon.name)
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$alignSelf(rtfeldman$elm_css$Css$center),
-								rtfeldman$elm_css$Css$width(
-								rtfeldman$elm_css$Css$px(96)),
-								rtfeldman$elm_css$Css$height(
-								rtfeldman$elm_css$Css$px(96)),
-								rtfeldman$elm_css$Css$backgroundImage(
-								rtfeldman$elm_css$Css$url(
-									author$project$Page$Pokedex$pokemonImageSrc(pokemon.id))),
-								rtfeldman$elm_css$Css$backgroundSize(rtfeldman$elm_css$Css$contain),
-								rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
-								rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
-								rtfeldman$elm_css$Css$Transitions$transition(
-								_List_fromArray(
-									[
-										rtfeldman$elm_css$Css$Transitions$background(500)
-									])),
-								rtfeldman$elm_css$Css$hover(
-								_List_fromArray(
-									[
-										rtfeldman$elm_css$Css$backgroundImage(
-										rtfeldman$elm_css$Css$url(
-											author$project$Page$Pokedex$shinyImageSrc(pokemon.id)))
-									]))
-							]))
-					]),
-				_List_Nil)
-			]));
+	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 };
 var rtfeldman$elm_css$Css$flexWrap = rtfeldman$elm_css$Css$prop1('flex-wrap');
 var rtfeldman$elm_css$Css$justifyContent = function (fn) {
@@ -10621,13 +10625,7 @@ var author$project$Page$Pokemon$viewType = function (pokemonType) {
 			]));
 };
 var author$project$Page$Pokemon$viewVariety = function (variety) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$text(variety.name)
-			]));
+	return A2(author$project$View$pokemon, variety.name, variety.id);
 };
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
@@ -10715,7 +10713,12 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[rtfeldman$elm_css$Css$displayFlex]))
+					]),
 				A2(elm$core$List$map, author$project$Page$Pokemon$viewVariety, pokemon.varieties))
 			]));
 };

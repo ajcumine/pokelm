@@ -11,6 +11,7 @@ import RemoteData exposing (WebData)
 import RemoteData.Http
 import Route
 import Task exposing (Task)
+import View
 
 
 
@@ -143,9 +144,7 @@ shinyImageSrc id =
 
 viewVariety : Variety -> Styled.Html msg
 viewVariety variety =
-    Styled.div []
-        [ Styled.text variety.name
-        ]
+    View.pokemon variety.name variety.id
 
 
 viewPokemonDetails : Pokemon -> Styled.Html msg
@@ -171,7 +170,10 @@ viewPokemonDetails pokemon =
         , Styled.div []
             [ viewEvolution pokemon.evolutionChain ]
         , Styled.h3 [] [ Styled.text "Varieties" ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ displayFlex ]
+            ]
             (List.map viewVariety pokemon.varieties)
         ]
 

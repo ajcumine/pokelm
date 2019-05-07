@@ -9,6 +9,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import RemoteData exposing (WebData)
 import Route
+import View
 
 
 
@@ -39,59 +40,9 @@ init =
 -- VIEW
 
 
-pokemonImageSrc : Int -> String
-pokemonImageSrc id =
-    "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
-
-
-shinyImageSrc : Int -> String
-shinyImageSrc id =
-    "/assets/images/shiny/" ++ String.fromInt id ++ ".png"
-
-
 viewPokemon : Pokemon -> Styled.Html msg
 viewPokemon pokemon =
-    Styled.a
-        [ css
-            [ displayFlex
-            , flexDirection column
-            , padding (px 8)
-            , margin (px 4)
-            , border3 (px 1) solid (hex "#ddd")
-            , textDecoration none
-            , color (hex "#000")
-            , width (px 100)
-            , height (px 120)
-            ]
-        , Route.styledHref (Route.Pokemon (String.fromInt pokemon.id))
-        ]
-        [ Styled.span
-            [ css
-                [ textAlign center
-                , textTransform capitalize
-                , textDecoration none
-                ]
-            ]
-            [ Styled.text pokemon.name ]
-        , Styled.div
-            [ css
-                [ alignSelf center
-                , width (px 96)
-                , height (px 96)
-                , backgroundImage (url (pokemonImageSrc pokemon.id))
-                , backgroundSize contain
-                , backgroundPosition center
-                , backgroundRepeat noRepeat
-                , transition
-                    [ Css.Transitions.background 500
-                    ]
-                , hover
-                    [ backgroundImage (url (shinyImageSrc pokemon.id))
-                    ]
-                ]
-            ]
-            []
-        ]
+    View.pokemon pokemon.name pokemon.id
 
 
 viewPokedex : Model -> Styled.Html msg
