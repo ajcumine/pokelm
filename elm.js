@@ -10461,10 +10461,10 @@ var author$project$Page$Pokedex$view = function (model) {
 				])));
 };
 var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
-	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
 };
 var author$project$Page$Pokemon$shinyImageSrc = function (id) {
-	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
+	return 'assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
 var rtfeldman$elm_css$Css$alignItems = function (fn) {
 	return A3(
