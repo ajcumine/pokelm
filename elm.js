@@ -7242,10 +7242,10 @@ var author$project$Route$styledHref = function (targetRoute) {
 		author$project$Route$routeToString(targetRoute));
 };
 var author$project$View$pokemonImageSrc = function (id) {
-	return '/assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
 };
 var author$project$View$shinyImageSrc = function (id) {
-	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
+	return 'assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
 var rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
 	return {$: 'AppendProperty', a: a};

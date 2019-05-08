@@ -10,12 +10,12 @@ import Route
 
 pokemonImageSrc : Int -> String
 pokemonImageSrc id =
-    "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
+    "assets/images/pokemon/" ++ String.fromInt id ++ ".png"
 
 
 shinyImageSrc : Int -> String
 shinyImageSrc id =
-    "/assets/images/shiny/" ++ String.fromInt id ++ ".png"
+    "assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
 pokemon : String -> Int -> Styled.Html msg
