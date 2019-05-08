@@ -10,7 +10,10 @@ import Route exposing (Route)
 viewNavLink : Route -> String -> Styled.Html msg
 viewNavLink route name =
     Styled.a
-        [ css [ marginRight (px 20) ]
+        [ css
+            [ marginRight (px 20)
+            , color (hex "#ffffff")
+            ]
         , Route.styledHref route
         ]
         [ Styled.text name ]
@@ -22,8 +25,11 @@ view =
         Styled.nav
             [ css
                 [ displayFlex
-                , height (px 60)
+                , height (px 72)
                 , alignItems center
+                , justifyContent flexEnd
+                , backgroundColor (hex "#202124")
+                , boxShadow5 (px 0) (px 4) (px 10) (px -1) (rgba 0 0 0 0.2)
                 ]
             ]
             [ viewNavLink Route.Pokedex "Home"

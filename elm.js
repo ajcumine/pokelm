@@ -10761,7 +10761,9 @@ var author$project$Navigation$viewNavLink = F2(
 					_List_fromArray(
 						[
 							rtfeldman$elm_css$Css$marginRight(
-							rtfeldman$elm_css$Css$px(20))
+							rtfeldman$elm_css$Css$px(20)),
+							rtfeldman$elm_css$Css$color(
+							rtfeldman$elm_css$Css$hex('#ffffff'))
 						])),
 					author$project$Route$styledHref(route)
 				]),
@@ -10770,6 +10772,7 @@ var author$project$Navigation$viewNavLink = F2(
 					rtfeldman$elm_css$Html$Styled$text(name)
 				]));
 	});
+var rtfeldman$elm_css$Css$flexEnd = rtfeldman$elm_css$Css$prop1('flex-end');
 var rtfeldman$elm_css$Html$Styled$nav = rtfeldman$elm_css$Html$Styled$node('nav');
 var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
 	A2(
@@ -10781,8 +10784,18 @@ var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
 					[
 						rtfeldman$elm_css$Css$displayFlex,
 						rtfeldman$elm_css$Css$height(
-						rtfeldman$elm_css$Css$px(60)),
-						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center)
+						rtfeldman$elm_css$Css$px(72)),
+						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$flexEnd),
+						rtfeldman$elm_css$Css$backgroundColor(
+						rtfeldman$elm_css$Css$hex('#202124')),
+						A5(
+						rtfeldman$elm_css$Css$boxShadow5,
+						rtfeldman$elm_css$Css$px(0),
+						rtfeldman$elm_css$Css$px(4),
+						rtfeldman$elm_css$Css$px(10),
+						rtfeldman$elm_css$Css$px(-1),
+						A4(rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.2))
 					]))
 			]),
 		_List_fromArray(
