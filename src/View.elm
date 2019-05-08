@@ -27,7 +27,6 @@ pokemon name id =
             , width (px 120)
             , height (px 160)
             , borderRadius (px 3)
-            , boxShadow5 (px 0) (px 1) (px 1) (px 0) (rgba 60 64 67 0.08)
             , boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.16)
             , paddingTop (px 16)
             , textDecoration none
@@ -38,8 +37,7 @@ pokemon name id =
             , backgroundPosition center
             , backgroundRepeat noRepeat
             , hover
-                [ boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.2)
-                , boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
+                [ boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
                 , backgroundImage (url (shinyImageSrc id))
                 ]
             , transition

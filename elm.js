@@ -9838,13 +9838,6 @@ var author$project$View$pokemon = F2(
 							rtfeldman$elm_css$Css$boxShadow5,
 							rtfeldman$elm_css$Css$px(0),
 							rtfeldman$elm_css$Css$px(1),
-							rtfeldman$elm_css$Css$px(1),
-							rtfeldman$elm_css$Css$px(0),
-							A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 8.0e-2)),
-							A5(
-							rtfeldman$elm_css$Css$boxShadow5,
-							rtfeldman$elm_css$Css$px(0),
-							rtfeldman$elm_css$Css$px(1),
 							rtfeldman$elm_css$Css$px(3),
 							rtfeldman$elm_css$Css$px(1),
 							A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
@@ -9863,13 +9856,6 @@ var author$project$View$pokemon = F2(
 							rtfeldman$elm_css$Css$hover(
 							_List_fromArray(
 								[
-									A5(
-									rtfeldman$elm_css$Css$boxShadow5,
-									rtfeldman$elm_css$Css$px(0),
-									rtfeldman$elm_css$Css$px(1),
-									rtfeldman$elm_css$Css$px(3),
-									rtfeldman$elm_css$Css$px(1),
-									A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.2)),
 									A5(
 									rtfeldman$elm_css$Css$boxShadow5,
 									rtfeldman$elm_css$Css$px(0),
@@ -10496,7 +10482,8 @@ var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 				_List_fromArray(
 					[
 						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center)
+						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
 					]))
 			]),
 		_List_fromArray(
@@ -10616,7 +10603,11 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 					[
 						rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
-							[rtfeldman$elm_css$Css$displayFlex]))
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
 					]),
 				A2(elm$core$List$map, author$project$Page$Pokemon$viewVariety, pokemon.varieties))
 			]));

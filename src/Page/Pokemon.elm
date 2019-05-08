@@ -87,6 +87,7 @@ viewEvolution evolution =
         [ css
             [ displayFlex
             , alignItems center
+            , justifyContent center
             ]
         ]
         [ View.pokemon evolution.name evolution.id
@@ -150,7 +151,10 @@ viewPokemonDetails pokemon =
         , Styled.h3 [] [ Styled.text "Varieties" ]
         , Styled.div
             [ css
-                [ displayFlex ]
+                [ displayFlex
+                , flexWrap wrap
+                , justifyContent center
+                ]
             ]
             (List.map viewVariety pokemon.varieties)
         ]
