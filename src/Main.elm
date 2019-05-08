@@ -12,6 +12,7 @@ import Page.Types as Types
 import RemoteData
 import Route exposing (Route)
 import Url exposing (Url)
+import View
 
 
 
@@ -151,7 +152,7 @@ view model =
     , body =
         [ H.div []
             [ Navigation.view
-            , contentView model
+            , View.pageContent (contentView model)
             ]
         ]
     }
@@ -161,19 +162,19 @@ contentView : Model -> Html Msg
 contentView model =
     case model.route of
         Route.NotFound ->
-            H.div [] [ H.text "Not Found" ]
+            H.text "Not Found"
 
         Route.Pokedex ->
-            H.div [] [ Pokedex.view model.pokedex ]
+            Pokedex.view model.pokedex
 
         Route.Pokemon id ->
-            H.div [] [ Pokemon.view model.pokemon ]
+            Pokemon.view model.pokemon
 
         Route.Types ->
-            H.div [] [ Types.view model.types ]
+            Types.view model.types
 
         Route.PokemonType id ->
-            H.div [] [ PokemonType.view model.pokemonType ]
+            PokemonType.view model.pokemonType
 
 
 

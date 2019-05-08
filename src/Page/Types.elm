@@ -9,6 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
 import Route
+import View
 
 
 
@@ -42,17 +43,14 @@ viewType : Type -> Styled.Html msg
 viewType pokemonType =
     Styled.div
         [ css
-            [ textTransform capitalize
-            , width (px 72)
-            ]
+            []
         ]
         [ Styled.a
             [ Route.styledHref (Route.PokemonType pokemonType.name)
             ]
             [ Styled.div
                 [ css
-                    [ textTransform capitalize
-                    ]
+                    []
                 ]
                 [ Styled.text pokemonType.name
                 ]
@@ -72,31 +70,18 @@ viewTypes model =
         RemoteData.Failure error ->
             Styled.text "There was an error fetching your Pokemon"
 
-        RemoteData.Success pokemonType ->
+        RemoteData.Success pokemonTypes ->
             Styled.div
-                [ css
-                    [ displayFlex
-                    , flexWrap wrap
-                    , justifyContent center
-                    ]
-                ]
-                (List.map viewType pokemonType)
+                []
+                (List.map viewType pokemonTypes)
 
 
 view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-                , fontFamilies [ "Verdana" ]
-                , marginTop (px 40)
-                ]
-            ]
-            [ Styled.h2
-                [ css [ margin3 (px 0) auto (px 20) ] ]
-                [ Styled.text "Types" ]
+            []
+            [ View.pageTitle "Types"
             , viewTypes model
             ]
 

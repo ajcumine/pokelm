@@ -1,4 +1,4 @@
-module View exposing (pokemon)
+module View exposing (pageContent, pageTitle, pokemon)
 
 import Css exposing (..)
 import Css.Transitions exposing (transition)
@@ -22,35 +22,17 @@ pokemon : String -> Int -> Styled.Html msg
 pokemon name id =
     Styled.a
         [ css
-            [ displayFlex
-            , flexDirection column
-            , padding (px 8)
-            , margin (px 4)
-            , border3 (px 1) solid (hex "#ddd")
-            , textDecoration none
-            , color (hex "#000")
-            , width (px 100)
-            , height (px 120)
-            ]
+            []
         , Route.styledHref (Route.Pokemon (String.fromInt id))
         ]
         [ Styled.span
             [ css
-                [ textAlign center
-                , textTransform capitalize
-                , textDecoration none
-                ]
+                []
             ]
             [ Styled.text name ]
         , Styled.div
             [ css
-                [ alignSelf center
-                , width (px 96)
-                , height (px 96)
-                , backgroundImage (url (pokemonImageSrc id))
-                , backgroundSize contain
-                , backgroundPosition center
-                , backgroundRepeat noRepeat
+                [ backgroundImage (url (pokemonImageSrc id))
                 , transition
                     [ Css.Transitions.background 500
                     ]
@@ -61,3 +43,21 @@ pokemon name id =
             ]
             []
         ]
+
+
+pageTitle : String -> Styled.Html msg
+pageTitle title =
+    Styled.h1
+        [ css []
+        ]
+        [ Styled.text title ]
+
+
+pageContent : Html msg -> Html msg
+pageContent content =
+    Styled.toUnstyled <|
+        Styled.div
+            [ css
+                []
+            ]
+            [ Styled.fromUnstyled content ]

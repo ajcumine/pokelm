@@ -85,9 +85,7 @@ viewEvolution : EvolutionChain -> Styled.Html msg
 viewEvolution evolution =
     Styled.div
         [ css
-            [ displayFlex
-            , alignItems center
-            ]
+            []
         ]
         [ View.pokemon evolution.name evolution.id
         , case evolution.evolutionChain of
@@ -102,17 +100,14 @@ viewType : PokemonType -> Styled.Html msg
 viewType pokemonType =
     Styled.div
         [ css
-            [ textTransform capitalize
-            , width (px 72)
-            ]
+            []
         ]
         [ Styled.a
             [ Route.styledHref (Route.PokemonType pokemonType.name)
             ]
             [ Styled.div
                 [ css
-                    [ textTransform capitalize
-                    ]
+                    []
                 ]
                 [ Styled.text pokemonType.name
                 ]
@@ -138,20 +133,13 @@ viewVariety variety =
 viewPokemonDetails : Pokemon -> Styled.Html msg
 viewPokemonDetails pokemon =
     Styled.div []
-        [ Styled.h2
-            [ css
-                [ margin3 (px 0) auto (px 20)
-                , textTransform capitalize
-                ]
-            ]
-            [ Styled.text (String.fromInt pokemon.id ++ ": " ++ pokemon.name) ]
+        [ View.pageTitle (String.fromInt pokemon.id ++ ": " ++ pokemon.name)
         , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
         , Styled.img [ src (shinyImageSrc pokemon.id) ] []
         , Styled.h3 [] [ Styled.text "Types" ]
         , Styled.div
             [ css
-                [ displayFlex
-                ]
+                []
             ]
             (List.map viewType pokemon.types)
         , Styled.h3 [] [ Styled.text "Evolution Chain" ]
@@ -160,7 +148,7 @@ viewPokemonDetails pokemon =
         , Styled.h3 [] [ Styled.text "Varieties" ]
         , Styled.div
             [ css
-                [ displayFlex ]
+                []
             ]
             (List.map viewVariety pokemon.varieties)
         ]
@@ -179,28 +167,13 @@ viewPokemon model =
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokemon ->
-            Styled.div
-                [ css
-                    [ displayFlex
-                    , flexWrap wrap
-                    , justifyContent center
-                    ]
-                ]
-                [ viewPokemonDetails pokemon ]
+            viewPokemonDetails pokemon
 
 
 view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
-        Styled.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-                , fontFamilies [ "Verdana" ]
-                , marginTop (px 40)
-                ]
-            ]
-            [ viewPokemon model ]
+        viewPokemon model
 
 
 

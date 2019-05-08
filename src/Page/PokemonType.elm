@@ -55,15 +55,10 @@ viewPokemon pokemon =
 viewType : PokemonType -> Styled.Html msg
 viewType pokemonType =
     Styled.div []
-        [ Styled.h2
-            [ css [ margin3 (px 0) auto (px 20) ] ]
-            [ Styled.text pokemonType.name ]
+        [ View.pageTitle pokemonType.name
         , Styled.div
             [ css
-                [ displayFlex
-                , flexWrap wrap
-                , justifyContent center
-                ]
+                []
             ]
             (List.map viewPokemon pokemonType.pokemon)
         ]
@@ -82,29 +77,13 @@ viewPokemonType model =
             Styled.text "There was an error fetching your Pokemon Type"
 
         RemoteData.Success pokemonType ->
-            Styled.div
-                [ css
-                    [ displayFlex
-                    , flexWrap wrap
-                    , justifyContent center
-                    ]
-                ]
-                [ viewType pokemonType ]
+            viewType pokemonType
 
 
 view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
-        Styled.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-                , fontFamilies [ "Verdana" ]
-                , marginTop (px 40)
-                ]
-            ]
-            [ viewPokemonType model
-            ]
+        viewPokemonType model
 
 
 

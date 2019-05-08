@@ -59,12 +59,7 @@ viewPokedex model =
 
         RemoteData.Success pokedex ->
             Styled.div
-                [ css
-                    [ displayFlex
-                    , flexWrap wrap
-                    , justifyContent center
-                    ]
-                ]
+                []
                 (List.map viewPokemon pokedex)
 
 
@@ -72,16 +67,8 @@ view : Model -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-                , fontFamilies [ "Verdana" ]
-                , marginTop (px 40)
-                ]
-            ]
-            [ Styled.h2
-                [ css [ margin3 (px 0) auto (px 20) ] ]
-                [ Styled.text "Pokédex" ]
+            []
+            [ View.pageTitle "Pokédex"
             , viewPokedex model
             ]
 
