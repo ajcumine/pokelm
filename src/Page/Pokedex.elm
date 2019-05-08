@@ -59,7 +59,9 @@ viewPokedex model =
 
         RemoteData.Success pokedex ->
             Styled.div
-                []
+                [ css
+                    []
+                ]
                 (List.map viewPokemon pokedex)
 
 
