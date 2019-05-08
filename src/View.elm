@@ -22,7 +22,7 @@ pokemon : String -> Int -> Styled.Html msg
 pokemon name id =
     Styled.a
         [ css
-            [ display inlineBlock
+            [ display block
             , margin (px 8)
             , width (px 120)
             , height (px 160)
@@ -64,7 +64,9 @@ pageTitle : String -> Styled.Html msg
 pageTitle title =
     Styled.h1
         [ css
-            []
+            [ textAlign center
+            , textTransform capitalize
+            ]
         ]
         [ Styled.text title ]
 

@@ -58,7 +58,10 @@ viewType pokemonType =
         [ View.pageTitle pokemonType.name
         , Styled.div
             [ css
-                []
+                [ displayFlex
+                , flexWrap wrap
+                , justifyContent center
+                ]
             ]
             (List.map viewPokemon pokemonType.pokemon)
         ]

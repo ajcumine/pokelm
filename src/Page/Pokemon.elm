@@ -85,7 +85,9 @@ viewEvolution : EvolutionChain -> Styled.Html msg
 viewEvolution evolution =
     Styled.div
         [ css
-            []
+            [ displayFlex
+            , alignItems center
+            ]
         ]
         [ View.pokemon evolution.name evolution.id
         , case evolution.evolutionChain of
@@ -148,7 +150,7 @@ viewPokemonDetails pokemon =
         , Styled.h3 [] [ Styled.text "Varieties" ]
         , Styled.div
             [ css
-                []
+                [ displayFlex ]
             ]
             (List.map viewVariety pokemon.varieties)
         ]

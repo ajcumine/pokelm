@@ -7754,7 +7754,6 @@ var rtfeldman$elm_css$Css$pseudoClass = function (_class) {
 		rtfeldman$elm_css$Css$Structure$PseudoClassSelector(_class));
 };
 var rtfeldman$elm_css$Css$hover = rtfeldman$elm_css$Css$pseudoClass('hover');
-var rtfeldman$elm_css$Css$inlineBlock = {display: rtfeldman$elm_css$Css$Structure$Compatible, value: 'inline-block'};
 var rtfeldman$elm_css$Css$margin = rtfeldman$elm_css$Css$prop1('margin');
 var rtfeldman$elm_css$Css$noRepeat = {backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, value: 'no-repeat'};
 var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
@@ -9826,7 +9825,7 @@ var author$project$View$pokemon = F2(
 					rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$inlineBlock),
+							rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
 							rtfeldman$elm_css$Css$margin(
 							rtfeldman$elm_css$Css$px(8)),
 							rtfeldman$elm_css$Css$width(
@@ -9928,6 +9927,16 @@ var author$project$View$pokemon = F2(
 var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
 	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 };
+var rtfeldman$elm_css$Css$displayFlex = A2(rtfeldman$elm_css$Css$property, 'display', 'flex');
+var rtfeldman$elm_css$Css$flexWrap = rtfeldman$elm_css$Css$prop1('flex-wrap');
+var rtfeldman$elm_css$Css$justifyContent = function (fn) {
+	return A3(
+		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'justifyContent',
+		'justify-content',
+		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+};
+var rtfeldman$elm_css$Css$wrap = {flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, flexWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'wrap'};
 var rtfeldman$elm_css$Html$Styled$div = rtfeldman$elm_css$Html$Styled$node('div');
 var author$project$Page$Pokedex$viewPokedex = function (model) {
 	switch (model.$) {
@@ -9944,7 +9953,13 @@ var author$project$Page$Pokedex$viewPokedex = function (model) {
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
 					]),
 				A2(elm$core$List$map, author$project$Page$Pokedex$viewPokemon, pokedex));
 	}
@@ -9955,7 +9970,12 @@ var author$project$View$pageTitle = function (title) {
 		rtfeldman$elm_css$Html$Styled$h1,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+					]))
 			]),
 		_List_fromArray(
 			[
@@ -10460,12 +10480,24 @@ var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
 var author$project$Page$Pokemon$shinyImageSrc = function (id) {
 	return '/assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
+var rtfeldman$elm_css$Css$alignItems = function (fn) {
+	return A3(
+		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'alignItems',
+		'align-items',
+		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+};
 var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center)
+					]))
 			]),
 		_List_fromArray(
 			[
@@ -10582,7 +10614,9 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[rtfeldman$elm_css$Css$displayFlex]))
 					]),
 				A2(elm$core$List$map, author$project$Page$Pokemon$viewVariety, pokemon.varieties))
 			]));
@@ -10619,7 +10653,13 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
 					]),
 				A2(elm$core$List$map, author$project$Page$PokemonType$viewPokemon, pokemonType.pokemon))
 			]));
@@ -10739,14 +10779,6 @@ var author$project$Navigation$viewNavLink = F2(
 					rtfeldman$elm_css$Html$Styled$text(name)
 				]));
 	});
-var rtfeldman$elm_css$Css$alignItems = function (fn) {
-	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'alignItems',
-		'align-items',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
-};
-var rtfeldman$elm_css$Css$displayFlex = A2(rtfeldman$elm_css$Css$property, 'display', 'flex');
 var rtfeldman$elm_css$Html$Styled$nav = rtfeldman$elm_css$Html$Styled$node('nav');
 var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
 	A2(
@@ -10767,13 +10799,6 @@ var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
 				A2(author$project$Navigation$viewNavLink, author$project$Route$Pokedex, 'Home'),
 				A2(author$project$Navigation$viewNavLink, author$project$Route$Types, 'Types')
 			])));
-var rtfeldman$elm_css$Css$justifyContent = function (fn) {
-	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'justifyContent',
-		'justify-content',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
-};
 var rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
 var rtfeldman$elm_css$Html$Styled$fromUnstyled = rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
 var author$project$View$pageContent = function (content) {
