@@ -10702,90 +10702,161 @@ var author$project$Page$PokemonType$viewDamageRelation = function (baseType) {
 					]))
 			]));
 };
-var author$project$Page$PokemonType$viewDamageRelations = F2(
-	function (pokemonType, damageRelations) {
-		return A2(
-			rtfeldman$elm_css$Html$Styled$div,
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Css$displayFlex,
-							rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-							rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-						]))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('take double damage from'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageFrom))
-						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('deal double damage to'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageTo))
-						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('take half damage from'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageFrom))
-						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('deal half damage to'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageTo))
-						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('take no damage from'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageFrom))
-						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('deal no damage to'),
-							A2(
-							rtfeldman$elm_css$Html$Styled$div,
-							_List_Nil,
-							A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageTo))
-						]))
-				]));
-	});
+var author$project$Page$PokemonType$viewDamageRelations = function (damageRelations) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+					]))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('take double damage from'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageFrom))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('deal double damage to'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageTo))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('take half damage from'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageFrom))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('deal half damage to'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageTo))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('take no damage from'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageFrom))
+					])),
+				A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								A2(
+								rtfeldman$elm_css$Css$padding2,
+								rtfeldman$elm_css$Css$px(16),
+								rtfeldman$elm_css$Css$px(20))
+							]))
+					]),
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('deal no damage to'),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_Nil,
+						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageTo))
+					]))
+			]));
+};
 var author$project$Page$PokemonType$viewPokemon = function (pokemon) {
 	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 };
@@ -10820,7 +10891,7 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 				_List_fromArray(
 					[
 						author$project$View$subTitle('Damage Relations'),
-						A2(author$project$Page$PokemonType$viewDamageRelations, pokemonType.name, pokemonType.damageRelations)
+						author$project$Page$PokemonType$viewDamageRelations(pokemonType.damageRelations)
 					])),
 				author$project$View$subTitle(pokemonType.name + ' type Pokemon'),
 				A2(

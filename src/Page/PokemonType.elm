@@ -90,8 +90,8 @@ viewDamageRelation baseType =
         ]
 
 
-viewDamageRelations : String -> DamageRelations -> Styled.Html msg
-viewDamageRelations pokemonType damageRelations =
+viewDamageRelations : DamageRelations -> Styled.Html msg
+viewDamageRelations damageRelations =
     Styled.div
         [ css
             [ displayFlex
@@ -99,37 +99,67 @@ viewDamageRelations pokemonType damageRelations =
             , justifyContent center
             ]
         ]
-        [ Styled.div []
+        [ Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "take double damage from"
             , Styled.div
                 []
                 (List.map viewDamageRelation damageRelations.doubleDamageFrom)
             ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "deal double damage to"
             , Styled.div
                 []
                 (List.map viewDamageRelation damageRelations.doubleDamageTo)
             ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "take half damage from"
             , Styled.div
                 []
                 (List.map viewDamageRelation damageRelations.halfDamageFrom)
             ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "deal half damage to"
             , Styled.div
                 []
                 (List.map viewDamageRelation damageRelations.halfDamageTo)
             ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "take no damage from"
             , Styled.div
                 []
                 (List.map viewDamageRelation damageRelations.noDamageFrom)
             ]
-        , Styled.div []
+        , Styled.div
+            [ css
+                [ margin (px 4)
+                , padding2 (px 16) (px 20)
+                ]
+            ]
             [ Styled.text "deal no damage to"
             , Styled.div
                 []
@@ -145,7 +175,7 @@ viewType pokemonType =
         , Styled.div
             []
             [ View.subTitle "Damage Relations"
-            , viewDamageRelations pokemonType.name pokemonType.damageRelations
+            , viewDamageRelations pokemonType.damageRelations
             ]
         , View.subTitle (pokemonType.name ++ " type Pokemon")
         , Styled.div
