@@ -1,4 +1,4 @@
-module View exposing (pageContent, pageTitle, pokemon)
+module View exposing (pageContent, pageTitle, pokemon, subTitle)
 
 import Css exposing (..)
 import Css.Transitions exposing (transition)
@@ -67,6 +67,17 @@ pageTitle title =
             ]
         ]
         [ Styled.text title ]
+
+
+subTitle : String -> Styled.Html msg
+subTitle text =
+    Styled.h2
+        [ css
+            [ textAlign center
+            , textTransform capitalize
+            ]
+        ]
+        [ Styled.text text ]
 
 
 pageContent : Html msg -> Html msg

@@ -20,10 +20,29 @@ type alias Model =
     WebData PokemonType
 
 
+type alias BaseType =
+    { name : String }
+
+
+type alias BaseTypes =
+    List BaseType
+
+
+type alias DamageRelations =
+    { doubleDamageFrom : BaseTypes
+    , doubleDamageTo : BaseTypes
+    , halfDamageFrom : BaseTypes
+    , halfDamageTo : BaseTypes
+    , noDamageFrom : BaseTypes
+    , noDamageTo : BaseTypes
+    }
+
+
 type alias PokemonType =
     { name : String
     , id : Int
     , pokemon : List Pokemon
+    , damageRelations : DamageRelations
     }
 
 
@@ -52,10 +71,83 @@ viewPokemon pokemon =
     View.pokemon pokemon.name pokemon.id
 
 
+viewDamageRelation : BaseType -> Styled.Html msg
+viewDamageRelation baseType =
+    Styled.div
+        [ css
+            []
+        ]
+        [ Styled.a
+            [ Route.styledHref (Route.PokemonType baseType.name)
+            ]
+            [ Styled.div
+                [ css
+                    []
+                ]
+                [ Styled.text baseType.name
+                ]
+            ]
+        ]
+
+
+viewDamageRelations : String -> DamageRelations -> Styled.Html msg
+viewDamageRelations pokemonType damageRelations =
+    Styled.div
+        [ css
+            [ displayFlex
+            , flexWrap wrap
+            , justifyContent center
+            ]
+        ]
+        [ Styled.div []
+            [ Styled.text "take double damage from"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.doubleDamageFrom)
+            ]
+        , Styled.div []
+            [ Styled.text "deal double damage to"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.doubleDamageTo)
+            ]
+        , Styled.div []
+            [ Styled.text "take half damage from"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.halfDamageFrom)
+            ]
+        , Styled.div []
+            [ Styled.text "deal half damage to"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.halfDamageTo)
+            ]
+        , Styled.div []
+            [ Styled.text "take no damage from"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.noDamageFrom)
+            ]
+        , Styled.div []
+            [ Styled.text "deal no damage to"
+            , Styled.div
+                []
+                (List.map viewDamageRelation damageRelations.noDamageTo)
+            ]
+        ]
+
+
 viewType : PokemonType -> Styled.Html msg
 viewType pokemonType =
     Styled.div []
         [ View.pageTitle pokemonType.name
+        , Styled.div
+            []
+            [ View.subTitle "Damage Relations"
+            , viewDamageRelations pokemonType.name pokemonType.damageRelations
+            ]
+        , View.subTitle (pokemonType.name ++ " type Pokemon")
         , Styled.div
             [ css
                 [ displayFlex
@@ -105,12 +197,30 @@ pokemonDecoder =
         |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map getId)
 
 
+baseTypeDecoder : Decoder BaseType
+baseTypeDecoder =
+    Decode.succeed BaseType
+        |> Pipeline.required "name" Decode.string
+
+
+damageRelationDecoder : Decoder DamageRelations
+damageRelationDecoder =
+    Decode.succeed DamageRelations
+        |> Pipeline.required "double_damage_from" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "double_damage_to" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "half_damage_from" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "half_damage_to" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "no_damage_from" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "no_damage_to" (Decode.list baseTypeDecoder)
+
+
 pokemonTypeDecoder : Decoder PokemonType
 pokemonTypeDecoder =
     Decode.succeed PokemonType
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "id" Decode.int
         |> Pipeline.required "pokemon" (Decode.list pokemonDecoder)
+        |> Pipeline.required "damage_relations" damageRelationDecoder
 
 
 
