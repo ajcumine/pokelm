@@ -10771,6 +10771,93 @@ var author$project$Page$Pokemon$view = function (model) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		author$project$Page$Pokemon$viewPokemon(model));
 };
+var rtfeldman$elm_css$Css$prop3 = F4(
+	function (key, argA, argB, argC) {
+		return A2(
+			rtfeldman$elm_css$Css$property,
+			key,
+			A2(
+				elm$core$String$join,
+				' ',
+				_List_fromArray(
+					[argA.value, argB.value, argC.value])));
+	});
+var rtfeldman$elm_css$Css$border3 = rtfeldman$elm_css$Css$prop3('border');
+var rtfeldman$elm_css$Css$row = {flexDirection: rtfeldman$elm_css$Css$Structure$Compatible, flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'row'};
+var rtfeldman$elm_css$Css$column = _Utils_update(
+	rtfeldman$elm_css$Css$row,
+	{value: 'column'});
+var rtfeldman$elm_css$Css$flexDirection = rtfeldman$elm_css$Css$prop1('flex-direction');
+var rtfeldman$elm_css$Css$padding3 = rtfeldman$elm_css$Css$prop3('padding');
+var rtfeldman$elm_css$Css$solid = {borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, value: 'solid'};
+var rtfeldman$elm_css$Html$Styled$h4 = rtfeldman$elm_css$Html$Styled$node('h4');
+var author$project$Page$PokemonType$viewDamageRelation = F2(
+	function (sectionTitle, pokemonTypes) {
+		var _n0 = elm$core$List$isEmpty(pokemonTypes);
+		if (_n0) {
+			return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+		} else {
+			return A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$margin(
+								rtfeldman$elm_css$Css$px(4)),
+								rtfeldman$elm_css$Css$width(
+								rtfeldman$elm_css$Css$px(250)),
+								A3(
+								rtfeldman$elm_css$Css$padding3,
+								rtfeldman$elm_css$Css$px(0),
+								rtfeldman$elm_css$Css$px(20),
+								rtfeldman$elm_css$Css$px(16)),
+								A3(
+								rtfeldman$elm_css$Css$border3,
+								rtfeldman$elm_css$Css$px(1),
+								rtfeldman$elm_css$Css$solid,
+								rtfeldman$elm_css$Css$hex('#dedede'))
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						rtfeldman$elm_css$Html$Styled$h4,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
+										rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center)
+									]))
+							]),
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$text(sectionTitle)
+							])),
+						A2(
+						rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										rtfeldman$elm_css$Css$displayFlex,
+										rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
+										rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center)
+									]))
+							]),
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							pokemonTypes))
+					]));
+		}
+	});
 var author$project$Page$PokemonType$viewDamageRelations = function (damageRelations) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
@@ -10786,174 +10873,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 			]),
 		_List_fromArray(
 			[
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('take double damage from'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.doubleDamageFrom))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('deal double damage to'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.doubleDamageTo))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('take half damage from'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.halfDamageFrom))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('deal half damage to'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.halfDamageTo))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('take no damage from'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.noDamageFrom))
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								A2(
-								rtfeldman$elm_css$Css$padding2,
-								rtfeldman$elm_css$Css$px(16),
-								rtfeldman$elm_css$Css$px(20))
-							]))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('deal no damage to'),
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_Nil,
-						A2(
-							elm$core$List$map,
-							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
-							},
-							damageRelations.noDamageTo))
-					]))
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take double damage from', damageRelations.doubleDamageFrom),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal double damage to', damageRelations.doubleDamageTo),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take half damage from', damageRelations.halfDamageFrom),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.halfDamageTo),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.noDamageFrom),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.noDamageTo)
 			]));
 };
 var rtfeldman$elm_css$Html$Styled$h2 = rtfeldman$elm_css$Html$Styled$node('h2');
@@ -11041,7 +10966,16 @@ var author$project$Page$Types$viewTypes = function (model) {
 			var pokemonTypes = model.a;
 			return A2(
 				rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							]))
+					]),
 				A2(
 					elm$core$List$map,
 					function (pokemonType) {

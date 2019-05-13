@@ -53,7 +53,12 @@ viewTypes model =
 
         RemoteData.Success pokemonTypes ->
             Styled.div
-                []
+                [ css
+                    [ displayFlex
+                    , flexWrap wrap
+                    , justifyContent center
+                    ]
+                ]
                 (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
 
 

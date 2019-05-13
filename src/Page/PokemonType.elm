@@ -61,6 +61,39 @@ init =
 -- VIEW
 
 
+viewDamageRelation : String -> BaseTypes -> Styled.Html msg
+viewDamageRelation sectionTitle pokemonTypes =
+    case List.isEmpty pokemonTypes of
+        True ->
+            Styled.div [] []
+
+        False ->
+            Styled.div
+                [ css
+                    [ margin (px 4)
+                    , width (px 250)
+                    , padding3 (px 0) (px 20) (px 16)
+                    , border3 (px 1) solid (hex "#dedede")
+                    ]
+                ]
+                [ Styled.h4
+                    [ css
+                        [ textTransform capitalize
+                        , textAlign center
+                        ]
+                    ]
+                    [ Styled.text sectionTitle ]
+                , Styled.div
+                    [ css
+                        [ displayFlex
+                        , flexDirection column
+                        , alignItems center
+                        ]
+                    ]
+                    (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
+                ]
+
+
 viewDamageRelations : DamageRelations -> Styled.Html msg
 viewDamageRelations damageRelations =
     Styled.div
@@ -70,72 +103,12 @@ viewDamageRelations damageRelations =
             , justifyContent center
             ]
         ]
-        [ Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "take double damage from"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.doubleDamageFrom)
-            ]
-        , Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "deal double damage to"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.doubleDamageTo)
-            ]
-        , Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "take half damage from"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.halfDamageFrom)
-            ]
-        , Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "deal half damage to"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.halfDamageTo)
-            ]
-        , Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "take no damage from"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.noDamageFrom)
-            ]
-        , Styled.div
-            [ css
-                [ margin (px 4)
-                , padding2 (px 16) (px 20)
-                ]
-            ]
-            [ Styled.text "deal no damage to"
-            , Styled.div
-                []
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.noDamageTo)
-            ]
+        [ viewDamageRelation "take double damage from" damageRelations.doubleDamageFrom
+        , viewDamageRelation "deal double damage to" damageRelations.doubleDamageTo
+        , viewDamageRelation "take half damage from" damageRelations.halfDamageFrom
+        , viewDamageRelation "deal half damage to" damageRelations.halfDamageTo
+        , viewDamageRelation "take no damage from" damageRelations.noDamageFrom
+        , viewDamageRelation "deal no damage to" damageRelations.noDamageTo
         ]
 
 
