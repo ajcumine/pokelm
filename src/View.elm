@@ -1,4 +1,4 @@
-module View exposing (pageContent, pageTitle, pokemon, subTitle)
+module View exposing (pageContent, pageTitle, pokemon, pokemonType, subTitle)
 
 import Css exposing (..)
 import Css.Transitions exposing (transition)
@@ -90,3 +90,96 @@ pageContent content =
                 ]
             ]
             [ Styled.fromUnstyled content ]
+
+
+typeColor : String -> String
+typeColor typeName =
+    case typeName of
+        "normal" ->
+            "#A8A77A"
+
+        "fire" ->
+            "#EE8130"
+
+        "water" ->
+            "#6390F0"
+
+        "electric" ->
+            "#F7D02C"
+
+        "grass" ->
+            "#7AC74C"
+
+        "ice" ->
+            "#96D9D6"
+
+        "fighting" ->
+            "#C22E28"
+
+        "poison" ->
+            "#A33EA1"
+
+        "ground" ->
+            "#E2BF65"
+
+        "flying" ->
+            "#A98FF3"
+
+        "psychic" ->
+            "#F95587"
+
+        "bug" ->
+            "#A6B91A"
+
+        "rock" ->
+            "#B6A136"
+
+        "ghost" ->
+            "#735797"
+
+        "dragon" ->
+            "#6F35FC"
+
+        "dark" ->
+            "#705746"
+
+        "steel" ->
+            "#B7B7CE"
+
+        "fairy" ->
+            "#D685AD"
+
+        _ ->
+            "#000000"
+
+
+pokemonType : String -> Styled.Html msg
+pokemonType typeName =
+    Styled.a
+        [ Route.styledHref (Route.PokemonType typeName)
+        , css
+            [ backgroundColor (hex (typeColor typeName ++ "80"))
+            , display block
+            , margin (px 8)
+            , width (px 120)
+            , padding2 (px 12) (px 16)
+            , textAlign center
+            , textTransform uppercase
+            , textDecoration none
+            , color (hex "#000000")
+            , borderRadius (px 3)
+            , boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.16)
+            , hover
+                [ backgroundColor (hex (typeColor typeName ++ "95"))
+                , boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
+                ]
+            , transition
+                [ Css.Transitions.backgroundColor3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                , Css.Transitions.background3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                ]
+            ]
+        ]
+        [ Styled.div []
+            [ Styled.text typeName
+            ]
+        ]

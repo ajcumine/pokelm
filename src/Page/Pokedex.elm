@@ -40,11 +40,6 @@ init =
 -- VIEW
 
 
-viewPokemon : Pokemon -> Styled.Html msg
-viewPokemon pokemon =
-    View.pokemon pokemon.name pokemon.id
-
-
 viewPokedex : Model -> Styled.Html msg
 viewPokedex model =
     case model of
@@ -65,7 +60,7 @@ viewPokedex model =
                     , justifyContent center
                     ]
                 ]
-                (List.map viewPokemon pokedex)
+                (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) pokedex)
 
 
 view : Model -> Html msg

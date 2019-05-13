@@ -9951,9 +9951,6 @@ var author$project$View$pokemon = F2(
 						]))
 				]));
 	});
-var author$project$Page$Pokedex$viewPokemon = function (pokemon) {
-	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
-};
 var rtfeldman$elm_css$Css$displayFlex = A2(rtfeldman$elm_css$Css$property, 'display', 'flex');
 var rtfeldman$elm_css$Css$flexWrap = rtfeldman$elm_css$Css$prop1('flex-wrap');
 var rtfeldman$elm_css$Css$justifyContent = function (fn) {
@@ -9988,7 +9985,12 @@ var author$project$Page$Pokedex$viewPokedex = function (model) {
 								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
 							]))
 					]),
-				A2(elm$core$List$map, author$project$Page$Pokedex$viewPokemon, pokedex));
+				A2(
+					elm$core$List$map,
+					function (pokemon) {
+						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+					},
+					pokedex));
 	}
 };
 var rtfeldman$elm_css$Html$Styled$h1 = rtfeldman$elm_css$Html$Styled$node('h1');
@@ -10540,39 +10542,127 @@ var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 			}()
 			]));
 };
-var author$project$Page$Pokemon$viewType = function (pokemonType) {
+var author$project$View$typeColor = function (typeName) {
+	switch (typeName) {
+		case 'normal':
+			return '#A8A77A';
+		case 'fire':
+			return '#EE8130';
+		case 'water':
+			return '#6390F0';
+		case 'electric':
+			return '#F7D02C';
+		case 'grass':
+			return '#7AC74C';
+		case 'ice':
+			return '#96D9D6';
+		case 'fighting':
+			return '#C22E28';
+		case 'poison':
+			return '#A33EA1';
+		case 'ground':
+			return '#E2BF65';
+		case 'flying':
+			return '#A98FF3';
+		case 'psychic':
+			return '#F95587';
+		case 'bug':
+			return '#A6B91A';
+		case 'rock':
+			return '#B6A136';
+		case 'ghost':
+			return '#735797';
+		case 'dragon':
+			return '#6F35FC';
+		case 'dark':
+			return '#705746';
+		case 'steel':
+			return '#B7B7CE';
+		case 'fairy':
+			return '#D685AD';
+		default:
+			return '#000000';
+	}
+};
+var rtfeldman$elm_css$Css$uppercase = {textTransform: rtfeldman$elm_css$Css$Structure$Compatible, value: 'uppercase'};
+var rtfeldman$elm_css$Css$Transitions$BackgroundColor = {$: 'BackgroundColor'};
+var rtfeldman$elm_css$Css$Transitions$backgroundColor3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$BackgroundColor);
+var author$project$View$pokemonType = function (typeName) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		rtfeldman$elm_css$Html$Styled$a,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+				author$project$Route$styledHref(
+				author$project$Route$PokemonType(typeName)),
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$backgroundColor(
+						rtfeldman$elm_css$Css$hex(
+							author$project$View$typeColor(typeName) + '80')),
+						rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
+						rtfeldman$elm_css$Css$margin(
+						rtfeldman$elm_css$Css$px(8)),
+						rtfeldman$elm_css$Css$width(
+						rtfeldman$elm_css$Css$px(120)),
+						A2(
+						rtfeldman$elm_css$Css$padding2,
+						rtfeldman$elm_css$Css$px(12),
+						rtfeldman$elm_css$Css$px(16)),
+						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$uppercase),
+						rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
+						rtfeldman$elm_css$Css$color(
+						rtfeldman$elm_css$Css$hex('#000000')),
+						rtfeldman$elm_css$Css$borderRadius(
+						rtfeldman$elm_css$Css$px(3)),
+						A5(
+						rtfeldman$elm_css$Css$boxShadow5,
+						rtfeldman$elm_css$Css$px(0),
+						rtfeldman$elm_css$Css$px(1),
+						rtfeldman$elm_css$Css$px(3),
+						rtfeldman$elm_css$Css$px(1),
+						A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
+						rtfeldman$elm_css$Css$hover(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$backgroundColor(
+								rtfeldman$elm_css$Css$hex(
+									author$project$View$typeColor(typeName) + '95')),
+								A5(
+								rtfeldman$elm_css$Css$boxShadow5,
+								rtfeldman$elm_css$Css$px(0),
+								rtfeldman$elm_css$Css$px(2),
+								rtfeldman$elm_css$Css$px(8),
+								rtfeldman$elm_css$Css$px(4),
+								A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
+							])),
+						rtfeldman$elm_css$Css$Transitions$transition(
+						_List_fromArray(
+							[
+								A3(
+								rtfeldman$elm_css$Css$Transitions$backgroundColor3,
+								135,
+								0,
+								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
+								A3(
+								rtfeldman$elm_css$Css$Transitions$background3,
+								135,
+								0,
+								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+							]))
+					]))
 			]),
 		_List_fromArray(
 			[
 				A2(
-				rtfeldman$elm_css$Html$Styled$a,
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
 				_List_fromArray(
 					[
-						author$project$Route$styledHref(
-						author$project$Route$PokemonType(pokemonType.name))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-							]),
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
-							]))
+						rtfeldman$elm_css$Html$Styled$text(typeName)
 					]))
 			]));
-};
-var author$project$Page$Pokemon$viewVariety = function (variety) {
-	return A2(author$project$View$pokemon, variety.name, variety.id);
 };
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
@@ -10616,7 +10706,12 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 					[
 						rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
 					]),
-				A2(elm$core$List$map, author$project$Page$Pokemon$viewType, pokemon.types)),
+				A2(
+					elm$core$List$map,
+					function (pokemonType) {
+						return author$project$View$pokemonType(pokemonType.name);
+					},
+					pokemon.types)),
 				A2(
 				rtfeldman$elm_css$Html$Styled$h3,
 				_List_Nil,
@@ -10650,7 +10745,12 @@ var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
 								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
 							]))
 					]),
-				A2(elm$core$List$map, author$project$Page$Pokemon$viewVariety, pokemon.varieties))
+				A2(
+					elm$core$List$map,
+					function (variety) {
+						return A2(author$project$View$pokemon, variety.name, variety.id);
+					},
+					pokemon.varieties))
 			]));
 };
 var author$project$Page$Pokemon$viewPokemon = function (model) {
@@ -10670,37 +10770,6 @@ var author$project$Page$Pokemon$viewPokemon = function (model) {
 var author$project$Page$Pokemon$view = function (model) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		author$project$Page$Pokemon$viewPokemon(model));
-};
-var author$project$Page$PokemonType$viewDamageRelation = function (baseType) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				rtfeldman$elm_css$Html$Styled$a,
-				_List_fromArray(
-					[
-						author$project$Route$styledHref(
-						author$project$Route$PokemonType(baseType.name))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-							]),
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$text(baseType.name)
-							]))
-					]))
-			]));
 };
 var author$project$Page$PokemonType$viewDamageRelations = function (damageRelations) {
 	return A2(
@@ -10738,7 +10807,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageFrom))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.doubleDamageFrom))
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -10761,7 +10835,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.doubleDamageTo))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.doubleDamageTo))
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -10784,7 +10863,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageFrom))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.halfDamageFrom))
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -10807,7 +10891,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.halfDamageTo))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.halfDamageTo))
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -10830,7 +10919,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageFrom))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.noDamageFrom))
 					])),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -10853,12 +10947,14 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 						A2(
 						rtfeldman$elm_css$Html$Styled$div,
 						_List_Nil,
-						A2(elm$core$List$map, author$project$Page$PokemonType$viewDamageRelation, damageRelations.noDamageTo))
+						A2(
+							elm$core$List$map,
+							function (pokemonType) {
+								return author$project$View$pokemonType(pokemonType.name);
+							},
+							damageRelations.noDamageTo))
 					]))
 			]));
-};
-var author$project$Page$PokemonType$viewPokemon = function (pokemon) {
-	return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 };
 var rtfeldman$elm_css$Html$Styled$h2 = rtfeldman$elm_css$Html$Styled$node('h2');
 var author$project$View$subTitle = function (text) {
@@ -10906,7 +11002,12 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
 							]))
 					]),
-				A2(elm$core$List$map, author$project$Page$PokemonType$viewPokemon, pokemonType.pokemon))
+				A2(
+					elm$core$List$map,
+					function (pokemon) {
+						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+					},
+					pokemonType.pokemon))
 			]));
 };
 var author$project$Page$PokemonType$viewPokemonType = function (model) {
@@ -10927,37 +11028,6 @@ var author$project$Page$PokemonType$view = function (model) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		author$project$Page$PokemonType$viewPokemonType(model));
 };
-var author$project$Page$Types$viewType = function (pokemonType) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				rtfeldman$elm_css$Html$Styled$a,
-				_List_fromArray(
-					[
-						author$project$Route$styledHref(
-						author$project$Route$PokemonType(pokemonType.name))
-					]),
-				_List_fromArray(
-					[
-						A2(
-						rtfeldman$elm_css$Html$Styled$div,
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-							]),
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Html$Styled$text(pokemonType.name)
-							]))
-					]))
-			]));
-};
 var author$project$Page$Types$viewTypes = function (model) {
 	switch (model.$) {
 		case 'NotAsked':
@@ -10972,7 +11042,12 @@ var author$project$Page$Types$viewTypes = function (model) {
 			return A2(
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
-				A2(elm$core$List$map, author$project$Page$Types$viewType, pokemonTypes));
+				A2(
+					elm$core$List$map,
+					function (pokemonType) {
+						return author$project$View$pokemonType(pokemonType.name);
+					},
+					pokemonTypes));
 	}
 };
 var author$project$Page$Types$view = function (model) {

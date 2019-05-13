@@ -39,25 +39,6 @@ init =
 -- VIEW
 
 
-viewType : Type -> Styled.Html msg
-viewType pokemonType =
-    Styled.div
-        [ css
-            []
-        ]
-        [ Styled.a
-            [ Route.styledHref (Route.PokemonType pokemonType.name)
-            ]
-            [ Styled.div
-                [ css
-                    []
-                ]
-                [ Styled.text pokemonType.name
-                ]
-            ]
-        ]
-
-
 viewTypes : Model -> Styled.Html msg
 viewTypes model =
     case model of
@@ -73,7 +54,7 @@ viewTypes model =
         RemoteData.Success pokemonTypes ->
             Styled.div
                 []
-                (List.map viewType pokemonTypes)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
 
 
 view : Model -> Html msg

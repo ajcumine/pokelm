@@ -99,25 +99,6 @@ viewEvolution evolution =
         ]
 
 
-viewType : PokemonType -> Styled.Html msg
-viewType pokemonType =
-    Styled.div
-        [ css
-            []
-        ]
-        [ Styled.a
-            [ Route.styledHref (Route.PokemonType pokemonType.name)
-            ]
-            [ Styled.div
-                [ css
-                    []
-                ]
-                [ Styled.text pokemonType.name
-                ]
-            ]
-        ]
-
-
 pokemonImageSrc : Int -> String
 pokemonImageSrc id =
     "assets/images/pokemon/" ++ String.fromInt id ++ ".png"
@@ -126,11 +107,6 @@ pokemonImageSrc id =
 shinyImageSrc : Int -> String
 shinyImageSrc id =
     "assets/images/shiny/" ++ String.fromInt id ++ ".png"
-
-
-viewVariety : Variety -> Styled.Html msg
-viewVariety variety =
-    View.pokemon variety.name variety.id
 
 
 viewPokemonDetails : Pokemon -> Styled.Html msg
@@ -144,7 +120,7 @@ viewPokemonDetails pokemon =
             [ css
                 []
             ]
-            (List.map viewType pokemon.types)
+            (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemon.types)
         , Styled.h3 [] [ Styled.text "Evolution Chain" ]
         , Styled.div []
             [ viewEvolution pokemon.evolutionChain ]
@@ -156,7 +132,7 @@ viewPokemonDetails pokemon =
                 , justifyContent center
                 ]
             ]
-            (List.map viewVariety pokemon.varieties)
+            (List.map (\variety -> View.pokemon variety.name variety.id) pokemon.varieties)
         ]
 
 

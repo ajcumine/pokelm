@@ -61,35 +61,6 @@ init =
 -- VIEW
 
 
-pokemonImageSrc : Int -> String
-pokemonImageSrc id =
-    "/assets/images/pokemon/" ++ String.fromInt id ++ ".png"
-
-
-viewPokemon : Pokemon -> Styled.Html msg
-viewPokemon pokemon =
-    View.pokemon pokemon.name pokemon.id
-
-
-viewDamageRelation : BaseType -> Styled.Html msg
-viewDamageRelation baseType =
-    Styled.div
-        [ css
-            []
-        ]
-        [ Styled.a
-            [ Route.styledHref (Route.PokemonType baseType.name)
-            ]
-            [ Styled.div
-                [ css
-                    []
-                ]
-                [ Styled.text baseType.name
-                ]
-            ]
-        ]
-
-
 viewDamageRelations : DamageRelations -> Styled.Html msg
 viewDamageRelations damageRelations =
     Styled.div
@@ -108,7 +79,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "take double damage from"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.doubleDamageFrom)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.doubleDamageFrom)
             ]
         , Styled.div
             [ css
@@ -119,7 +90,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "deal double damage to"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.doubleDamageTo)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.doubleDamageTo)
             ]
         , Styled.div
             [ css
@@ -130,7 +101,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "take half damage from"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.halfDamageFrom)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.halfDamageFrom)
             ]
         , Styled.div
             [ css
@@ -141,7 +112,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "deal half damage to"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.halfDamageTo)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.halfDamageTo)
             ]
         , Styled.div
             [ css
@@ -152,7 +123,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "take no damage from"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.noDamageFrom)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.noDamageFrom)
             ]
         , Styled.div
             [ css
@@ -163,7 +134,7 @@ viewDamageRelations damageRelations =
             [ Styled.text "deal no damage to"
             , Styled.div
                 []
-                (List.map viewDamageRelation damageRelations.noDamageTo)
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) damageRelations.noDamageTo)
             ]
         ]
 
@@ -185,7 +156,7 @@ viewType pokemonType =
                 , justifyContent center
                 ]
             ]
-            (List.map viewPokemon pokemonType.pokemon)
+            (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) pokemonType.pokemon)
         ]
 
 
