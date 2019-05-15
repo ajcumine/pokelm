@@ -11035,6 +11035,15 @@ var author$project$Navigation$viewNavLink = F2(
 					rtfeldman$elm_css$Html$Styled$text(name)
 				]));
 	});
+var rtfeldman$elm_css$Html$Styled$input = rtfeldman$elm_css$Html$Styled$node('input');
+var rtfeldman$elm_css$Html$Styled$Attributes$placeholder = rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
+var author$project$Navigation$viewSearch = A2(
+	rtfeldman$elm_css$Html$Styled$input,
+	_List_fromArray(
+		[
+			rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search')
+		]),
+	_List_Nil);
 var rtfeldman$elm_css$Css$flexEnd = rtfeldman$elm_css$Css$prop1('flex-end');
 var rtfeldman$elm_css$Html$Styled$nav = rtfeldman$elm_css$Html$Styled$node('nav');
 var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
@@ -11063,6 +11072,7 @@ var author$project$Navigation$view = rtfeldman$elm_css$Html$Styled$toUnstyled(
 			]),
 		_List_fromArray(
 			[
+				author$project$Navigation$viewSearch,
 				A2(author$project$Navigation$viewNavLink, author$project$Route$Pokedex, 'Home'),
 				A2(author$project$Navigation$viewNavLink, author$project$Route$Types, 'Types')
 			])));

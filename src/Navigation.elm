@@ -3,8 +3,20 @@ module Navigation exposing (view)
 import Css exposing (..)
 import Html exposing (Html)
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, placeholder)
 import Route exposing (Route)
+
+
+
+--- VIEW
+
+
+viewSearch : Styled.Html msg
+viewSearch =
+    Styled.input
+        [ placeholder "Search"
+        ]
+        []
 
 
 viewNavLink : Route -> String -> Styled.Html msg
@@ -32,6 +44,7 @@ view =
                 , boxShadow5 (px 0) (px 4) (px 10) (px -1) (rgba 0 0 0 0.2)
                 ]
             ]
-            [ viewNavLink Route.Pokedex "Home"
+            [ viewSearch
+            , viewNavLink Route.Pokedex "Home"
             , viewNavLink Route.Types "Types"
             ]
