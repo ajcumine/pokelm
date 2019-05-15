@@ -1,4 +1,4 @@
-module Page.Types exposing (Model, fetch, init, view)
+module Page.PokemonTypes exposing (Model, fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -17,14 +17,14 @@ import View
 
 
 type alias Model =
-    WebData Types
+    WebData PokemonTypes
 
 
-type alias Types =
-    List Type
+type alias PokemonTypes =
+    List PokemonType
 
 
-type alias Type =
+type alias PokemonType =
     { name : String
     , id : Int
     }
@@ -81,14 +81,14 @@ getId url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
 
 
-typeDecoder : Decoder Type
+typeDecoder : Decoder PokemonType
 typeDecoder =
-    Decode.succeed Type
+    Decode.succeed PokemonType
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "url" (Decode.string |> Decode.map getId)
 
 
-typesDecoder : Decoder (List Type)
+typesDecoder : Decoder (List PokemonType)
 typesDecoder =
     Decode.at [ "results" ] (Decode.list typeDecoder)
 

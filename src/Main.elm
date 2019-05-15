@@ -4,29 +4,17 @@ import Browser
 import Browser.Navigation as Nav
 import Html as H exposing (Html)
 import Http
+import Model exposing (Model)
+import Msg exposing (Msg(..))
 import Navigation
 import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
 import Page.PokemonType as PokemonType
-import Page.Types as Types
+import Page.PokemonTypes as PokemonTypes
 import RemoteData
 import Route exposing (Route)
 import Url exposing (Url)
 import View
-
-
-
--- MODEL
-
-
-type alias Model =
-    { key : Nav.Key
-    , route : Route
-    , pokedex : Pokedex.Model
-    , pokemon : Pokemon.Model
-    , types : Types.Model
-    , pokemonType : PokemonType.Model
-    }
 
 
 init : a -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -40,27 +28,18 @@ init flags url navKey =
             , route = route
             , pokedex = Pokedex.init
             , pokemon = Pokemon.init
-            , types = Types.init
+            , pokemonTypes = PokemonTypes.init
             , pokemonType = PokemonType.init
+            , query = ""
             }
 
         cmd =
-            fetchRouteData model route
+            Cmd.batch
+                [ fetchRouteData model route
+                , Pokedex.fetch |> Cmd.map PokedexFetchResponse -- fetch pokedex for search
+                ]
     in
     ( model, cmd )
-
-
-
--- MSG
-
-
-type Msg
-    = UrlChange Url
-    | UrlRequest Browser.UrlRequest
-    | PokedexFetchResponse Pokedex.Model
-    | PokemonFetchResponse Pokemon.Model
-    | TypesFetchResponse Types.Model
-    | PokemonTypeFetchResponse PokemonType.Model
 
 
 
@@ -90,7 +69,7 @@ update msg model =
                 cmd =
                     fetchRouteData model route
             in
-            ( { model | route = route }
+            ( { model | route = route, query = "" }
             , cmd
             )
 
@@ -104,8 +83,8 @@ update msg model =
             , Cmd.none
             )
 
-        TypesFetchResponse response ->
-            ( { model | types = response }
+        PokemonTypesFetchResponse response ->
+            ( { model | pokemonTypes = response }
             , Cmd.none
             )
 
@@ -114,23 +93,21 @@ update msg model =
             , Cmd.none
             )
 
+        SearchQueryChange query ->
+            ( { model | query = query }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
     case route of
-        Route.Pokedex ->
-            if RemoteData.isNotAsked model.pokedex then
-                Pokedex.fetch |> Cmd.map PokedexFetchResponse
-
-            else
-                Cmd.none
-
         Route.Pokemon nameOrId ->
             Pokemon.fetch nameOrId |> Cmd.map PokemonFetchResponse
 
-        Route.Types ->
-            if RemoteData.isNotAsked model.types then
-                Types.fetch |> Cmd.map TypesFetchResponse
+        Route.PokemonTypes ->
+            if RemoteData.isNotAsked model.pokemonTypes then
+                PokemonTypes.fetch |> Cmd.map PokemonTypesFetchResponse
 
             else
                 Cmd.none
@@ -151,7 +128,7 @@ view model =
     { title = "PokElm"
     , body =
         [ H.div []
-            [ Navigation.view
+            [ Navigation.view model
             , View.pageContent (contentView model)
             ]
         ]
@@ -170,8 +147,8 @@ contentView model =
         Route.Pokemon id ->
             Pokemon.view model.pokemon
 
-        Route.Types ->
-            Types.view model.types
+        Route.PokemonTypes ->
+            PokemonTypes.view model.pokemonTypes
 
         Route.PokemonType id ->
             PokemonType.view model.pokemonType

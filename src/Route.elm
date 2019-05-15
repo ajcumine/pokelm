@@ -10,7 +10,7 @@ type Route
     = NotFound
     | Pokedex
     | Pokemon String
-    | Types
+    | PokemonTypes
     | PokemonType String
 
 
@@ -19,7 +19,7 @@ parser =
     Parser.oneOf
         [ Parser.map Pokedex Parser.top
         , Parser.map Pokemon (Parser.s "pokemon" </> Parser.string)
-        , Parser.map Types (Parser.s "types")
+        , Parser.map PokemonTypes (Parser.s "types")
         , Parser.map PokemonType (Parser.s "types" </> Parser.string)
         ]
 
@@ -50,7 +50,7 @@ routeToString route =
                 Pokemon nameOrId ->
                     [ "pokemon", nameOrId ]
 
-                Types ->
+                PokemonTypes ->
                     [ "types" ]
 
                 PokemonType nameOrId ->
