@@ -1,4 +1,4 @@
-module Page.Pokedex exposing (Model, fetch, init, view)
+module Page.Pokedex exposing (Model, Pokedex, Pokemon, fetch, init, view)
 
 import Css exposing (..)
 import Css.Transitions exposing (transition)

@@ -1,4 +1,4 @@
-module Model exposing (Model, Pokedex, Pokemon)
+module Model exposing (Model)
 
 import Browser.Navigation as Nav
 import Page.Pokedex as Pokedex
@@ -17,15 +17,4 @@ type alias Model =
     , pokemonTypes : PokemonTypes.Model
     , pokemonType : PokemonType.Model
     , query : String
-    }
-
-
-type alias Pokedex =
-    WebData (List Pokemon)
-
-
-type alias Pokemon =
-    { name : String
-    , url : String
-    , id : Int
     }

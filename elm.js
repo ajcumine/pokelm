@@ -11094,6 +11094,15 @@ var author$project$Navigation$viewMatch = function (pokemon) {
 							[
 								rtfeldman$elm_css$Css$backgroundColor(
 								rtfeldman$elm_css$Css$hex('#f1f1f1'))
+							])),
+						rtfeldman$elm_css$Css$Transitions$transition(
+						_List_fromArray(
+							[
+								A3(
+								rtfeldman$elm_css$Css$Transitions$background3,
+								135,
+								0,
+								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
 							]))
 					])),
 				author$project$Route$styledHref(
@@ -11208,7 +11217,7 @@ var author$project$Navigation$viewSearch = F2(
 					rtfeldman$elm_css$Html$Styled$input,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search'),
+							rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search Pokemon'),
 							rtfeldman$elm_css$Html$Styled$Attributes$value(queryString),
 							rtfeldman$elm_css$Html$Styled$Events$onInput(author$project$Msg$SearchQueryChange),
 							rtfeldman$elm_css$Html$Styled$Attributes$css(
@@ -11263,6 +11272,8 @@ var author$project$Navigation$view = function (model) {
 					A2(author$project$Navigation$viewNavLink, author$project$Route$PokemonTypes, 'Types')
 				])));
 };
+var rtfeldman$elm_css$Css$marginBottom = rtfeldman$elm_css$Css$prop1('margin-bottom');
+var rtfeldman$elm_css$Css$marginTop = rtfeldman$elm_css$Css$prop1('margin-top');
 var rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
 var rtfeldman$elm_css$Html$Styled$fromUnstyled = rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
 var author$project$View$pageContent = function (content) {
@@ -11275,7 +11286,11 @@ var author$project$View$pageContent = function (content) {
 					_List_fromArray(
 						[
 							rtfeldman$elm_css$Css$displayFlex,
-							rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+							rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+							rtfeldman$elm_css$Css$marginTop(
+							rtfeldman$elm_css$Css$px(40)),
+							rtfeldman$elm_css$Css$marginBottom(
+							rtfeldman$elm_css$Css$px(60))
 						]))
 				]),
 			_List_fromArray(

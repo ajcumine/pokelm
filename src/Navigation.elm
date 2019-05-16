@@ -1,6 +1,7 @@
 module Navigation exposing (view)
 
 import Css exposing (..)
+import Css.Transitions exposing (transition)
 import Html exposing (Html)
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, placeholder, src, value)
@@ -16,12 +17,12 @@ import Route exposing (Route)
 --- SEARCH
 
 
-isMatch : String -> Model.Pokemon -> Bool
+isMatch : String -> Pokedex.Pokemon -> Bool
 isMatch queryString pokemon =
     String.contains (String.toLower queryString) pokemon.name
 
 
-findMatches : String -> List Model.Pokemon -> List Model.Pokemon
+findMatches : String -> Pokedex.Pokedex -> Pokedex.Pokedex
 findMatches queryString pokedex =
     List.filter (isMatch queryString) pokedex
 
@@ -30,7 +31,7 @@ findMatches queryString pokedex =
 --- VIEW
 
 
-viewMatch : Model.Pokemon -> Styled.Html msg
+viewMatch : Pokedex.Pokemon -> Styled.Html msg
 viewMatch pokemon =
     Styled.a
         [ css
@@ -46,13 +47,16 @@ viewMatch pokemon =
             , hover
                 [ backgroundColor (hex "#f1f1f1")
                 ]
+            , transition
+                [ Css.Transitions.background3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                ]
             ]
         , Route.styledHref (Route.Pokemon (String.fromInt pokemon.id))
         ]
         [ Styled.text pokemon.name ]
 
 
-viewSearchResults : String -> Model.Pokedex -> Styled.Html msg
+viewSearchResults : String -> Pokedex.Model -> Styled.Html msg
 viewSearchResults queryString pokedexModel =
     case pokedexModel of
         RemoteData.Success pokedex ->
@@ -75,7 +79,7 @@ viewSearchResults queryString pokedexModel =
             Styled.div [] []
 
 
-viewSearch : String -> Model.Pokedex -> Styled.Html Msg
+viewSearch : String -> Pokedex.Model -> Styled.Html Msg
 viewSearch queryString pokedex =
     Styled.div
         [ css
@@ -84,7 +88,7 @@ viewSearch queryString pokedex =
             ]
         ]
         [ Styled.input
-            [ placeholder "Search"
+            [ placeholder "Search Pokemon"
             , value queryString
             , onInput SearchQueryChange
             , css

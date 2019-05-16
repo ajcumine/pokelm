@@ -87,6 +87,8 @@ pageContent content =
             [ css
                 [ displayFlex
                 , justifyContent center
+                , marginTop (px 40)
+                , marginBottom (px 60)
                 ]
             ]
             [ Styled.fromUnstyled content ]
