@@ -4,7 +4,7 @@ I decided to learn elm, the strongly typed, functional programming language.
 
 ### Why?
 
-Because I've been using typescript for a year now and although I thing it's type system is fantastic for reducing bugs in your code, you're still writing javascript. I'm not saying that's bad at all, just that javascript was written to be an object oriented laguage and I've been writing it in a functional way for a few years now. Maybe it's time to use a language that was built for what I want rather than using tooling to force another language to do what I think I want.
+Because I've been using typescript for a year now and although I thing it's type system is fantastic for reducing bugs in your code, you're still writing javascript. I'm not saying that's bad at all, just that javascript was written to be an object oriented language and I've been writing it in a functional way for a few years now. Maybe it's time to use a language that was built for what I want rather than using tooling to force another language to do what I think I want.
 
 I'm currently between projects at work and this "bench" time is used for getting skilled up for the next project, helping out internal projects, or learning new things. After two weeks building an app for our product strategy team, and another week of getting to grips with some tools for my next project, I was ready to learn something new.
 
@@ -16,13 +16,13 @@ So here we go, where to learn elm?
 
 I asked some friends in the elm channel of my company's public slack whether there was some kind of standard starting point, like [create-react-app]() has almost become in React apps, for elm or whether to just use the official guide and use `elm init`. They told me:
 
-> I'd probably go with `elm init` IMO, as it suits my own learning style to learn from the ground up. `elm init` from what I remember is great, and'll prettty much set you up with a basic Elm app. There's none of the additional tooling (Webpack, Flow/Typescript, Babel, etc) that you get with JS-based projects, so it'll take you from 0 - 100 real quick
+> I'd probably go with `elm init` IMO, as it suits my own learning style to learn from the ground up. `elm init` from what I remember is great, and'll pretty much set you up with a basic Elm app. There's none of the additional tooling (Webpack, Flow/Typescript, Babel, etc) that you get with JS-based projects, so it'll take you from 0 - 100 real quick
 
 I realised that webpack has made me sick of starting up any project from nothing. I feel like it says a lot about the modern javascript environment that we need all these extra tools just to make javascript fit what we want it to be. This realisation got me excited to use a language without all that initial start up cost.
 
 Going to the official website [elm-lang.org](https://elm-lang.org/) and finding an up to date, official guide for learning elm.
 
-I followed this guide and it got me going surprisingly quickly. Having editor configuration at the start of the official guide and making it so simple is fantastic. Coming from the ESLint/Prettier environments of modern javascript, this it right at the top of my priorites when picking up a new language. I'm someone who tends to self-format anyway but having a tool that teaches me this "correct" way to format my code from the start is very satisfying.
+I followed this guide and it got me going surprisingly quickly. Having editor configuration at the start of the official guide and making it so simple is fantastic. Coming from the ESLint/Prettier environments of modern javascript, this it right at the top of my priorities when picking up a new language. I'm someone who tends to self-format anyway but having a tool that teaches me this "correct" way to format my code from the start is very satisfying.
 
 Learning about the Model - Update - View path of elm architecture reminded me of the main reason I like Redux as a state library but also about the massive amounts of boilerplate around it and how much of my own React/Redux applications are copy -> paste boilerplate code. Thankfully elm doesn't seem to have as much of this boilerplate.
 
@@ -32,13 +32,13 @@ At this point I decided to build something with what I had learnt and what I cou
 
 ### PokElm
 
-Feel free to skip readibg this paragraph as it's just some background info on me. I've been play the pokemon games since I was 9 when a friend from Hong Kong brought a bootleg copy of pokemon red to school. That followed with getting my own gameboy and playing every main series pokemon game in the series of and on for years. When pokemon go came out I played that too. The website [serebii.net](https://www.serebii.net/) is where I go to for any pokemon related news and it has excellent resources for the games. I wondered how they built it and if they had an public API so I had a quick look at the network requests on the site and was disappointed to see nothing I could use. So I had a little google and found [PokéAPI](https://pokeapi.co/) which allows for 100 requests per IP address per minute, more than enough for a little fun learning elm.
+Feel free to skip reading this paragraph as it's just some background info on me. I've been play the Pokemon games since I was 9 when a friend from Hong Kong brought a bootleg copy of Pokemon red to school. That followed with getting my own gameboy and playing every main series pokemon game in the series of and on for years. When Pokemon go came out I played that too. The website [serebii.net](https://www.serebii.net/) is where I go to for any Pokemon related news and it has excellent resources for the games. I wondered how they built it and if they had an public API so I had a quick look at the network requests on the site and was disappointed to see nothing I could use. So I had a little google and found [PokéAPI](https://pokeapi.co/) which allows for 100 requests per IP address per minute, more than enough for a little fun learning elm.
 
-So I decided to build a Pokedex in elm. A pokedex is like a little encyclopedia for pokemon. It has pictures and detailed information about each one. Using the [PokéAPI](https://pokeapi.co/) I would have a single page app, routing, Http requests, JSON decoding, storing data in application state, multiple views, chained http requests. These are the basis of most web applications I have made, usually followed by user state/log in and forms. A nice little project to start with.
+So I decided to build a Pokedex in elm. A Pokedex is like a little encyclopaedia for Pokemon. It has pictures and detailed information about each one. Using the [PokéAPI](https://pokeapi.co/) I would have a single page app, routing, Http requests, JSON decoding, storing data in application state, multiple views, chained http requests. These are the basis of most web applications I have made, usually followed by user state/log in and forms. A nice little project to start with.
 
-I followed on with the official elm guide replacing their logic with my pokemon based logic. Still using elm reactor and a Main.elm file I printed out a list of all the pokemon names ([github](https://github.com/ajcumine/pokelm/tree/52de5ce610c43a9af97d5ca5862ab75368234505)).
+I followed on with the official elm guide replacing their logic with my Pokemon based logic. Still using elm reactor and a Main.elm file I printed out a list of all the Pokemon names ([github](https://github.com/ajcumine/pokelm/tree/52de5ce610c43a9af97d5ca5862ab75368234505)).
 
-I then did some string parsing on the JSON pokemon url data to get the pokemon id which made me able to get an image for each pokemon and present that with the names for a very basic pokedex with some basic styling ([github](https://github.com/ajcumine/pokelm/tree/383499e5c0b03eea61600dcf95b64aaa02e21735)).
+I then did some string parsing on the JSON Pokemon url data to get the Pokemon id which made me able to get an image for each Pokemon and present that with the names for a very basic pokedex with some basic styling ([github](https://github.com/ajcumine/pokelm/tree/383499e5c0b03eea61600dcf95b64aaa02e21735)).
 There is a little snippet of code here that I am not proud of:
 
 ```elm
@@ -61,7 +61,7 @@ I was pretty happy with this so after converting my css over to `elm-css` moved 
 
 ### Elm Application
 
-So far I had been running my code using elm reactor and that is great, but I was at a point where I was done with the pokedex listing and wanted to make a page for each pokemon. I made a link for each pokemon to their page and then...
+So far I had been running my code using elm reactor and that is great, but I was at a point where I was done with the Pokedex listing and wanted to make a page for each Pokemon. I made a link for each Pokemon to their page and then...
 
 What now?
 
@@ -140,7 +140,7 @@ Task.map2 :
             -> Task x result    --- return value
 ```
 
-I will explain why I end up using `Task.map2` now so this is easier to understand. In my pokemon page I need make three `Http.get` requests to return the whole pokemon model that I need to show what I want on that page. One of these requests is dependant on the result of a previous request. All of the decoded data needs to be merged into a single pokemon record.
+I will explain why I end up using `Task.map2` now so this is easier to understand. In my Pokemon page I need make three `Http.get` requests to return the whole Pokemon model that I need to show what I want on that page. One of these requests is dependant on the result of a previous request. All of the decoded data needs to be merged into a single Pokemon record.
 
 In order to get all this data I decided to turn my requests into `Tasks`, map the two tasks into one `Task`, then that would them be attempted.
 
@@ -148,7 +148,7 @@ Arguments 2, 3, and the return value of map all have a similar type signature, `
 
 > resolve successfully with an `a` value or unsuccessfully with and `x` value.
 
-This explains that argument 1, `(a -> b -> result)` is a function that maps the successful values of `a` and `b` to `result`. This is where we would construct our whole pokemon data model from our two separate data responses. Now we know what the successful return value of `map2` will be. The unsuccessful return value `x` is then whatever failure happens in either of the two tasks passed into `map2` for `Task x a` or `Task x b`.
+This explains that argument 1, `(a -> b -> result)` is a function that maps the successful values of `a` and `b` to `result`. This is where we would construct our whole Pokemon data model from our two separate data responses. Now we know what the successful return value of `map2` will be. The unsuccessful return value `x` is then whatever failure happens in either of the two tasks passed into `map2` for `Task x a` or `Task x b`.
 
 Arguments 2 and 3 are then just the tasks that need to be passed into the `map2` function.
 
@@ -156,25 +156,25 @@ It seems so simple when I write it out like this on separate lines, but for some
 
 ### Back to Elm Application
 
-I had a number of problems getting the elm application to work as I wanted in the end. I ended up working with a colleague who was familiar with elm and having him explain some of the things that I was struggling with. He shared one of his personal projects with me and I used that along with his guidance and some other open source projects to get to [this point ](https://github.com/ajcumine/pokelm/tree/92b62586fd9eb737fe803581939069d5abf21de5). As you can see from the Main.elm in the code at this point, all of the update logic and model changes are handled here. All pokedex and route logic are handled in their own separate modules, with only a thin layer exposed between them.
+I had a number of problems getting the elm application to work as I wanted in the end. I ended up working with a colleague who was familiar with elm and having him explain some of the things that I was struggling with. He shared one of his personal projects with me and I used that along with his guidance and some other open source projects to get to [this point ](https://github.com/ajcumine/pokelm/tree/92b62586fd9eb737fe803581939069d5abf21de5). As you can see from the Main.elm in the code at this point, all of the update logic and model changes are handled here. All Pokedex and route logic are handled in their own separate modules, with only a thin layer exposed between them.
 
 ### Page 2
 
-I added a second page on the `/pokemon` route and had that give me the name and id of the pokemon for the route. Fairly simple so far. But I wanted more details, things that could only be provided by a series of Http.get requests chained together. This is where I started investigating [Tasks](https://package.elm-lang.org/packages/elm/core/latest/Task).
+I added a second page on the `/pokemon` route and had that give me the name and id of the Pokemon for the route. Fairly simple so far. But I wanted more details, things that could only be provided by a series of Http.get requests chained together. This is where I started investigating [Tasks](https://package.elm-lang.org/packages/elm/core/latest/Task).
 
 With a little help pairing with a colleague I converted my single get request into a Task and had the same visual logic but with Task based requests. This way I could add more get request tasks without having to update more core logic.
 
-I then added two more chained requests and mapped the data out into a model I wanted using `Task.andThen` and `Task.map2`. There was even a recursive type for decoding in there which took a little bit of work but I managed to get working. With all this I had my pokemon page ready ([github](https://github.com/ajcumine/pokelm/tree/48fb0490cfd47a1ff62f508b49c3c769ac818e5f)).
+I then added two more chained requests and mapped the data out into a model I wanted using `Task.andThen` and `Task.map2`. There was even a recursive type for decoding in there which took a little bit of work but I managed to get working. With all this I had my Pokemon page ready ([github](https://github.com/ajcumine/pokelm/tree/48fb0490cfd47a1ff62f508b49c3c769ac818e5f)).
 
 ### Refactoring
 
 **TLDR:** _Don't worry about refactoring unless there's a problem to solve with it. Long files are ok in elm._
 
-[At this point](https://github.com/ajcumine/pokelm/commit/48fb0490cfd47a1ff62f508b49c3c769ac818e5f) I had 2 seperate pages, a pokedex page and a pokemon page. I realised I needed to do some refactoring, or at least the old coding school habits started to kick in and I was itching to do some anyway. I looked across my codebase and saw long files (Pokedex.elm at almost 170 lines and Pokemon.elm at almost 300 lines), repeated code, and large view functions.
+[At this point](https://github.com/ajcumine/pokelm/commit/48fb0490cfd47a1ff62f508b49c3c769ac818e5f) I had 2 seperate pages, a Pokedex page and a pokemon page. I realised I needed to do some refactoring, or at least the old coding school habits started to kick in and I was itching to do some anyway. I looked across my codebase and saw long files (Pokedex.elm at almost 170 lines and Pokemon.elm at almost 300 lines), repeated code, and large view functions.
 
 The usual things I would think of when refactoring from my background of JS/ruby are:
 
-- splitting code into seperate files
+- splitting code into separate files
 - moving reusable view html into "Component" files
 - split reused helper functions into some kind of helper library
 - sort out my file structure before I have a real mess on my hands
@@ -185,7 +185,7 @@ I found a talk from Elm Europe 2017 by the creator of elm himself[Evan Czaplicki
 
 - Line count doesn't matter in elm
 - Split files around data structures
-  - could evolution be a seperate file as it seems to be a seperate data structure?
+  - could evolution be a separate file as it seems to be a separate data structure?
 - only expose what is needed from a module as a public api
   - "Reduce Public API: If implementation is hidden and if the public API works, the code works everywhere"
 - Don't overdo it
@@ -206,7 +206,7 @@ Solution: umm...
 - use the simplest api that works
 - reduce the types as much as possible
 
-... to be honest I couldn't make it to the end of this talk, it got quite rambly and wasn't particularly focussed. I decided rather than not really pay attention I would just move on
+... to be honest I couldn't make it to the end of this talk, it got quite ramble-y and wasn't particularly focussed. I decided rather than not really pay attention I would just move on
 
 I spent some time reading about reusable view functions for refactoring some of my repeated code and I read a lot of elm community posts saying that "Components are objects" and not to use them. This confused me a little as I've been using components in React/Redux for a while and never thought of them as objects, luckily this [tweet](https://twitter.com/czaplic/status/903266544544878592) from Evan Czaplicki cleared things up. React's functional stateless components, or what I like to call "dumb components", are what I was thinking of and it seems like this kind of thing is ok in elm, now just where to put them.
 
@@ -223,7 +223,7 @@ The main questions I wanted answers to were:
 
 I ended up removing the empty data type so question 2 became redundant. From conversations around the topic it became clear that having a function that returns the data type is the way to go.
 
-The answer to question 1 was to have some kind of View module which can return some styling. For a repeated but of view html to display a pokemon something like:
+The answer to question 1 was to have some kind of View module which can return some styling. For a repeated but of view html to display a Pokemon something like:
 
 ```elm
 type alias Pokemon =
@@ -247,3 +247,143 @@ View.pokemon id name =
 ```
 
 With all this research into refactoring in elm, it seemed like I didn't really have a problem to solve yet and that I can just keep going.
+
+### Getting to a base point
+
+I added images for each Pokemon to the assets directory in my project folder. Then set up the page for Pokemon types. This made me realise, unsurprisingly, that `type` is a reserved word in Elm. This isn't an issue at all as I just named everything that was a type `Type` and everything that was a variable to `pokemonType`. Later I made the (better) decision to fix this to be just `PokemonType` and `pokemonType` to maintain consistency and readability across the project.
+
+I added a link to the Pokemon type page in the navigation bar. where I showed a list of all the Pokemon types as a base for now with a single API call. A Pokemon type page was then made for each individual Pokemon type. This showed all the Pokemon of the type selected.
+
+[This](https://github.com/ajcumine/pokelm/tree/b8ea3b1acb3d2e21a8a96cb34c5e21dfd9ffc467) point is where the basis for the site structure was met. 4 page types and a way to navigate between all of them:
+1. Homepage/Pokedex/Pokemon Directory
+2. Pokemon Page
+3. Pokemon Types Directory
+4. Pokemon Type Page
+
+From here most of the work would be styling the site, and adding more information based on data from existing API calls.
+
+### Click
+
+Again I started to think about some improvements and optimisations. A very simple one would be to only request data from APIs when we didn't already have it. This was simple to add to the Pokemon types and Pokedex pages. For both we simply ask if the data has been requested and if not we fetch it, for the Pokedex data:
+
+```elm
+fetchRouteData model route =
+    case route of
+        Route.Pokedex ->
+            if RemoteData.isNotAsked model.pokedex then
+                Pokedex.fetch |> Cmd.map PokedexFetchResponse
+
+            else
+                Cmd.none
+```
+
+If the route is the Pokedex route, we check if the Pokedex data on the model has already been asked for. If it hasn't then we fetch that data, otherwise we do nothing.
+
+I realised I needed to add another chain in the Http requests I was making for the Pokemon data model to get evolution data for each Pokemon. With my requests already tasks this was relatively easy, using `Task.map2` and `Task.succeed` to add the evolution chain request to the series of GET requests and build the core Pokemon model.
+
+This was the point ([github](https://github.com/ajcumine/pokelm/tree/5b59da8e75b0a81535f8d01635bb604ba797b0f2)) where I started to really understand Elm as a language. Things started to click at last. I don't know if you've had this experience, but it's very satisfying. From now on I'm going to point out interesting little things I did and found as I continued through the work on this project.
+
+### View functions
+
+In the end I did create a `View` module to hold repeated bits of html code, the first of any substance was  `View.pokemon`:
+
+```elm
+pokemon : String -> Int -> Styled.Html msg
+pokemon name id =
+    Styled.a
+        [ css
+            [ display block
+            , margin (px 8)
+            , width (px 120)
+            , height (px 160)
+            , borderRadius (px 3)
+            , boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.16)
+            , paddingTop (px 16)
+            , textDecoration none
+            , textTransform capitalize
+            , color (hex "#000000")
+            , textAlign center
+            , backgroundImage (url (pokemonImageSrc id))
+            , backgroundPosition center
+            , backgroundRepeat noRepeat
+            , hover
+                [ boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
+                , backgroundImage (url (shinyImageSrc id))
+                ]
+            , transition
+                [ Css.Transitions.boxShadow3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                , Css.Transitions.background3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                ]
+            ]
+        , Route.styledHref (Route.Pokemon (String.fromInt id))
+        ]
+        [ Styled.span
+            [ css
+                [ display block
+                , backgroundColor (hex "#f1f1f1")
+                , padding2 (px 4) (px 0)
+                ]
+            ]
+            [ Styled.text name ]
+        ]
+```
+Note here that we do not pass a whole `Pokemon` data type to the function just a `String` and `Int` as these are the only things needed to render this styled html.
+
+Helper functions for view functions were also placed here and kept private to the module. I also added some other view functions for things like page titles and subtitles.
+
+### GitHub Pages
+
+I changed the build to compile an `elm.js` and be used by an `index.html` at the project route. This allowed me to make use of GitHub Pages and have GitHub serve my project online at https://ajcumine.github.io/pokelm/.
+
+Changing to using a javascript file allowed me to add a CSS normaliser in the `index.html` and start work on the styling of the project in earnest.
+
+Hosting on GitHub Pages also meant I had to fix the paths for my assets.
+
+### Conditional Rendering
+
+I found that I was rendering some things that had no information in them so I decided to add some conditional rendering to the damage relations part of the Pokemon type pages.
+
+```elm
+viewDamageRelation : String -> BaseTypes -> Styled.Html msg
+viewDamageRelation sectionTitle pokemonTypes =
+    case List.isEmpty pokemonTypes of
+        True ->
+            Styled.div [] []
+
+        False ->
+            Styled.div
+                [ css
+                    [ margin (px 4)
+                    , width (px 250)
+                    , padding3 (px 0) (px 20) (px 16)
+                    , border3 (px 1) solid (hex "#dedede")
+                    ]
+                ]
+                [ Styled.h4
+                    [ css
+                        [ textTransform capitalize
+                        , textAlign center
+                        ]
+                    ]
+                    [ Styled.text sectionTitle ]
+                , Styled.div
+                    [ css
+                        [ displayFlex
+                        , flexDirection column
+                        , alignItems center
+                        ]
+                    ]
+                    (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
+                ]
+```
+
+Here `BaseTypes` is a `List` of `PokemonType`. The list is always present but it may be empty. Using the `case ... of` syntax we choose to render an empty `div` rather than the styled information box when there are no `PokemonType` present.
+
+
+### Search
+
+In this [commit](https://github.com/ajcumine/pokelm/commit/f38a1ec16e05744af8db3ac6a4c055650b4bedfb) I added Search Pokemon functionality to my navigation bar. This ended up being a really interesting problem as it required a lot of changes to the core structure of my elm code.
+
+In order to use the search on any page you would need to ensure that all the Pokedex data was fetched on every page. This meant I had to move the `Pokedex.fetch |> Cmd.map PokedexFetchResponse` to the `init` function of my `Main` module and use `Cmd.batch` to run this and whatever route based fetching I needed to do.
+
+In order to use a `Msg` in the input of the navigation bar I needed to move the `type Msg` from the `Main` module into it's own `Msg` module to avoid cyclic dependencies. I also needed to move the `Model` type alias from the `Main` module into it's own  `Model` module so I could use it in the `Navigation` module, again to avoid cyclic dependencies.
