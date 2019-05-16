@@ -38,7 +38,7 @@ So I decided to build a Pokedex in elm. A Pokedex is like a little encyclopaedia
 
 I followed on with the official elm guide replacing their logic with my Pokemon based logic. Still using elm reactor and a Main.elm file I printed out a list of all the Pokemon names ([github](https://github.com/ajcumine/pokelm/tree/52de5ce610c43a9af97d5ca5862ab75368234505)).
 
-I then did some string parsing on the JSON Pokemon url data to get the Pokemon id which made me able to get an image for each Pokemon and present that with the names for a very basic pokedex with some basic styling ([github](https://github.com/ajcumine/pokelm/tree/383499e5c0b03eea61600dcf95b64aaa02e21735)).
+I then did some string parsing on the JSON Pokemon url data to get the Pokemon id which made me able to get an image for each Pokemon and present that with the names for a very basic Pokedex with some basic styling ([github](https://github.com/ajcumine/pokelm/tree/383499e5c0b03eea61600dcf95b64aaa02e21735)).
 There is a little snippet of code here that I am not proud of:
 
 ```elm
@@ -53,7 +53,7 @@ I struggled with understanding the correct way to parse a url string and as it w
 
 But the rest of the code was working as I would have wanted it to so I was happy at this stage. One thing I wanted to know about was styling. My current basic elm styling had no type safety, you could type whatever you wanted after `style` and so long as it was two strings, the compiler would run successfully. As far as I know `style "hot" "potato"` is not valid css.
 
-In modern javascript we have libraries to handle this such as [styled components](). I had a look around the [elm package library](https://package.elm-lang.org/) and decided to try [elm-css](https://package.elm-lang.org/packages/rtfeldman/elm-css/latest/). This gives the css typings so my attempt at invalid css with `css [ hot potato ]` had the compiler up in arms not knowing what `hot` or `potato` were, even as strings `css [ "hot" "potato" ]` the compiler errored correctly as this was still invalid.
+In modern javascript we have libraries to handle this such as [styled components](). I had a look around the [elm package library](https://package.elm-lang.org/) and decided to try [elm-css](https://package.elm-lang.org/packages/rtfeldman/elm-css/latest/). This gives the css typings so my attempt at invalid css with `css [ hot potato ]` had the compiler up in arms not knowing what `hot` or `potato` were, even as strings `css [ "hot" "potato" ]` the compilation failed correctly as this was still invalid.
 
 There were some problems though as I tried to `display flex`. As `flex` is already a css property it cannot also be an attribute, so `displayFlex` is used instead. There are similar things throughout the `elm-css` package and sometimes it takes a little digging to find out why something won't work when you think it should. There is a fallback property `property : String -> String -> Style` which allows you to give it any custom style that might be missing.
 
@@ -255,6 +255,7 @@ I added images for each Pokemon to the assets directory in my project folder. Th
 I added a link to the Pokemon type page in the navigation bar. where I showed a list of all the Pokemon types as a base for now with a single API call. A Pokemon type page was then made for each individual Pokemon type. This showed all the Pokemon of the type selected.
 
 [This](https://github.com/ajcumine/pokelm/tree/b8ea3b1acb3d2e21a8a96cb34c5e21dfd9ffc467) point is where the basis for the site structure was met. 4 page types and a way to navigate between all of them:
+
 1. Homepage/Pokedex/Pokemon Directory
 2. Pokemon Page
 3. Pokemon Types Directory
@@ -285,7 +286,7 @@ This was the point ([github](https://github.com/ajcumine/pokelm/tree/5b59da8e75b
 
 ### View functions
 
-In the end I did create a `View` module to hold repeated bits of html code, the first of any substance was  `View.pokemon`:
+In the end I did create a `View` module to hold repeated bits of html code, the first of any substance was `View.pokemon`:
 
 ```elm
 pokemon : String -> Int -> Styled.Html msg
@@ -327,6 +328,7 @@ pokemon name id =
             [ Styled.text name ]
         ]
 ```
+
 Note here that we do not pass a whole `Pokemon` data type to the function just a `String` and `Int` as these are the only things needed to render this styled html.
 
 Helper functions for view functions were also placed here and kept private to the module. I also added some other view functions for things like page titles and subtitles.
@@ -379,11 +381,10 @@ viewDamageRelation sectionTitle pokemonTypes =
 
 Here `BaseTypes` is a `List` of `PokemonType`. The list is always present but it may be empty. Using the `case ... of` syntax we choose to render an empty `div` rather than the styled information box when there are no `PokemonType` present.
 
-
 ### Search
 
 In this [commit](https://github.com/ajcumine/pokelm/commit/f38a1ec16e05744af8db3ac6a4c055650b4bedfb) I added Search Pokemon functionality to my navigation bar. This ended up being a really interesting problem as it required a lot of changes to the core structure of my elm code.
 
 In order to use the search on any page you would need to ensure that all the Pokedex data was fetched on every page. This meant I had to move the `Pokedex.fetch |> Cmd.map PokedexFetchResponse` to the `init` function of my `Main` module and use `Cmd.batch` to run this and whatever route based fetching I needed to do.
 
-In order to use a `Msg` in the input of the navigation bar I needed to move the `type Msg` from the `Main` module into it's own `Msg` module to avoid cyclic dependencies. I also needed to move the `Model` type alias from the `Main` module into it's own  `Model` module so I could use it in the `Navigation` module, again to avoid cyclic dependencies.
+In order to use a `Msg` in the input of the navigation bar I needed to move the `type Msg` from the `Main` module into it's own `Msg` module to avoid cyclic dependencies. I also needed to move the `Model` type alias from the `Main` module into it's own `Model` module so I could use it in the `Navigation` module, again to avoid cyclic dependencies.
