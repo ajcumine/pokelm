@@ -1,10 +1,8 @@
 module Page.Team exposing (init, view)
 
-import Css exposing (..)
 import Html exposing (Html)
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css)
-import Model exposing (Model, Pokemon, Team)
+import Model exposing (Team)
 import View
 
 

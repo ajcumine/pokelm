@@ -3,12 +3,11 @@ module Page.PokemonType exposing (Model, fetch, init, view)
 import Css exposing (..)
 import Html exposing (Html)
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import RemoteData exposing (WebData)
-import Route
 import View
 
 

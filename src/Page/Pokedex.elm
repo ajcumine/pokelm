@@ -1,14 +1,12 @@
 module Page.Pokedex exposing (Model, Pokedex, Pokemon, fetch, init, view)
 
 import Css exposing (..)
-import Css.Transitions exposing (transition)
 import Html exposing (Html)
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import RemoteData exposing (WebData)
-import Route
 import View
 
 
