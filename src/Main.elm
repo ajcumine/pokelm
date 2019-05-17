@@ -105,6 +105,11 @@ update msg model =
             , Cmd.none
             )
 
+        RemoveFromTeam pokemon ->
+            ( { model | team = List.filter (\member -> member /= pokemon) model.team }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
@@ -152,7 +157,7 @@ contentView model =
             Pokedex.view model.pokedex
 
         Route.Pokemon id ->
-            Pokemon.view model.pokemon
+            Pokemon.view model.pokemon model.team
 
         Route.PokemonTypes ->
             PokemonTypes.view model.pokemonTypes

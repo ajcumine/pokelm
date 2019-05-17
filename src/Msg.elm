@@ -17,3 +17,4 @@ type Msg
     | PokemonTypeFetchResponse PokemonType.Model
     | SearchQueryChange String
     | AddToTeam Pokemon
+    | RemoveFromTeam Pokemon

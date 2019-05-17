@@ -7126,6 +7126,18 @@ var elm$url$Url$fromString = function (str) {
 };
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
 		if (maybePort.$ === 'Nothing') {
@@ -7233,7 +7245,7 @@ var author$project$Main$update = F2(
 						model,
 						{query: query}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'AddToTeam':
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -7244,6 +7256,20 @@ var author$project$Main$update = F2(
 								model.team,
 								_List_fromArray(
 									[pokemon]))
+						}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var pokemon = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							team: A2(
+								elm$core$List$filter,
+								function (member) {
+									return !_Utils_eq(member, pokemon);
+								},
+								model.team)
 						}),
 					elm$core$Platform$Cmd$none);
 		}
@@ -8206,7 +8232,6 @@ var Skinney$murmur3$Murmur3$rotlBy = F2(
 	function (b, a) {
 		return (a << b) | (a >>> (32 - b));
 	});
-var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$Bitwise$xor = _Bitwise_xor;
 var Skinney$murmur3$Murmur3$finalize = function (data) {
 	var acc = data.hash ? (data.seed ^ A2(
@@ -9515,17 +9540,6 @@ var rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_n0) {
 	var finalDeclarations = A2(rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations, keyframesByName, compactedDeclarations);
 	return {charset: charset, declarations: finalDeclarations, imports: imports, namespaces: namespaces};
 };
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -10532,6 +10546,9 @@ var author$project$Page$Pokedex$view = function (model) {
 var author$project$Msg$AddToTeam = function (a) {
 	return {$: 'AddToTeam', a: a};
 };
+var author$project$Msg$RemoveFromTeam = function (a) {
+	return {$: 'RemoveFromTeam', a: a};
+};
 var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
 	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
 };
@@ -10693,6 +10710,15 @@ var author$project$View$pokemonType = function (typeName) {
 					]))
 			]));
 };
+var elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
@@ -10724,119 +10750,132 @@ var rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var author$project$Page$Pokemon$viewPokemonDetails = function (pokemon) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				author$project$View$pageTitle(
-				elm$core$String$fromInt(pokemon.id) + (': ' + pokemon.name)),
-				A2(
-				rtfeldman$elm_css$Html$Styled$img,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$src(
-						author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
-					]),
-				_List_Nil),
-				A2(
-				rtfeldman$elm_css$Html$Styled$img,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$src(
-						author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
-					]),
-				_List_Nil),
-				A2(
-				rtfeldman$elm_css$Html$Styled$h3,
-				_List_Nil,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('Types')
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
-					]),
-				A2(
-					elm$core$List$map,
-					function (pokemonType) {
-						return author$project$View$pokemonType(pokemonType.name);
-					},
-					pokemon.types)),
-				A2(
-				rtfeldman$elm_css$Html$Styled$h3,
-				_List_Nil,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('Evolution Chain')
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$h3,
-				_List_Nil,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('Varieties')
-					])),
-				A2(
-				rtfeldman$elm_css$Html$Styled$div,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$displayFlex,
-								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-							]))
-					]),
-				A2(
-					elm$core$List$map,
-					function (variety) {
-						return A2(author$project$View$pokemon, variety.name, variety.id);
-					},
-					pokemon.varieties)),
-				A2(
-				rtfeldman$elm_css$Html$Styled$button,
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$Events$onClick(
-						author$project$Msg$AddToTeam(pokemon))
-					]),
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Html$Styled$text('Add to Team')
-					]))
-			]));
-};
-var author$project$Page$Pokemon$viewPokemon = function (model) {
-	switch (model.$) {
-		case 'NotAsked':
-			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-		case 'Loading':
-			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-		case 'Failure':
-			var error = model.a;
-			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
-		default:
-			var pokemon = model.a;
-			return author$project$Page$Pokemon$viewPokemonDetails(pokemon);
-	}
-};
-var author$project$Page$Pokemon$view = function (model) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
-		author$project$Page$Pokemon$viewPokemon(model));
-};
+var author$project$Page$Pokemon$viewPokemonDetails = F2(
+	function (pokemon, team) {
+		return A2(
+			rtfeldman$elm_css$Html$Styled$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					author$project$View$pageTitle(
+					elm$core$String$fromInt(pokemon.id) + (': ' + pokemon.name)),
+					A2(
+					rtfeldman$elm_css$Html$Styled$img,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$src(
+							author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
+						]),
+					_List_Nil),
+					A2(
+					rtfeldman$elm_css$Html$Styled$img,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$src(
+							author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
+						]),
+					_List_Nil),
+					A2(elm$core$List$member, pokemon, team) ? A2(
+					rtfeldman$elm_css$Html$Styled$button,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Events$onClick(
+							author$project$Msg$RemoveFromTeam(pokemon))
+						]),
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Remove from Team')
+						])) : A2(
+					rtfeldman$elm_css$Html$Styled$button,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Events$onClick(
+							author$project$Msg$AddToTeam(pokemon))
+						]),
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Add to Team')
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$h3,
+					_List_Nil,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Types')
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+						]),
+					A2(
+						elm$core$List$map,
+						function (pokemonType) {
+							return author$project$View$pokemonType(pokemonType.name);
+						},
+						pokemon.types)),
+					A2(
+					rtfeldman$elm_css$Html$Styled$h3,
+					_List_Nil,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Evolution Chain')
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$h3,
+					_List_Nil,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$text('Varieties')
+						])),
+					A2(
+					rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$displayFlex,
+									rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
+									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								]))
+						]),
+					A2(
+						elm$core$List$map,
+						function (variety) {
+							return A2(author$project$View$pokemon, variety.name, variety.id);
+						},
+						pokemon.varieties))
+				]));
+	});
+var author$project$Page$Pokemon$viewPokemon = F2(
+	function (model, team) {
+		switch (model.$) {
+			case 'NotAsked':
+				return rtfeldman$elm_css$Html$Styled$text('Not Asked');
+			case 'Loading':
+				return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
+			case 'Failure':
+				var error = model.a;
+				return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
+			default:
+				var pokemon = model.a;
+				return A2(author$project$Page$Pokemon$viewPokemonDetails, pokemon, team);
+		}
+	});
+var author$project$Page$Pokemon$view = F2(
+	function (model, team) {
+		return rtfeldman$elm_css$Html$Styled$toUnstyled(
+			A2(author$project$Page$Pokemon$viewPokemon, model, team));
+	});
 var rtfeldman$elm_css$Css$prop3 = F4(
 	function (key, argA, argB, argC) {
 		return A2(
@@ -11089,7 +11128,7 @@ var author$project$Main$contentView = function (model) {
 			return author$project$Page$Pokedex$view(model.pokedex);
 		case 'Pokemon':
 			var id = _n0.a;
-			return author$project$Page$Pokemon$view(model.pokemon);
+			return A2(author$project$Page$Pokemon$view, model.pokemon, model.team);
 		case 'PokemonTypes':
 			return author$project$Page$PokemonTypes$view(model.pokemonTypes);
 		case 'PokemonType':

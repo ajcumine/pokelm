@@ -8,7 +8,7 @@ import Html.Styled.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
-import Model exposing (BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonType, PokemonWebData, Species, Variety)
+import Model exposing (BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonType, PokemonWebData, Species, Team, Variety)
 import Msg exposing (Msg(..))
 import RemoteData exposing (WebData)
 import RemoteData.Http
@@ -58,12 +58,21 @@ shinyImageSrc id =
     "assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
-viewPokemonDetails : Pokemon -> Styled.Html Msg
-viewPokemonDetails pokemon =
+viewPokemonDetails : Pokemon -> Team -> Styled.Html Msg
+viewPokemonDetails pokemon team =
     Styled.div []
         [ View.pageTitle (String.fromInt pokemon.id ++ ": " ++ pokemon.name)
         , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
         , Styled.img [ src (shinyImageSrc pokemon.id) ] []
+        , if List.member pokemon team then
+            Styled.button
+                [ onClick <| RemoveFromTeam pokemon ]
+                [ Styled.text "Remove from Team" ]
+
+          else
+            Styled.button
+                [ onClick <| AddToTeam pokemon ]
+                [ Styled.text "Add to Team" ]
         , Styled.h3 [] [ Styled.text "Types" ]
         , Styled.div
             [ css
@@ -82,14 +91,11 @@ viewPokemonDetails pokemon =
                 ]
             ]
             (List.map (\variety -> View.pokemon variety.name variety.id) pokemon.varieties)
-        , Styled.button
-            [ onClick <| AddToTeam pokemon ]
-            [ Styled.text "Add to Team" ]
         ]
 
 
-viewPokemon : PokemonWebData -> Styled.Html Msg
-viewPokemon model =
+viewPokemon : PokemonWebData -> Team -> Styled.Html Msg
+viewPokemon model team =
     case model of
         RemoteData.NotAsked ->
             Styled.text "Not Asked"
@@ -101,13 +107,13 @@ viewPokemon model =
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokemon ->
-            viewPokemonDetails pokemon
+            viewPokemonDetails pokemon team
 
 
-view : PokemonWebData -> Html Msg
-view model =
+view : PokemonWebData -> Team -> Html Msg
+view model team =
     Styled.toUnstyled <|
-        viewPokemon model
+        viewPokemon model team
 
 
 
