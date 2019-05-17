@@ -12,6 +12,7 @@ type Route
     | Pokemon String
     | PokemonTypes
     | PokemonType String
+    | Team
 
 
 parser : Parser (Route -> a) a
@@ -21,6 +22,7 @@ parser =
         , Parser.map Pokemon (Parser.s "pokemon" </> Parser.string)
         , Parser.map PokemonTypes (Parser.s "types")
         , Parser.map PokemonType (Parser.s "types" </> Parser.string)
+        , Parser.map Team (Parser.s "team")
         ]
 
 
@@ -55,5 +57,8 @@ routeToString route =
 
                 PokemonType nameOrId ->
                     [ "types", nameOrId ]
+
+                Team ->
+                    [ "team" ]
     in
     "#/" ++ String.join "/" pieces

@@ -1,12 +1,15 @@
-module Page.Pokemon exposing (Model, fetch, init, view)
+module Page.Pokemon exposing (fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
+import Model exposing (BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonType, PokemonWebData, Species, Variety)
+import Msg exposing (Msg(..))
 import RemoteData exposing (WebData)
 import RemoteData.Http
 import Route
@@ -18,61 +21,7 @@ import View
 -- MODEL
 
 
-type alias Model =
-    WebData Pokemon
-
-
-type alias PokemonType =
-    { name : String }
-
-
-type alias BasePokemon =
-    { name : String
-    , id : Int
-    , types : List PokemonType
-    , speciesUrl : String
-    }
-
-
-type alias Variety =
-    { name : String
-    , id : Int
-    }
-
-
-type alias Species =
-    { evolutionChainUrl : String
-    , varieties : List Variety
-    }
-
-
-type alias EvolutionChain =
-    { name : String
-    , id : Int
-    , evolutionChain : Evolutions
-    }
-
-
-type Evolutions
-    = Evolutions (List EvolutionChain)
-
-
-type alias PokemonDetail =
-    { evolutionChain : EvolutionChain
-    , varieties : List Variety
-    }
-
-
-type alias Pokemon =
-    { name : String
-    , id : Int
-    , types : List PokemonType
-    , evolutionChain : EvolutionChain
-    , varieties : List Variety
-    }
-
-
-init : Model
+init : PokemonWebData
 init =
     RemoteData.NotAsked
 
@@ -109,7 +58,7 @@ shinyImageSrc id =
     "assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
-viewPokemonDetails : Pokemon -> Styled.Html msg
+viewPokemonDetails : Pokemon -> Styled.Html Msg
 viewPokemonDetails pokemon =
     Styled.div []
         [ View.pageTitle (String.fromInt pokemon.id ++ ": " ++ pokemon.name)
@@ -133,10 +82,13 @@ viewPokemonDetails pokemon =
                 ]
             ]
             (List.map (\variety -> View.pokemon variety.name variety.id) pokemon.varieties)
+        , Styled.button
+            [ onClick <| AddToTeam pokemon ]
+            [ Styled.text "Add to Team" ]
         ]
 
 
-viewPokemon : Model -> Styled.Html msg
+viewPokemon : PokemonWebData -> Styled.Html Msg
 viewPokemon model =
     case model of
         RemoteData.NotAsked ->
@@ -152,7 +104,7 @@ viewPokemon model =
             viewPokemonDetails pokemon
 
 
-view : Model -> Html msg
+view : PokemonWebData -> Html Msg
 view model =
     Styled.toUnstyled <|
         viewPokemon model
@@ -292,7 +244,7 @@ getPokemon nameOrId =
     RemoteData.Http.getTask ("https://pokeapi.co/api/v2/pokemon/" ++ nameOrId) pokemonDecoder
 
 
-fetch : String -> Cmd Model
+fetch : String -> Cmd PokemonWebData
 fetch nameOrId =
     getPokemon nameOrId
         |> Task.andThen

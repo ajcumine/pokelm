@@ -11,6 +11,7 @@ import Page.Pokedex as Pokedex
 import Page.Pokemon as Pokemon
 import Page.PokemonType as PokemonType
 import Page.PokemonTypes as PokemonTypes
+import Page.Team as Team
 import RemoteData
 import Route exposing (Route)
 import Url exposing (Url)
@@ -31,6 +32,7 @@ init flags url navKey =
             , pokemonTypes = PokemonTypes.init
             , pokemonType = PokemonType.init
             , query = ""
+            , team = Team.init
             }
 
         cmd =
@@ -98,6 +100,11 @@ update msg model =
             , Cmd.none
             )
 
+        AddToTeam pokemon ->
+            ( { model | team = List.append model.team [ pokemon ] }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
@@ -152,6 +159,9 @@ contentView model =
 
         Route.PokemonType id ->
             PokemonType.view model.pokemonType
+
+        Route.Team ->
+            Team.view model.team
 
 
 

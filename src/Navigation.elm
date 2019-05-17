@@ -126,9 +126,11 @@ view model =
                 , justifyContent flexEnd
                 , backgroundColor (hex "#202124")
                 , boxShadow5 (px 0) (px 4) (px 10) (px -1) (rgba 0 0 0 0.2)
+                , padding2 (px 0) (px 40)
                 ]
             ]
             [ viewSearch model.query model.pokedex
             , viewNavLink Route.Pokedex "Home"
             , viewNavLink Route.PokemonTypes "Types"
+            , viewNavLink Route.Team "Team"
             ]
