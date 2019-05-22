@@ -11328,7 +11328,12 @@ var author$project$Page$PokemonTypes$view = function (model) {
 var author$project$Page$Team$viewTeamMembers = function (members) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[rtfeldman$elm_css$Css$displayFlex]))
+			]),
 		A2(
 			elm$core$List$map,
 			function (pokemon) {
@@ -11339,7 +11344,12 @@ var author$project$Page$Team$viewTeamMembers = function (members) {
 var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[rtfeldman$elm_css$Css$displayFlex]))
+			]),
 		A2(
 			elm$core$List$map,
 			function (pokemonType) {
@@ -11347,8 +11357,61 @@ var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 			},
 			pokemonTypes));
 };
+var author$project$Page$Team$teamStrengths = function (pokemonTypes) {
+	return elm$core$Set$fromList(
+		elm$core$List$concat(
+			A2(
+				elm$core$List$map,
+				function (pokemonType) {
+					return A2(
+						elm$core$List$map,
+						function (base) {
+							return base.name;
+						},
+						A2(
+							elm$core$List$append,
+							pokemonType.damageRelations.noDamageFrom,
+							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageFrom, pokemonType.damageRelations.doubleDamageTo)));
+				},
+				pokemonTypes)));
+};
+var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
+	return elm$core$Set$fromList(
+		elm$core$List$concat(
+			A2(
+				elm$core$List$map,
+				function (pokemonType) {
+					return A2(
+						elm$core$List$map,
+						function (base) {
+							return base.name;
+						},
+						A2(
+							elm$core$List$append,
+							pokemonType.damageRelations.noDamageTo,
+							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageTo, pokemonType.damageRelations.doubleDamageFrom)));
+				},
+				pokemonTypes)));
+};
 var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
-	return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[rtfeldman$elm_css$Css$displayFlex]))
+			]),
+		A2(
+			elm$core$List$map,
+			function (filteredType) {
+				return author$project$View$pokemonType(filteredType);
+			},
+			elm$core$Set$toList(
+				A2(
+					elm$core$Set$diff,
+					author$project$Page$Team$teamWeaknesses(pokemonTypes),
+					author$project$Page$Team$teamStrengths(pokemonTypes)))));
 };
 var author$project$Page$Team$view = function (team) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(

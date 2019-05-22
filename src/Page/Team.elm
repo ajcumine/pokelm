@@ -1,7 +1,9 @@
 module Page.Team exposing (fetch, init, view)
 
+import Css exposing (..)
 import Html exposing (Html)
 import Html.Styled as Styled
+import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
@@ -29,22 +31,65 @@ init =
 viewTeamMembers : List Pokemon -> Styled.Html msg
 viewTeamMembers members =
     Styled.div
-        []
+        [ css
+            [ displayFlex ]
+        ]
         (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) members)
 
 
 viewTeamPokemonTypes : List PokemonType -> Styled.Html msg
 viewTeamPokemonTypes pokemonTypes =
     Styled.div
-        []
+        [ css
+            [ displayFlex ]
+        ]
         (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
+
+
+teamWeaknesses : List PokemonType -> Set String
+teamWeaknesses pokemonTypes =
+    pokemonTypes
+        |> List.map
+            (\pokemonType ->
+                pokemonType.damageRelations.doubleDamageFrom
+                    |> List.append pokemonType.damageRelations.halfDamageTo
+                    |> List.append pokemonType.damageRelations.noDamageTo
+                    |> List.map (\base -> base.name)
+            )
+        |> List.concat
+        |> Set.fromList
+
+
+teamStrengths : List PokemonType -> Set String
+teamStrengths pokemonTypes =
+    pokemonTypes
+        |> List.map
+            (\pokemonType ->
+                pokemonType.damageRelations.doubleDamageTo
+                    |> List.append pokemonType.damageRelations.halfDamageFrom
+                    |> List.append pokemonType.damageRelations.noDamageFrom
+                    |> List.map (\base -> base.name)
+            )
+        |> List.concat
+        |> Set.fromList
 
 
 viewTeamWeaknesses : List PokemonType -> Styled.Html msg
 viewTeamWeaknesses pokemonTypes =
     Styled.div
-        []
-        []
+        [ css
+            [ displayFlex ]
+        ]
+        (Set.diff (teamWeaknesses pokemonTypes) (teamStrengths pokemonTypes)
+            |> Set.toList
+            |> List.map (\filteredType -> View.pokemonType filteredType)
+        )
+
+
+
+-- weakness = DF or HT or NT -- SET String of name
+-- strength = DT or HF or NF -- SET String of name
+-- Set.diff weaknesses strengths
 
 
 view : Team -> Html msg
