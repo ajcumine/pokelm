@@ -16,3 +16,4 @@ type Msg
     | SearchQueryChange String
     | AddToTeam Pokemon
     | RemoveFromTeam Pokemon
+    | TeamPokemonTypeFetchResponse PokemonTypeWebData

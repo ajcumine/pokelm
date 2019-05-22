@@ -4,7 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Html as H exposing (Html)
 import Http
-import Model exposing (Model, Pokemon, Team)
+import Model exposing (Model, Pokemon, PokemonTypeWebData, Team)
 import Msg exposing (Msg(..))
 import Navigation
 import Page.Pokedex as Pokedex
@@ -56,6 +56,16 @@ addPokemonToTeam team pokemon =
 removePokemonFromTeam : Team -> Pokemon -> Team
 removePokemonFromTeam team pokemon =
     { team | members = List.filter (\member -> member /= pokemon) team.members }
+
+
+addPokemonTypeToTeam : Team -> PokemonTypeWebData -> Team
+addPokemonTypeToTeam team pokemonTypeWebData =
+    case pokemonTypeWebData of
+        RemoteData.Success pokemonType ->
+            { team | pokemonTypes = List.append team.pokemonTypes [ pokemonType ] }
+
+        _ ->
+            team
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -120,6 +130,11 @@ update msg model =
             , Cmd.none
             )
 
+        TeamPokemonTypeFetchResponse pokemonType ->
+            ( { model | team = addPokemonTypeToTeam model.team pokemonType }
+            , Cmd.none
+            )
+
 
 fetchRouteData : Model -> Route -> Cmd Msg
 fetchRouteData model route =
@@ -136,6 +151,9 @@ fetchRouteData model route =
 
         Route.PokemonType nameOrId ->
             PokemonType.fetch nameOrId |> Cmd.map PokemonTypeFetchResponse
+
+        Route.Team ->
+            Team.fetch model.team |> Cmd.map TeamPokemonTypeFetchResponse
 
         _ ->
             Cmd.none

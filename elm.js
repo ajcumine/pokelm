@@ -4548,6 +4548,9 @@ var author$project$Msg$PokemonTypeFetchResponse = function (a) {
 var author$project$Msg$PokemonTypesFetchResponse = function (a) {
 	return {$: 'PokemonTypesFetchResponse', a: a};
 };
+var author$project$Msg$TeamPokemonTypeFetchResponse = function (a) {
+	return {$: 'TeamPokemonTypeFetchResponse', a: a};
+};
 var krisajenkins$remotedata$RemoteData$Failure = function (a) {
 	return {$: 'Failure', a: a};
 };
@@ -6553,8 +6556,205 @@ var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
 		url: 'https://pokeapi.co/api/v2/type'
 	});
-var elm$core$Platform$Cmd$map = _Platform_map;
+var author$project$Page$Team$getId = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(
+			A2(
+				elm$core$Maybe$withDefault,
+				'0',
+				elm$core$List$head(
+					A2(
+						elm$core$Maybe$withDefault,
+						_List_fromArray(
+							['1']),
+						elm$core$List$tail(
+							elm$core$List$reverse(
+								A2(elm$core$String$split, '/', url))))))));
+};
+var author$project$Page$Team$basePokemonTypeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2(elm$json$Json$Decode$map, author$project$Page$Team$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
+var author$project$Page$Team$damageRelationDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'no_damage_to',
+	elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'no_damage_from',
+		elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'half_damage_to',
+			elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'half_damage_from',
+				elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'double_damage_to',
+					elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'double_damage_from',
+						elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+						elm$json$Json$Decode$succeed(author$project$Model$DamageRelations)))))));
+var author$project$Page$Team$pokemonDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['pokemon', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Page$Team$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['pokemon', 'name']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
+var author$project$Page$Team$pokemonTypeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'damage_relations',
+	author$project$Page$Team$damageRelationDecoder,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'pokemon',
+		elm$json$Json$Decode$list(author$project$Page$Team$pokemonDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			elm$json$Json$Decode$int,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'name',
+				elm$json$Json$Decode$string,
+				elm$json$Json$Decode$succeed(author$project$Model$PokemonType)))));
+var author$project$Page$Team$fetchPokemonType = function (id) {
+	return elm$http$Http$get(
+		{
+			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Team$pokemonTypeDecoder),
+			url: 'https://pokeapi.co/api/v2/type/' + elm$core$String$fromInt(id)
+		});
+};
+var author$project$Page$Team$fetchPokemonTypes = function (ids) {
+	return A2(
+		elm$core$List$map,
+		function (pokemonTypeId) {
+			return author$project$Page$Team$fetchPokemonType(pokemonTypeId);
+		},
+		elm$core$Set$toList(ids));
+};
+var elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3(elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var elm$core$Dict$diff = F2(
+	function (t1, t2) {
+		return A3(
+			elm$core$Dict$foldl,
+			F3(
+				function (k, v, t) {
+					return A2(elm$core$Dict$remove, k, t);
+				}),
+			t1,
+			t2);
+	});
+var elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var elm$core$Set$diff = F2(
+	function (_n0, _n1) {
+		var dict1 = _n0.a;
+		var dict2 = _n1.a;
+		return elm$core$Set$Set_elm_builtin(
+			A2(elm$core$Dict$diff, dict1, dict2));
+	});
+var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
+var elm$core$Set$insert = F2(
+	function (key, _n0) {
+		var dict = _n0.a;
+		return elm$core$Set$Set_elm_builtin(
+			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
+var elm$core$Set$fromList = function (list) {
+	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
+};
+var author$project$Page$Team$filterExistingFetchedPokemonTypes = F2(
+	function (existingPokemonTypes, pokemonTypes) {
+		return A2(
+			elm$core$Set$diff,
+			pokemonTypes,
+			elm$core$Set$fromList(
+				A2(
+					elm$core$List$map,
+					function (existing) {
+						return existing.id;
+					},
+					existingPokemonTypes)));
+	});
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$concat = function (lists) {
+	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
+};
+var author$project$Page$Team$pokemonTypeIds = function (members) {
+	return elm$core$Set$fromList(
+		A2(
+			elm$core$List$map,
+			function (pokemonType) {
+				return pokemonType.id;
+			},
+			elm$core$List$concat(
+				A2(
+					elm$core$List$map,
+					function (member) {
+						return member.types;
+					},
+					members))));
+};
 var elm$core$Platform$Cmd$batch = _Platform_batch;
+var author$project$Page$Team$fetch = function (team) {
+	return elm$core$Platform$Cmd$batch(
+		author$project$Page$Team$fetchPokemonTypes(
+			A2(
+				author$project$Page$Team$filterExistingFetchedPokemonTypes,
+				team.pokemonTypes,
+				author$project$Page$Team$pokemonTypeIds(team.members))));
+};
+var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var krisajenkins$remotedata$RemoteData$isNotAsked = function (data) {
 	if (data.$ === 'NotAsked') {
@@ -6580,6 +6780,11 @@ var author$project$Main$fetchRouteData = F2(
 					elm$core$Platform$Cmd$map,
 					author$project$Msg$PokemonTypeFetchResponse,
 					author$project$Page$PokemonType$fetch(nameOrId));
+			case 'Team':
+				return A2(
+					elm$core$Platform$Cmd$map,
+					author$project$Msg$TeamPokemonTypeFetchResponse,
+					author$project$Page$Team$fetch(model.team));
 			default:
 				return elm$core$Platform$Cmd$none;
 		}
@@ -6676,17 +6881,6 @@ var elm$url$Url$Parser$map = F2(
 						A5(elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
 			});
 	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
-};
 var elm$core$List$concatMap = F2(
 	function (f, list) {
 		return elm$core$List$concat(
@@ -6960,6 +7154,23 @@ var author$project$Main$addPokemonToTeam = F2(
 					_List_fromArray(
 						[pokemon]))
 			});
+	});
+var author$project$Main$addPokemonTypeToTeam = F2(
+	function (team, pokemonTypeWebData) {
+		if (pokemonTypeWebData.$ === 'Success') {
+			var pokemonType = pokemonTypeWebData.a;
+			return _Utils_update(
+				team,
+				{
+					pokemonTypes: A2(
+						elm$core$List$append,
+						team.pokemonTypes,
+						_List_fromArray(
+							[pokemonType]))
+				});
+		} else {
+			return team;
+		}
 	});
 var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$List$filter = F2(
@@ -7268,13 +7479,22 @@ var author$project$Main$update = F2(
 							team: A2(author$project$Main$addPokemonToTeam, model.team, pokemon)
 						}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'RemoveFromTeam':
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
 							team: A2(author$project$Main$removePokemonFromTeam, model.team, pokemon)
+						}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var pokemonType = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							team: A2(author$project$Main$addPokemonTypeToTeam, model.team, pokemonType)
 						}),
 					elm$core$Platform$Cmd$none);
 		}
@@ -11116,6 +11336,20 @@ var author$project$Page$Team$viewTeamMembers = function (members) {
 			},
 			members));
 };
+var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		A2(
+			elm$core$List$map,
+			function (pokemonType) {
+				return author$project$View$pokemonType(pokemonType.name);
+			},
+			pokemonTypes));
+};
+var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
+	return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+};
 var author$project$Page$Team$view = function (team) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
@@ -11124,7 +11358,11 @@ var author$project$Page$Team$view = function (team) {
 			_List_fromArray(
 				[
 					author$project$View$pageTitle('Team'),
-					author$project$Page$Team$viewTeamMembers(team.members)
+					author$project$Page$Team$viewTeamMembers(team.members),
+					author$project$View$subTitle('Team Types'),
+					author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),
+					author$project$View$subTitle('Team Weaknesses'),
+					author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes)
 				])));
 };
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
