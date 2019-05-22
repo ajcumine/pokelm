@@ -62,7 +62,11 @@ addPokemonTypeToTeam : Team -> PokemonTypeWebData -> Team
 addPokemonTypeToTeam team pokemonTypeWebData =
     case pokemonTypeWebData of
         RemoteData.Success pokemonType ->
-            { team | pokemonTypes = List.append team.pokemonTypes [ pokemonType ] }
+            if List.member pokemonType team.pokemonTypes then
+                team
+
+            else
+                { team | pokemonTypes = List.append team.pokemonTypes [ pokemonType ] }
 
         _ ->
             team

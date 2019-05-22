@@ -6650,75 +6650,6 @@ var author$project$Page$Team$fetchPokemonTypes = function (ids) {
 		},
 		elm$core$Set$toList(ids));
 };
-var elm$core$Dict$foldl = F3(
-	function (func, acc, dict) {
-		foldl:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return acc;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var $temp$func = func,
-					$temp$acc = A3(
-					func,
-					key,
-					value,
-					A3(elm$core$Dict$foldl, func, acc, left)),
-					$temp$dict = right;
-				func = $temp$func;
-				acc = $temp$acc;
-				dict = $temp$dict;
-				continue foldl;
-			}
-		}
-	});
-var elm$core$Dict$diff = F2(
-	function (t1, t2) {
-		return A3(
-			elm$core$Dict$foldl,
-			F3(
-				function (k, v, t) {
-					return A2(elm$core$Dict$remove, k, t);
-				}),
-			t1,
-			t2);
-	});
-var elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var elm$core$Set$diff = F2(
-	function (_n0, _n1) {
-		var dict1 = _n0.a;
-		var dict2 = _n1.a;
-		return elm$core$Set$Set_elm_builtin(
-			A2(elm$core$Dict$diff, dict1, dict2));
-	});
-var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
-var elm$core$Set$insert = F2(
-	function (key, _n0) {
-		var dict = _n0.a;
-		return elm$core$Set$Set_elm_builtin(
-			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
-	});
-var elm$core$Set$fromList = function (list) {
-	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
-};
-var author$project$Page$Team$filterExistingFetchedPokemonTypes = F2(
-	function (existingPokemonTypes, pokemonTypes) {
-		return A2(
-			elm$core$Set$diff,
-			pokemonTypes,
-			elm$core$Set$fromList(
-				A2(
-					elm$core$List$map,
-					function (existing) {
-						return existing.id;
-					},
-					existingPokemonTypes)));
-	});
 var elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6729,6 +6660,19 @@ var elm$core$List$append = F2(
 	});
 var elm$core$List$concat = function (lists) {
 	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
+};
+var elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
+var elm$core$Set$insert = F2(
+	function (key, _n0) {
+		var dict = _n0.a;
+		return elm$core$Set$Set_elm_builtin(
+			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
+var elm$core$Set$fromList = function (list) {
+	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
 };
 var author$project$Page$Team$pokemonTypeIds = function (members) {
 	return elm$core$Set$fromList(
@@ -6749,10 +6693,7 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var author$project$Page$Team$fetch = function (team) {
 	return elm$core$Platform$Cmd$batch(
 		author$project$Page$Team$fetchPokemonTypes(
-			A2(
-				author$project$Page$Team$filterExistingFetchedPokemonTypes,
-				team.pokemonTypes,
-				author$project$Page$Team$pokemonTypeIds(team.members))));
+			author$project$Page$Team$pokemonTypeIds(team.members)));
 };
 var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
@@ -7155,11 +7096,41 @@ var author$project$Main$addPokemonToTeam = F2(
 						[pokemon]))
 			});
 	});
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var author$project$Main$addPokemonTypeToTeam = F2(
 	function (team, pokemonTypeWebData) {
 		if (pokemonTypeWebData.$ === 'Success') {
 			var pokemonType = pokemonTypeWebData.a;
-			return _Utils_update(
+			return A2(elm$core$List$member, pokemonType, team.pokemonTypes) ? team : _Utils_update(
 				team,
 				{
 					pokemonTypes: A2(
@@ -9638,27 +9609,6 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_n0) {
 	return {charset: charset, declarations: declarations, imports: imports, namespaces: namespaces};
 };
 var elm$core$Basics$not = _Basics_not;
-var elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var elm$core$List$all = F2(
 	function (isOkay, list) {
 		return !A2(
@@ -10935,15 +10885,6 @@ var author$project$View$pokemonType = function (typeName) {
 					]))
 			]));
 };
-var elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');
 var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
@@ -11393,6 +11334,49 @@ var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
 				},
 				pokemonTypes)));
 };
+var elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3(elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var elm$core$Dict$diff = F2(
+	function (t1, t2) {
+		return A3(
+			elm$core$Dict$foldl,
+			F3(
+				function (k, v, t) {
+					return A2(elm$core$Dict$remove, k, t);
+				}),
+			t1,
+			t2);
+	});
+var elm$core$Set$diff = F2(
+	function (_n0, _n1) {
+		var dict1 = _n0.a;
+		var dict2 = _n1.a;
+		return elm$core$Set$Set_elm_builtin(
+			A2(elm$core$Dict$diff, dict1, dict2));
+	});
 var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,

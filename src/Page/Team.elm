@@ -162,13 +162,6 @@ pokemonTypeIds members =
         |> Set.fromList
 
 
-filterExistingFetchedPokemonTypes : List PokemonType -> Set Int -> Set Int
-filterExistingFetchedPokemonTypes existingPokemonTypes pokemonTypes =
-    List.map (\existing -> existing.id) existingPokemonTypes
-        |> Set.fromList
-        |> Set.diff pokemonTypes
-
-
 fetchPokemonType : Int -> Cmd PokemonTypeWebData
 fetchPokemonType id =
     Http.get
@@ -186,6 +179,5 @@ fetchPokemonTypes ids =
 fetch : Team -> Cmd PokemonTypeWebData
 fetch team =
     pokemonTypeIds team.members
-        |> filterExistingFetchedPokemonTypes team.pokemonTypes
         |> fetchPokemonTypes
         |> Cmd.batch
