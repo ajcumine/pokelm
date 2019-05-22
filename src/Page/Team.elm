@@ -7,7 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
-import Model exposing (Base, DamageRelations, Pokemon, PokemonType, PokemonTypeWebData, Team)
+import Model exposing (Base, DamageRelations, Pokemon, PokemonType, PokemonTypeWebData, PokemonTypesWebData, Team)
 import RemoteData exposing (WebData)
 import Set exposing (Set)
 import View
@@ -32,7 +32,9 @@ viewTeamMembers : List Pokemon -> Styled.Html msg
 viewTeamMembers members =
     Styled.div
         [ css
-            [ displayFlex ]
+            [ displayFlex
+            , justifyContent center
+            ]
         ]
         (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) members)
 
@@ -41,7 +43,9 @@ viewTeamPokemonTypes : List PokemonType -> Styled.Html msg
 viewTeamPokemonTypes pokemonTypes =
     Styled.div
         [ css
-            [ displayFlex ]
+            [ displayFlex
+            , justifyContent center
+            ]
         ]
         (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
 
@@ -78,7 +82,9 @@ viewTeamWeaknesses : List PokemonType -> Styled.Html msg
 viewTeamWeaknesses pokemonTypes =
     Styled.div
         [ css
-            [ displayFlex ]
+            [ displayFlex
+            , justifyContent center
+            ]
         ]
         (Set.diff (teamWeaknesses pokemonTypes) (teamStrengths pokemonTypes)
             |> Set.toList
@@ -92,8 +98,8 @@ viewTeamWeaknesses pokemonTypes =
 -- Set.diff weaknesses strengths
 
 
-view : Team -> Html msg
-view team =
+view : Team -> PokemonTypesWebData -> Html msg
+view team pokemonTypesWebData =
     Styled.toUnstyled <|
         Styled.div
             []

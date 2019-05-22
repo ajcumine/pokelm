@@ -4545,9 +4545,6 @@ var author$project$Msg$PokemonFetchResponse = function (a) {
 var author$project$Msg$PokemonTypeFetchResponse = function (a) {
 	return {$: 'PokemonTypeFetchResponse', a: a};
 };
-var author$project$Msg$PokemonTypesFetchResponse = function (a) {
-	return {$: 'PokemonTypesFetchResponse', a: a};
-};
 var author$project$Msg$TeamPokemonTypeFetchResponse = function (a) {
 	return {$: 'TeamPokemonTypeFetchResponse', a: a};
 };
@@ -6520,42 +6517,6 @@ var author$project$Page$PokemonType$fetch = function (idOrName) {
 			url: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
-var author$project$Page$PokemonTypes$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
-var author$project$Page$PokemonTypes$typeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'url',
-	A2(elm$json$Json$Decode$map, author$project$Page$PokemonTypes$getId, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'name',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$PokemonTypes$typesDecoder = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['results']),
-	elm$json$Json$Decode$list(author$project$Page$PokemonTypes$typeDecoder));
-var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
-	{
-		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
-		url: 'https://pokeapi.co/api/v2/type'
-	});
 var author$project$Page$Team$getId = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -6697,13 +6658,6 @@ var author$project$Page$Team$fetch = function (team) {
 };
 var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var krisajenkins$remotedata$RemoteData$isNotAsked = function (data) {
-	if (data.$ === 'NotAsked') {
-		return true;
-	} else {
-		return false;
-	}
-};
 var author$project$Main$fetchRouteData = F2(
 	function (model, route) {
 		switch (route.$) {
@@ -6713,8 +6667,6 @@ var author$project$Main$fetchRouteData = F2(
 					elm$core$Platform$Cmd$map,
 					author$project$Msg$PokemonFetchResponse,
 					author$project$Page$Pokemon$fetch(nameOrId));
-			case 'PokemonTypes':
-				return krisajenkins$remotedata$RemoteData$isNotAsked(model.pokemonTypes) ? A2(elm$core$Platform$Cmd$map, author$project$Msg$PokemonTypesFetchResponse, author$project$Page$PokemonTypes$fetch) : elm$core$Platform$Cmd$none;
 			case 'PokemonType':
 				var nameOrId = route.a;
 				return A2(
@@ -6732,6 +6684,9 @@ var author$project$Main$fetchRouteData = F2(
 	});
 var author$project$Msg$PokedexFetchResponse = function (a) {
 	return {$: 'PokedexFetchResponse', a: a};
+};
+var author$project$Msg$PokemonTypesFetchResponse = function (a) {
+	return {$: 'PokemonTypesFetchResponse', a: a};
 };
 var author$project$Page$Pokedex$getId = function (url) {
 	return A2(
@@ -6771,6 +6726,42 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
+var author$project$Page$PokemonTypes$getId = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(
+			A2(
+				elm$core$Maybe$withDefault,
+				'0',
+				elm$core$List$head(
+					A2(
+						elm$core$Maybe$withDefault,
+						_List_fromArray(
+							['1']),
+						elm$core$List$tail(
+							elm$core$List$reverse(
+								A2(elm$core$String$split, '/', url))))))));
+};
+var author$project$Page$PokemonTypes$typeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2(elm$json$Json$Decode$map, author$project$Page$PokemonTypes$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
+var author$project$Page$PokemonTypes$typesDecoder = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['results']),
+	elm$json$Json$Decode$list(author$project$Page$PokemonTypes$typeDecoder));
+var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
+	{
+		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
+		url: 'https://pokeapi.co/api/v2/type'
+	});
 var author$project$Page$PokemonTypes$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Team$init = {members: _List_Nil, pokemonTypes: _List_Nil};
 var author$project$Route$NotFound = {$: 'NotFound'};
@@ -7080,7 +7071,8 @@ var author$project$Main$init = F3(
 			_List_fromArray(
 				[
 					A2(author$project$Main$fetchRouteData, model, route),
-					A2(elm$core$Platform$Cmd$map, author$project$Msg$PokedexFetchResponse, author$project$Page$Pokedex$fetch)
+					A2(elm$core$Platform$Cmd$map, author$project$Msg$PokedexFetchResponse, author$project$Page$Pokedex$fetch),
+					A2(elm$core$Platform$Cmd$map, author$project$Msg$PokemonTypesFetchResponse, author$project$Page$PokemonTypes$fetch)
 				]));
 		return _Utils_Tuple2(model, cmd);
 	});
@@ -11273,7 +11265,10 @@ var author$project$Page$Team$viewTeamMembers = function (members) {
 			[
 				rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
-					[rtfeldman$elm_css$Css$displayFlex]))
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+					]))
 			]),
 		A2(
 			elm$core$List$map,
@@ -11289,7 +11284,10 @@ var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 			[
 				rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
-					[rtfeldman$elm_css$Css$displayFlex]))
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+					]))
 			]),
 		A2(
 			elm$core$List$map,
@@ -11384,7 +11382,10 @@ var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 			[
 				rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
-					[rtfeldman$elm_css$Css$displayFlex]))
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+					]))
 			]),
 		A2(
 			elm$core$List$map,
@@ -11397,21 +11398,22 @@ var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 					author$project$Page$Team$teamWeaknesses(pokemonTypes),
 					author$project$Page$Team$teamStrengths(pokemonTypes)))));
 };
-var author$project$Page$Team$view = function (team) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
-		A2(
-			rtfeldman$elm_css$Html$Styled$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					author$project$View$pageTitle('Team'),
-					author$project$Page$Team$viewTeamMembers(team.members),
-					author$project$View$subTitle('Team Types'),
-					author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),
-					author$project$View$subTitle('Team Weaknesses'),
-					author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes)
-				])));
-};
+var author$project$Page$Team$view = F2(
+	function (team, pokemonTypesWebData) {
+		return rtfeldman$elm_css$Html$Styled$toUnstyled(
+			A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$View$pageTitle('Team'),
+						author$project$Page$Team$viewTeamMembers(team.members),
+						author$project$View$subTitle('Team Types'),
+						author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),
+						author$project$View$subTitle('Team Weaknesses'),
+						author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes)
+					])));
+	});
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {
 	var _n0 = model.route;
@@ -11429,7 +11431,7 @@ var author$project$Main$contentView = function (model) {
 			var id = _n0.a;
 			return author$project$Page$PokemonType$view(model.pokemonType);
 		default:
-			return author$project$Page$Team$view(model.team);
+			return A2(author$project$Page$Team$view, model.team, model.pokemonTypes);
 	}
 };
 var rtfeldman$elm_css$Css$marginRight = rtfeldman$elm_css$Css$prop1('margin-right');

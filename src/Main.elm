@@ -39,6 +39,7 @@ init flags url navKey =
             Cmd.batch
                 [ fetchRouteData model route
                 , Pokedex.fetch |> Cmd.map PokedexFetchResponse -- fetch pokedex for search
+                , PokemonTypes.fetch |> Cmd.map PokemonTypesFetchResponse -- fetch pokemon types for team builder
                 ]
     in
     ( model, cmd )
@@ -146,13 +147,6 @@ fetchRouteData model route =
         Route.Pokemon nameOrId ->
             Pokemon.fetch nameOrId |> Cmd.map PokemonFetchResponse
 
-        Route.PokemonTypes ->
-            if RemoteData.isNotAsked model.pokemonTypes then
-                PokemonTypes.fetch |> Cmd.map PokemonTypesFetchResponse
-
-            else
-                Cmd.none
-
         Route.PokemonType nameOrId ->
             PokemonType.fetch nameOrId |> Cmd.map PokemonTypeFetchResponse
 
@@ -198,7 +192,7 @@ contentView model =
             PokemonType.view model.pokemonType
 
         Route.Team ->
-            Team.view model.team
+            Team.view model.team model.pokemonTypes
 
 
 
