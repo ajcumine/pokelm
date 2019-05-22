@@ -1,4 +1,4 @@
-module Page.PokemonType exposing (Model, fetch, init, view)
+module Page.PokemonType exposing (fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -7,6 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
+import Model exposing (Base, DamageRelations, PokemonType, PokemonTypeWebData)
 import RemoteData exposing (WebData)
 import View
 
@@ -15,39 +16,7 @@ import View
 -- MODEL
 
 
-type alias Model =
-    WebData PokemonType
-
-
-type alias Base =
-    { name : String
-    , id : Int
-    }
-
-
-type alias BasePokemonTypes =
-    List Base
-
-
-type alias DamageRelations =
-    { doubleDamageFrom : BasePokemonTypes
-    , doubleDamageTo : BasePokemonTypes
-    , halfDamageFrom : BasePokemonTypes
-    , halfDamageTo : BasePokemonTypes
-    , noDamageFrom : BasePokemonTypes
-    , noDamageTo : BasePokemonTypes
-    }
-
-
-type alias PokemonType =
-    { name : String
-    , id : Int
-    , pokemon : List Base
-    , damageRelations : DamageRelations
-    }
-
-
-init : Model
+init : PokemonTypeWebData
 init =
     RemoteData.NotAsked
 
@@ -56,7 +25,7 @@ init =
 -- VIEW
 
 
-viewDamageRelation : String -> BasePokemonTypes -> Styled.Html msg
+viewDamageRelation : String -> List Base -> Styled.Html msg
 viewDamageRelation sectionTitle pokemonTypes =
     case List.isEmpty pokemonTypes of
         True ->
@@ -128,7 +97,7 @@ viewType pokemonType =
         ]
 
 
-viewPokemonType : Model -> Styled.Html msg
+viewPokemonType : PokemonTypeWebData -> Styled.Html msg
 viewPokemonType model =
     case model of
         RemoteData.NotAsked ->
@@ -144,7 +113,7 @@ viewPokemonType model =
             viewType pokemonType
 
 
-view : Model -> Html msg
+view : PokemonTypeWebData -> Html msg
 view model =
     Styled.toUnstyled <|
         viewPokemonType model
@@ -197,7 +166,7 @@ pokemonTypeDecoder =
 -- HTTP
 
 
-fetch : String -> Cmd Model
+fetch : String -> Cmd PokemonTypeWebData
 fetch idOrName =
     Http.get
         { url = "https://pokeapi.co/api/v2/type/" ++ idOrName

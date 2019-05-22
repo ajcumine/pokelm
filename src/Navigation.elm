@@ -8,7 +8,6 @@ import Html.Styled.Attributes exposing (css, placeholder, src, value)
 import Html.Styled.Events exposing (onInput)
 import Model exposing (Base, Model, Pokedex, PokedexWebData)
 import Msg exposing (Msg(..))
-import Page.Pokedex as Pokedex
 import RemoteData exposing (WebData)
 import Route exposing (Route)
 
