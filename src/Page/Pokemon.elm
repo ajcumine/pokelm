@@ -8,7 +8,7 @@ import Html.Styled.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
-import Model exposing (BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonType, PokemonWebData, Species, Team, Variety)
+import Model exposing (BasePokemon, BasePokemonType, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonWebData, Species, Team, Variety)
 import Msg exposing (Msg(..))
 import RemoteData exposing (WebData)
 import RemoteData.Http
@@ -120,10 +120,11 @@ view model team =
 -- SERIALISATION
 
 
-pokemonTypeDecoder : Decoder PokemonType
+pokemonTypeDecoder : Decoder BasePokemonType
 pokemonTypeDecoder =
-    Decode.succeed PokemonType
+    Decode.succeed BasePokemonType
         |> Pipeline.requiredAt [ "type", "name" ] Decode.string
+        |> Pipeline.requiredAt [ "type", "url" ] (Decode.string |> Decode.map getId)
 
 
 pokemonDecoder : Decoder BasePokemon

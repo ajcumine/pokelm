@@ -1,4 +1,4 @@
-module Model exposing (BasePokemon, EvolutionChain, Evolutions(..), Model, Pokemon, PokemonDetail, PokemonType, PokemonWebData, Species, Team, Variety)
+module Model exposing (BasePokemon, BasePokemonType, EvolutionChain, Evolutions(..), Model, Pokemon, PokemonDetail, PokemonWebData, Species, Team, Variety)
 
 import Browser.Navigation as Nav
 import Page.Pokedex as Pokedex
@@ -24,14 +24,16 @@ type alias PokemonWebData =
     WebData Pokemon
 
 
-type alias PokemonType =
-    { name : String }
+type alias BasePokemonType =
+    { name : String
+    , id : Int
+    }
 
 
 type alias BasePokemon =
     { name : String
     , id : Int
-    , types : List PokemonType
+    , types : List BasePokemonType
     , speciesUrl : String
     }
 
@@ -68,7 +70,7 @@ type alias PokemonDetail =
 type alias Pokemon =
     { name : String
     , id : Int
-    , types : List PokemonType
+    , types : List BasePokemonType
     , evolutionChain : EvolutionChain
     , varieties : List Variety
     }

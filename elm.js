@@ -5128,17 +5128,69 @@ var author$project$Model$BasePokemon = F4(
 	function (name, id, types, speciesUrl) {
 		return {id: id, name: name, speciesUrl: speciesUrl, types: types};
 	});
-var author$project$Model$PokemonType = function (name) {
-	return {name: name};
+var author$project$Model$BasePokemonType = F2(
+	function (name, id) {
+		return {id: id, name: name};
+	});
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
 };
+var elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(xs);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var elm$core$String$toInt = _String_toInt;
+var author$project$Page$Pokemon$getId = function (url) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		0,
+		elm$core$String$toInt(
+			A2(
+				elm$core$Maybe$withDefault,
+				'0',
+				elm$core$List$head(
+					A2(
+						elm$core$Maybe$withDefault,
+						_List_fromArray(
+							['1']),
+						elm$core$List$tail(
+							elm$core$List$reverse(
+								A2(elm$core$String$split, '/', url))))))));
+};
+var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$string = _Json_decodeString;
 var elm$json$Json$Decode$succeed = _Json_succeed;
 var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
-		['type', 'name']),
-	elm$json$Json$Decode$string,
-	elm$json$Json$Decode$succeed(author$project$Model$PokemonType));
+		['type', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['type', 'name']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$BasePokemonType)));
 var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Decode$list = _Json_decodeList;
 var author$project$Page$Pokemon$pokemonDecoder = A3(
@@ -5876,51 +5928,6 @@ var author$project$Model$EvolutionChain = F3(
 var author$project$Model$Evolutions = function (a) {
 	return {$: 'Evolutions', a: a};
 };
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(xs);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var elm$core$String$toInt = _String_toInt;
-var author$project$Page$Pokemon$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
 var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$lazy = function (thunk) {
 	return A2(
@@ -5928,7 +5935,6 @@ var elm$json$Json$Decode$lazy = function (thunk) {
 		thunk,
 		elm$json$Json$Decode$succeed(_Utils_Tuple0));
 };
-var elm$json$Json$Decode$map = _Json_map1;
 function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
 	return A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
