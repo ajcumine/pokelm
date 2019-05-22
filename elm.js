@@ -6626,7 +6626,7 @@ var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsk
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonTypes$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$Team$init = _List_Nil;
+var author$project$Page$Team$init = {members: _List_Nil};
 var author$project$Route$NotFound = {$: 'NotFound'};
 var author$project$Route$Pokedex = {$: 'Pokedex'};
 var author$project$Route$Pokemon = function (a) {
@@ -6949,6 +6949,43 @@ var author$project$Main$init = F3(
 				]));
 		return _Utils_Tuple2(model, cmd);
 	});
+var author$project$Main$addPokemonToTeam = F2(
+	function (team, pokemon) {
+		return _Utils_update(
+			team,
+			{
+				members: A2(
+					elm$core$List$append,
+					team.members,
+					_List_fromArray(
+						[pokemon]))
+			});
+	});
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var author$project$Main$removePokemonFromTeam = F2(
+	function (team, pokemon) {
+		return _Utils_update(
+			team,
+			{
+				members: A2(
+					elm$core$List$filter,
+					function (member) {
+						return !_Utils_eq(member, pokemon);
+					},
+					team.members)
+			});
+	});
 var elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
@@ -7115,18 +7152,6 @@ var elm$url$Url$fromString = function (str) {
 };
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
-var elm$core$Basics$neq = _Utils_notEqual;
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
 		if (maybePort.$ === 'Nothing') {
@@ -7240,11 +7265,7 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							team: A2(
-								elm$core$List$append,
-								model.team,
-								_List_fromArray(
-									[pokemon]))
+							team: A2(author$project$Main$addPokemonToTeam, model.team, pokemon)
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
@@ -7253,12 +7274,7 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							team: A2(
-								elm$core$List$filter,
-								function (member) {
-									return !_Utils_eq(member, pokemon);
-								},
-								model.team)
+							team: A2(author$project$Main$removePokemonFromTeam, model.team, pokemon)
 						}),
 					elm$core$Platform$Cmd$none);
 		}
@@ -10740,7 +10756,7 @@ var rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 		elm$json$Json$Decode$succeed(msg));
 };
 var author$project$Page$Pokemon$viewPokemonDetails = F2(
-	function (pokemon, team) {
+	function (pokemon, teamMembers) {
 		return A2(
 			rtfeldman$elm_css$Html$Styled$div,
 			_List_Nil,
@@ -10764,7 +10780,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 							author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
 						]),
 					_List_Nil),
-					A2(elm$core$List$member, pokemon, team) ? A2(
+					A2(elm$core$List$member, pokemon, teamMembers) ? A2(
 					rtfeldman$elm_css$Html$Styled$button,
 					_List_fromArray(
 						[
@@ -10846,7 +10862,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 				]));
 	});
 var author$project$Page$Pokemon$viewPokemon = F2(
-	function (model, team) {
+	function (model, teamMembers) {
 		switch (model.$) {
 			case 'NotAsked':
 				return rtfeldman$elm_css$Html$Styled$text('Not Asked');
@@ -10857,13 +10873,13 @@ var author$project$Page$Pokemon$viewPokemon = F2(
 				return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 			default:
 				var pokemon = model.a;
-				return A2(author$project$Page$Pokemon$viewPokemonDetails, pokemon, team);
+				return A2(author$project$Page$Pokemon$viewPokemonDetails, pokemon, teamMembers);
 		}
 	});
 var author$project$Page$Pokemon$view = F2(
-	function (model, team) {
+	function (model, teamMembers) {
 		return rtfeldman$elm_css$Html$Styled$toUnstyled(
-			A2(author$project$Page$Pokemon$viewPokemon, model, team));
+			A2(author$project$Page$Pokemon$viewPokemon, model, teamMembers));
 	});
 var rtfeldman$elm_css$Css$prop3 = F4(
 	function (key, argA, argB, argC) {
@@ -11089,7 +11105,7 @@ var author$project$Page$PokemonTypes$view = function (model) {
 					author$project$Page$PokemonTypes$viewTypes(model)
 				])));
 };
-var author$project$Page$Team$view = function (model) {
+var author$project$Page$Team$view = function (team) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
 			rtfeldman$elm_css$Html$Styled$div,
@@ -11105,7 +11121,7 @@ var author$project$Page$Team$view = function (model) {
 					function (pokemon) {
 						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 					},
-					model))));
+					team.members))));
 };
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {
@@ -11117,7 +11133,7 @@ var author$project$Main$contentView = function (model) {
 			return author$project$Page$Pokedex$view(model.pokedex);
 		case 'Pokemon':
 			var id = _n0.a;
-			return A2(author$project$Page$Pokemon$view, model.pokemon, model.team);
+			return A2(author$project$Page$Pokemon$view, model.pokemon, model.team.members);
 		case 'PokemonTypes':
 			return author$project$Page$PokemonTypes$view(model.pokemonTypes);
 		case 'PokemonType':

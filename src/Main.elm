@@ -4,7 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Html as H exposing (Html)
 import Http
-import Model exposing (Model)
+import Model exposing (Model, Pokemon, Team)
 import Msg exposing (Msg(..))
 import Navigation
 import Page.Pokedex as Pokedex
@@ -46,6 +46,16 @@ init flags url navKey =
 
 
 -- UPDATE
+
+
+addPokemonToTeam : Team -> Pokemon -> Team
+addPokemonToTeam team pokemon =
+    { team | members = List.append team.members [ pokemon ] }
+
+
+removePokemonFromTeam : Team -> Pokemon -> Team
+removePokemonFromTeam team pokemon =
+    { team | members = List.filter (\member -> member /= pokemon) team.members }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,12 +111,12 @@ update msg model =
             )
 
         AddToTeam pokemon ->
-            ( { model | team = List.append model.team [ pokemon ] }
+            ( { model | team = addPokemonToTeam model.team pokemon }
             , Cmd.none
             )
 
         RemoveFromTeam pokemon ->
-            ( { model | team = List.filter (\member -> member /= pokemon) model.team }
+            ( { model | team = removePokemonFromTeam model.team pokemon }
             , Cmd.none
             )
 
@@ -157,7 +167,7 @@ contentView model =
             Pokedex.view model.pokedex
 
         Route.Pokemon id ->
-            Pokemon.view model.pokemon model.team
+            Pokemon.view model.pokemon model.team.members
 
         Route.PokemonTypes ->
             PokemonTypes.view model.pokemonTypes

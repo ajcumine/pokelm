@@ -102,4 +102,5 @@ type alias Pokemon =
 
 
 type alias Team =
-    List Pokemon
+    { members : List Pokemon
+    }

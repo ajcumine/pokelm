@@ -58,13 +58,13 @@ shinyImageSrc id =
     "assets/images/shiny/" ++ String.fromInt id ++ ".png"
 
 
-viewPokemonDetails : Pokemon -> Team -> Styled.Html Msg
-viewPokemonDetails pokemon team =
+viewPokemonDetails : Pokemon -> List Pokemon -> Styled.Html Msg
+viewPokemonDetails pokemon teamMembers =
     Styled.div []
         [ View.pageTitle (String.fromInt pokemon.id ++ ": " ++ pokemon.name)
         , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
         , Styled.img [ src (shinyImageSrc pokemon.id) ] []
-        , if List.member pokemon team then
+        , if List.member pokemon teamMembers then
             Styled.button
                 [ onClick <| RemoveFromTeam pokemon ]
                 [ Styled.text "Remove from Team" ]
@@ -94,8 +94,8 @@ viewPokemonDetails pokemon team =
         ]
 
 
-viewPokemon : PokemonWebData -> Team -> Styled.Html Msg
-viewPokemon model team =
+viewPokemon : PokemonWebData -> List Pokemon -> Styled.Html Msg
+viewPokemon model teamMembers =
     case model of
         RemoteData.NotAsked ->
             Styled.text "Not Asked"
@@ -107,13 +107,13 @@ viewPokemon model team =
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokemon ->
-            viewPokemonDetails pokemon team
+            viewPokemonDetails pokemon teamMembers
 
 
-view : PokemonWebData -> Team -> Html Msg
-view model team =
+view : PokemonWebData -> List Pokemon -> Html Msg
+view model teamMembers =
     Styled.toUnstyled <|
-        viewPokemon model team
+        viewPokemon model teamMembers
 
 
 

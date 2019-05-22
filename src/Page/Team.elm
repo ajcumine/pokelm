@@ -12,7 +12,8 @@ import View
 
 init : Team
 init =
-    []
+    { members = []
+    }
 
 
 
@@ -20,11 +21,11 @@ init =
 
 
 view : Team -> Html msg
-view model =
+view team =
     Styled.toUnstyled <|
         Styled.div
             []
             (List.append
                 [ View.pageTitle "Team" ]
-                (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) model)
+                (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) team.members)
             )
