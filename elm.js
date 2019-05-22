@@ -6521,7 +6521,7 @@ var author$project$Page$PokemonType$fetch = function (idOrName) {
 			url: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
-var author$project$Page$PokemonTypes$PokemonType = F2(
+var author$project$Page$PokemonTypes$Base = F2(
 	function (name, id) {
 		return {id: id, name: name};
 	});
@@ -6550,7 +6550,7 @@ var author$project$Page$PokemonTypes$typeDecoder = A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'name',
 		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Page$PokemonTypes$PokemonType)));
+		elm$json$Json$Decode$succeed(author$project$Page$PokemonTypes$Base)));
 var author$project$Page$PokemonTypes$typesDecoder = A2(
 	elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -6595,9 +6595,9 @@ var author$project$Main$fetchRouteData = F2(
 var author$project$Msg$PokedexFetchResponse = function (a) {
 	return {$: 'PokedexFetchResponse', a: a};
 };
-var author$project$Page$Pokedex$Pokemon = F3(
-	function (name, url, id) {
-		return {id: id, name: name, url: url};
+var author$project$Page$Pokedex$Base = F2(
+	function (name, id) {
+		return {id: id, name: name};
 	});
 var author$project$Page$Pokedex$getId = function (url) {
 	return A2(
@@ -6616,12 +6616,10 @@ var author$project$Page$Pokedex$getId = function (url) {
 							elm$core$List$reverse(
 								A2(elm$core$String$split, '/', url))))))));
 };
-var elm$json$Json$Decode$map3 = _Json_map3;
-var author$project$Page$Pokedex$pokemonDecoder = A4(
-	elm$json$Json$Decode$map3,
-	author$project$Page$Pokedex$Pokemon,
+var author$project$Page$Pokedex$pokemonDecoder = A3(
+	elm$json$Json$Decode$map2,
+	author$project$Page$Pokedex$Base,
 	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'url', elm$json$Json$Decode$string),
 	A2(
 		elm$json$Json$Decode$field,
 		'url',

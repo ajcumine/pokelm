@@ -1,4 +1,4 @@
-module Page.Pokedex exposing (Model, Pokedex, Pokemon, fetch, init, view)
+module Page.Pokedex exposing (Base, Model, Pokedex, fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -19,12 +19,11 @@ type alias Model =
 
 
 type alias Pokedex =
-    List Pokemon
+    List Base
 
 
-type alias Pokemon =
+type alias Base =
     { name : String
-    , url : String
     , id : Int
     }
 
@@ -80,11 +79,10 @@ getId url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
 
 
-pokemonDecoder : Decoder Pokemon
+pokemonDecoder : Decoder Base
 pokemonDecoder =
-    Decode.map3 Pokemon
+    Decode.map2 Base
         (Decode.field "name" Decode.string)
-        (Decode.field "url" Decode.string)
         (Decode.field "url" (Decode.string |> Decode.map getId))
 
 

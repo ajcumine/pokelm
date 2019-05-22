@@ -20,10 +20,10 @@ type alias Model =
 
 
 type alias PokemonTypes =
-    List PokemonType
+    List Base
 
 
-type alias PokemonType =
+type alias Base =
     { name : String
     , id : Int
     }
@@ -80,14 +80,14 @@ getId url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
 
 
-typeDecoder : Decoder PokemonType
+typeDecoder : Decoder Base
 typeDecoder =
-    Decode.succeed PokemonType
+    Decode.succeed Base
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "url" (Decode.string |> Decode.map getId)
 
 
-typesDecoder : Decoder (List PokemonType)
+typesDecoder : Decoder PokemonTypes
 typesDecoder =
     Decode.at [ "results" ] (Decode.list typeDecoder)
 

@@ -17,7 +17,7 @@ import Route exposing (Route)
 --- SEARCH
 
 
-isMatch : String -> Pokedex.Pokemon -> Bool
+isMatch : String -> Pokedex.Base -> Bool
 isMatch queryString pokemon =
     String.contains (String.toLower queryString) pokemon.name
 
@@ -31,7 +31,7 @@ findMatches queryString pokedex =
 --- VIEW
 
 
-viewMatch : Pokedex.Pokemon -> Styled.Html msg
+viewMatch : Pokedex.Base -> Styled.Html msg
 viewMatch pokemon =
     Styled.a
         [ css
