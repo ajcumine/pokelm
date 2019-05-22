@@ -6626,7 +6626,7 @@ var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsk
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonTypes$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$Team$init = {members: _List_Nil};
+var author$project$Page$Team$init = {members: _List_Nil, pokemonTypes: _List_Nil};
 var author$project$Route$NotFound = {$: 'NotFound'};
 var author$project$Route$Pokedex = {$: 'Pokedex'};
 var author$project$Route$Pokemon = function (a) {
@@ -11105,23 +11105,27 @@ var author$project$Page$PokemonTypes$view = function (model) {
 					author$project$Page$PokemonTypes$viewTypes(model)
 				])));
 };
+var author$project$Page$Team$viewTeamMembers = function (members) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		A2(
+			elm$core$List$map,
+			function (pokemon) {
+				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+			},
+			members));
+};
 var author$project$Page$Team$view = function (team) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
 			rtfeldman$elm_css$Html$Styled$div,
 			_List_Nil,
-			A2(
-				elm$core$List$append,
-				_List_fromArray(
-					[
-						author$project$View$pageTitle('Team')
-					]),
-				A2(
-					elm$core$List$map,
-					function (pokemon) {
-						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
-					},
-					team.members))));
+			_List_fromArray(
+				[
+					author$project$View$pageTitle('Team'),
+					author$project$Page$Team$viewTeamMembers(team.members)
+				])));
 };
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {

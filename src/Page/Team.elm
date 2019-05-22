@@ -2,7 +2,8 @@ module Page.Team exposing (init, view)
 
 import Html exposing (Html)
 import Html.Styled as Styled
-import Model exposing (Team)
+import Model exposing (Pokemon, Team)
+import RemoteData exposing (WebData)
 import View
 
 
@@ -13,6 +14,7 @@ import View
 init : Team
 init =
     { members = []
+    , pokemonTypes = []
     }
 
 
@@ -20,12 +22,18 @@ init =
 --- VIEW
 
 
+viewTeamMembers : List Pokemon -> Styled.Html msg
+viewTeamMembers members =
+    Styled.div
+        []
+        (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) members)
+
+
 view : Team -> Html msg
 view team =
     Styled.toUnstyled <|
         Styled.div
             []
-            (List.append
-                [ View.pageTitle "Team" ]
-                (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) team.members)
-            )
+            [ View.pageTitle "Team"
+            , viewTeamMembers team.members
+            ]

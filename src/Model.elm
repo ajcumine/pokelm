@@ -103,4 +103,5 @@ type alias Pokemon =
 
 type alias Team =
     { members : List Pokemon
+    , pokemonTypes : List PokemonType
     }
