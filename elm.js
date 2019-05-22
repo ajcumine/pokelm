@@ -6595,10 +6595,6 @@ var author$project$Main$fetchRouteData = F2(
 var author$project$Msg$PokedexFetchResponse = function (a) {
 	return {$: 'PokedexFetchResponse', a: a};
 };
-var author$project$Page$Pokedex$Base = F2(
-	function (name, id) {
-		return {id: id, name: name};
-	});
 var author$project$Page$Pokedex$getId = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -6618,7 +6614,7 @@ var author$project$Page$Pokedex$getId = function (url) {
 };
 var author$project$Page$Pokedex$pokemonDecoder = A3(
 	elm$json$Json$Decode$map2,
-	author$project$Page$Pokedex$Base,
+	author$project$Model$Base,
 	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
 	A2(
 		elm$json$Json$Decode$field,

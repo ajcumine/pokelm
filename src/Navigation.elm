@@ -6,7 +6,7 @@ import Html exposing (Html)
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, placeholder, src, value)
 import Html.Styled.Events exposing (onInput)
-import Model exposing (Model)
+import Model exposing (Base, Model, Pokedex, PokedexWebData)
 import Msg exposing (Msg(..))
 import Page.Pokedex as Pokedex
 import RemoteData exposing (WebData)
@@ -17,12 +17,12 @@ import Route exposing (Route)
 --- SEARCH
 
 
-isMatch : String -> Pokedex.Base -> Bool
+isMatch : String -> Base -> Bool
 isMatch queryString pokemon =
     String.contains (String.toLower queryString) pokemon.name
 
 
-findMatches : String -> Pokedex.Pokedex -> Pokedex.Pokedex
+findMatches : String -> Pokedex -> Pokedex
 findMatches queryString pokedex =
     List.filter (isMatch queryString) pokedex
 
@@ -31,7 +31,7 @@ findMatches queryString pokedex =
 --- VIEW
 
 
-viewMatch : Pokedex.Base -> Styled.Html msg
+viewMatch : Base -> Styled.Html msg
 viewMatch pokemon =
     Styled.a
         [ css
@@ -56,7 +56,7 @@ viewMatch pokemon =
         [ Styled.text pokemon.name ]
 
 
-viewSearchResults : String -> Pokedex.Model -> Styled.Html msg
+viewSearchResults : String -> PokedexWebData -> Styled.Html msg
 viewSearchResults queryString pokedexModel =
     case pokedexModel of
         RemoteData.Success pokedex ->
@@ -79,7 +79,7 @@ viewSearchResults queryString pokedexModel =
             Styled.div [] []
 
 
-viewSearch : String -> Pokedex.Model -> Styled.Html Msg
+viewSearch : String -> PokedexWebData -> Styled.Html Msg
 viewSearch queryString pokedex =
     Styled.div
         [ css

@@ -1,4 +1,4 @@
-module Page.Pokedex exposing (Base, Model, Pokedex, fetch, init, view)
+module Page.Pokedex exposing (fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -6,6 +6,7 @@ import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
+import Model exposing (Base, Pokedex, PokedexWebData)
 import RemoteData exposing (WebData)
 import View
 
@@ -14,21 +15,7 @@ import View
 -- MODEL
 
 
-type alias Model =
-    WebData Pokedex
-
-
-type alias Pokedex =
-    List Base
-
-
-type alias Base =
-    { name : String
-    , id : Int
-    }
-
-
-init : Model
+init : PokedexWebData
 init =
     RemoteData.NotAsked
 
@@ -37,7 +24,7 @@ init =
 -- VIEW
 
 
-viewPokedex : Model -> Styled.Html msg
+viewPokedex : PokedexWebData -> Styled.Html msg
 viewPokedex model =
     case model of
         RemoteData.NotAsked ->
@@ -60,7 +47,7 @@ viewPokedex model =
                 (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) pokedex)
 
 
-view : Model -> Html msg
+view : PokedexWebData -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
@@ -95,7 +82,7 @@ pokedexDecoder =
 -- HTTP
 
 
-fetch : Cmd Model
+fetch : Cmd PokedexWebData
 fetch =
     Http.get
         { url = "https://pokeapi.co/api/v2/pokemon-species?limit=809"
