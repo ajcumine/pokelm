@@ -19,35 +19,31 @@ type alias Model =
     WebData PokemonType
 
 
-type alias BaseType =
-    { name : String }
+type alias Base =
+    { name : String
+    , id : Int
+    }
 
 
-type alias BaseTypes =
-    List BaseType
+type alias BasePokemonTypes =
+    List Base
 
 
 type alias DamageRelations =
-    { doubleDamageFrom : BaseTypes
-    , doubleDamageTo : BaseTypes
-    , halfDamageFrom : BaseTypes
-    , halfDamageTo : BaseTypes
-    , noDamageFrom : BaseTypes
-    , noDamageTo : BaseTypes
+    { doubleDamageFrom : BasePokemonTypes
+    , doubleDamageTo : BasePokemonTypes
+    , halfDamageFrom : BasePokemonTypes
+    , halfDamageTo : BasePokemonTypes
+    , noDamageFrom : BasePokemonTypes
+    , noDamageTo : BasePokemonTypes
     }
 
 
 type alias PokemonType =
     { name : String
     , id : Int
-    , pokemon : List Pokemon
+    , pokemon : List Base
     , damageRelations : DamageRelations
-    }
-
-
-type alias Pokemon =
-    { name : String
-    , id : Int
     }
 
 
@@ -60,7 +56,7 @@ init =
 -- VIEW
 
 
-viewDamageRelation : String -> BaseTypes -> Styled.Html msg
+viewDamageRelation : String -> BasePokemonTypes -> Styled.Html msg
 viewDamageRelation sectionTitle pokemonTypes =
     case List.isEmpty pokemonTypes of
         True ->
@@ -163,28 +159,29 @@ getId url =
     String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
 
 
-pokemonDecoder : Decoder Pokemon
+pokemonDecoder : Decoder Base
 pokemonDecoder =
-    Decode.succeed Pokemon
+    Decode.succeed Base
         |> Pipeline.requiredAt [ "pokemon", "name" ] Decode.string
         |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map getId)
 
 
-baseTypeDecoder : Decoder BaseType
-baseTypeDecoder =
-    Decode.succeed BaseType
+basePokemonTypeDecoder : Decoder Base
+basePokemonTypeDecoder =
+    Decode.succeed Base
         |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "url" (Decode.string |> Decode.map getId)
 
 
 damageRelationDecoder : Decoder DamageRelations
 damageRelationDecoder =
     Decode.succeed DamageRelations
-        |> Pipeline.required "double_damage_from" (Decode.list baseTypeDecoder)
-        |> Pipeline.required "double_damage_to" (Decode.list baseTypeDecoder)
-        |> Pipeline.required "half_damage_from" (Decode.list baseTypeDecoder)
-        |> Pipeline.required "half_damage_to" (Decode.list baseTypeDecoder)
-        |> Pipeline.required "no_damage_from" (Decode.list baseTypeDecoder)
-        |> Pipeline.required "no_damage_to" (Decode.list baseTypeDecoder)
+        |> Pipeline.required "double_damage_from" (Decode.list basePokemonTypeDecoder)
+        |> Pipeline.required "double_damage_to" (Decode.list basePokemonTypeDecoder)
+        |> Pipeline.required "half_damage_from" (Decode.list basePokemonTypeDecoder)
+        |> Pipeline.required "half_damage_to" (Decode.list basePokemonTypeDecoder)
+        |> Pipeline.required "no_damage_from" (Decode.list basePokemonTypeDecoder)
+        |> Pipeline.required "no_damage_to" (Decode.list basePokemonTypeDecoder)
 
 
 pokemonTypeDecoder : Decoder PokemonType

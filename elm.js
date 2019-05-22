@@ -5128,7 +5128,7 @@ var author$project$Model$BasePokemon = F4(
 	function (name, id, types, speciesUrl) {
 		return {id: id, name: name, speciesUrl: speciesUrl, types: types};
 	});
-var author$project$Model$BasePokemonType = F2(
+var author$project$Model$Base = F2(
 	function (name, id) {
 		return {id: id, name: name};
 	});
@@ -5190,7 +5190,7 @@ var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
 		_List_fromArray(
 			['type', 'name']),
 		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$BasePokemonType)));
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
 var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Decode$list = _Json_decodeList;
 var author$project$Page$Pokemon$pokemonDecoder = A3(
@@ -5996,10 +5996,6 @@ var author$project$Model$Species = F2(
 	function (evolutionChainUrl, varieties) {
 		return {evolutionChainUrl: evolutionChainUrl, varieties: varieties};
 	});
-var author$project$Model$Variety = F2(
-	function (name, id) {
-		return {id: id, name: name};
-	});
 var author$project$Page$Pokemon$varietyDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
@@ -6010,7 +6006,7 @@ var author$project$Page$Pokemon$varietyDecoder = A3(
 		_List_fromArray(
 			['pokemon', 'name']),
 		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Variety)));
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
 var author$project$Page$Pokemon$speciesDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'varieties',
@@ -6194,40 +6190,7 @@ var author$project$Page$PokemonType$DamageRelations = F6(
 	function (doubleDamageFrom, doubleDamageTo, halfDamageFrom, halfDamageTo, noDamageFrom, noDamageTo) {
 		return {doubleDamageFrom: doubleDamageFrom, doubleDamageTo: doubleDamageTo, halfDamageFrom: halfDamageFrom, halfDamageTo: halfDamageTo, noDamageFrom: noDamageFrom, noDamageTo: noDamageTo};
 	});
-var author$project$Page$PokemonType$BaseType = function (name) {
-	return {name: name};
-};
-var author$project$Page$PokemonType$baseTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'name',
-	elm$json$Json$Decode$string,
-	elm$json$Json$Decode$succeed(author$project$Page$PokemonType$BaseType));
-var author$project$Page$PokemonType$damageRelationDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'no_damage_to',
-	elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'no_damage_from',
-		elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'half_damage_to',
-			elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'half_damage_from',
-				elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'double_damage_to',
-					elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'double_damage_from',
-						elm$json$Json$Decode$list(author$project$Page$PokemonType$baseTypeDecoder),
-						elm$json$Json$Decode$succeed(author$project$Page$PokemonType$DamageRelations)))))));
-var author$project$Page$PokemonType$Pokemon = F2(
+var author$project$Page$PokemonType$Base = F2(
 	function (name, id) {
 		return {id: id, name: name};
 	});
@@ -6248,6 +6211,40 @@ var author$project$Page$PokemonType$getId = function (url) {
 							elm$core$List$reverse(
 								A2(elm$core$String$split, '/', url))))))));
 };
+var author$project$Page$PokemonType$basePokemonTypeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2(elm$json$Json$Decode$map, author$project$Page$PokemonType$getId, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Page$PokemonType$Base)));
+var author$project$Page$PokemonType$damageRelationDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'no_damage_to',
+	elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'no_damage_from',
+		elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'half_damage_to',
+			elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'half_damage_from',
+				elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'double_damage_to',
+					elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'double_damage_from',
+						elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
+						elm$json$Json$Decode$succeed(author$project$Page$PokemonType$DamageRelations)))))));
 var author$project$Page$PokemonType$pokemonDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
@@ -6258,7 +6255,7 @@ var author$project$Page$PokemonType$pokemonDecoder = A3(
 		_List_fromArray(
 			['pokemon', 'name']),
 		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Page$PokemonType$Pokemon)));
+		elm$json$Json$Decode$succeed(author$project$Page$PokemonType$Base)));
 var author$project$Page$PokemonType$pokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'damage_relations',
