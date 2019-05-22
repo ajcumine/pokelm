@@ -1,4 +1,4 @@
-module Page.PokemonTypes exposing (Model, fetch, init, view)
+module Page.PokemonTypes exposing (fetch, init, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -7,6 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
+import Model exposing (Base, PokemonTypesWebData)
 import RemoteData exposing (WebData)
 import View
 
@@ -15,21 +16,7 @@ import View
 -- MODEL
 
 
-type alias Model =
-    WebData PokemonTypes
-
-
-type alias PokemonTypes =
-    List Base
-
-
-type alias Base =
-    { name : String
-    , id : Int
-    }
-
-
-init : Model
+init : PokemonTypesWebData
 init =
     RemoteData.NotAsked
 
@@ -38,7 +25,7 @@ init =
 -- VIEW
 
 
-viewTypes : Model -> Styled.Html msg
+viewTypes : PokemonTypesWebData -> Styled.Html msg
 viewTypes model =
     case model of
         RemoteData.NotAsked ->
@@ -61,7 +48,7 @@ viewTypes model =
                 (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
 
 
-view : Model -> Html msg
+view : PokemonTypesWebData -> Html msg
 view model =
     Styled.toUnstyled <|
         Styled.div
@@ -87,7 +74,7 @@ typeDecoder =
         |> Pipeline.required "url" (Decode.string |> Decode.map getId)
 
 
-typesDecoder : Decoder PokemonTypes
+typesDecoder : Decoder (List Base)
 typesDecoder =
     Decode.at [ "results" ] (Decode.list typeDecoder)
 
@@ -96,7 +83,7 @@ typesDecoder =
 -- HTTP
 
 
-fetch : Cmd Model
+fetch : Cmd PokemonTypesWebData
 fetch =
     Http.get
         { url = "https://pokeapi.co/api/v2/type"

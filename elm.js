@@ -6517,10 +6517,6 @@ var author$project$Page$PokemonType$fetch = function (idOrName) {
 			url: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
-var author$project$Page$PokemonTypes$Base = F2(
-	function (name, id) {
-		return {id: id, name: name};
-	});
 var author$project$Page$PokemonTypes$getId = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -6546,7 +6542,7 @@ var author$project$Page$PokemonTypes$typeDecoder = A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'name',
 		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Page$PokemonTypes$Base)));
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
 var author$project$Page$PokemonTypes$typesDecoder = A2(
 	elm$json$Json$Decode$at,
 	_List_fromArray(

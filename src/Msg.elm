@@ -1,7 +1,7 @@
 module Msg exposing (Msg(..))
 
 import Browser
-import Model exposing (PokedexWebData, Pokemon, PokemonTypeWebData, PokemonWebData)
+import Model exposing (PokedexWebData, Pokemon, PokemonTypeWebData, PokemonTypesWebData, PokemonWebData)
 import Page.PokemonTypes as PokemonTypes
 import Url exposing (Url)
 
@@ -12,7 +12,7 @@ type Msg
     | PokedexFetchResponse PokedexWebData
     | PokemonFetchResponse PokemonWebData
     | PokemonTypeFetchResponse PokemonTypeWebData
-    | PokemonTypesFetchResponse PokemonTypes.Model
+    | PokemonTypesFetchResponse PokemonTypesWebData
     | SearchQueryChange String
     | AddToTeam Pokemon
     | RemoveFromTeam Pokemon

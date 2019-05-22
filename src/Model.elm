@@ -1,7 +1,6 @@
-module Model exposing (Base, BasePokemon, DamageRelations, EvolutionChain, Evolutions(..), Model, Pokedex, PokedexWebData, Pokemon, PokemonDetail, PokemonType, PokemonTypeWebData, PokemonWebData, Species, Team)
+module Model exposing (Base, BasePokemon, DamageRelations, EvolutionChain, Evolutions(..), Model, Pokedex, PokedexWebData, Pokemon, PokemonDetail, PokemonType, PokemonTypeWebData, PokemonTypesWebData, PokemonWebData, Species, Team)
 
 import Browser.Navigation as Nav
-import Page.PokemonTypes as PokemonTypes
 import RemoteData exposing (WebData)
 import Route exposing (Route)
 
@@ -12,7 +11,7 @@ type alias Model =
     , pokedex : PokedexWebData
     , pokemon : PokemonWebData
     , pokemonType : PokemonTypeWebData
-    , pokemonTypes : PokemonTypes.Model
+    , pokemonTypes : PokemonTypesWebData
     , query : String
     , team : Team
     }
@@ -28,6 +27,10 @@ type alias PokemonWebData =
 
 type alias PokemonTypeWebData =
     WebData PokemonType
+
+
+type alias PokemonTypesWebData =
+    WebData (List Base)
 
 
 type alias Base =
