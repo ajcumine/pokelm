@@ -56,7 +56,7 @@ addPokemonToTeam team pokemon =
 
 removePokemonFromTeam : Team -> Pokemon -> Team
 removePokemonFromTeam team pokemon =
-    { team | members = List.filter (\member -> member /= pokemon) team.members }
+    { team | members = List.filter (\member -> member /= pokemon) team.members, pokemonTypes = [] }
 
 
 addPokemonTypeToTeam : Team -> PokemonTypeWebData -> Team

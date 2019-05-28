@@ -7157,7 +7157,8 @@ var author$project$Main$removePokemonFromTeam = F2(
 					function (member) {
 						return !_Utils_eq(member, pokemon);
 					},
-					team.members)
+					team.members),
+				pokemonTypes: _List_Nil
 			});
 	});
 var elm$browser$Browser$External = function (a) {
