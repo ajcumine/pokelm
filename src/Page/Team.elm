@@ -92,7 +92,42 @@ viewTeamWeaknesses pokemonTypes =
         )
 
 
+teamSTABCoverage : List PokemonType -> Set String
+teamSTABCoverage pokemonTypes =
+    pokemonTypes
+        |> List.map
+            (\pokemonType ->
+                pokemonType.damageRelations.doubleDamageTo
+                    |> List.map (\base -> base.name)
+            )
+        |> List.concat
+        |> Set.fromList
 
+
+viewTeamSTABCoverage : List PokemonType -> Styled.Html msg
+viewTeamSTABCoverage pokemonTypes =
+    Styled.div
+        [ css
+            [ displayFlex
+            , justifyContent center
+            ]
+        ]
+        (teamSTABCoverage pokemonTypes
+            |> Set.toList
+            |> List.map (\stabType -> View.pokemonType stabType)
+        )
+
+
+
+-- viewMissingSTABCoverage : List PokemonType -> Styled.Html msg
+-- viewMissingSTABCoverage pokemonTypes =
+--     Styled.div
+--         [ css
+--             [ displayFlex
+--             , justifyContent center
+--             ]
+--         ]
+--         []
 -- weakness = DF or HT or NT -- SET String of name
 -- strength = DT or HF or NF -- SET String of name
 -- Set.diff weaknesses strengths
@@ -109,6 +144,11 @@ view team pokemonTypesWebData =
             , viewTeamPokemonTypes team.pokemonTypes
             , View.subTitle "Team Weaknesses"
             , viewTeamWeaknesses team.pokemonTypes
+            , View.subTitle "Team STAB Coverage"
+            , viewTeamSTABCoverage team.pokemonTypes
+
+            -- , View.subTitle "Missing STAB Coverage"
+            -- , viewMissingSTABCoverage team.pokemonTypes
             ]
 
 
