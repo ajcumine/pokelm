@@ -11306,44 +11306,6 @@ var author$project$Page$PokemonTypes$view = function (model) {
 					author$project$Page$PokemonTypes$viewTypes(model)
 				])));
 };
-var author$project$Page$Team$viewTeamMembers = function (members) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-					]))
-			]),
-		A2(
-			elm$core$List$map,
-			function (pokemon) {
-				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
-			},
-			members));
-};
-var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-					]))
-			]),
-		A2(
-			elm$core$List$map,
-			function (pokemonType) {
-				return author$project$View$pokemonType(pokemonType.name);
-			},
-			pokemonTypes));
-};
 var author$project$Page$Team$teamSTABCoverage = function (pokemonTypes) {
 	return elm$core$Set$fromList(
 		elm$core$List$concat(
@@ -11356,62 +11318,6 @@ var author$project$Page$Team$teamSTABCoverage = function (pokemonTypes) {
 							return base.name;
 						},
 						pokemonType.damageRelations.doubleDamageTo);
-				},
-				pokemonTypes)));
-};
-var author$project$Page$Team$viewTeamSTABCoverage = function (pokemonTypes) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-					]))
-			]),
-		A2(
-			elm$core$List$map,
-			function (stabType) {
-				return author$project$View$pokemonType(stabType);
-			},
-			elm$core$Set$toList(
-				author$project$Page$Team$teamSTABCoverage(pokemonTypes))));
-};
-var author$project$Page$Team$teamStrengths = function (pokemonTypes) {
-	return elm$core$Set$fromList(
-		elm$core$List$concat(
-			A2(
-				elm$core$List$map,
-				function (pokemonType) {
-					return A2(
-						elm$core$List$map,
-						function (base) {
-							return base.name;
-						},
-						A2(
-							elm$core$List$append,
-							pokemonType.damageRelations.noDamageFrom,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageFrom, pokemonType.damageRelations.doubleDamageTo)));
-				},
-				pokemonTypes)));
-};
-var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
-	return elm$core$Set$fromList(
-		elm$core$List$concat(
-			A2(
-				elm$core$List$map,
-				function (pokemonType) {
-					return A2(
-						elm$core$List$map,
-						function (base) {
-							return base.name;
-						},
-						A2(
-							elm$core$List$append,
-							pokemonType.damageRelations.noDamageTo,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageTo, pokemonType.damageRelations.doubleDamageFrom)));
 				},
 				pokemonTypes)));
 };
@@ -11458,6 +11364,143 @@ var elm$core$Set$diff = F2(
 		return elm$core$Set$Set_elm_builtin(
 			A2(elm$core$Dict$diff, dict1, dict2));
 	});
+var author$project$Page$Team$missingSTABCoverage = F2(
+	function (teamPokemonTypes, allPokemonTypes) {
+		return A2(
+			elm$core$Set$diff,
+			elm$core$Set$fromList(
+				A2(
+					elm$core$List$map,
+					function (base) {
+						return base.name;
+					},
+					allPokemonTypes)),
+			author$project$Page$Team$teamSTABCoverage(teamPokemonTypes));
+	});
+var author$project$Page$Team$viewMissingSTABCoverage = F2(
+	function (teamPokemonTypes, pokemonTypesWebData) {
+		if (pokemonTypesWebData.$ === 'Success') {
+			var allPokemonTypes = pokemonTypesWebData.a;
+			return A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								rtfeldman$elm_css$Css$displayFlex,
+								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+							]))
+					]),
+				A2(
+					elm$core$List$map,
+					function (missingSTABType) {
+						return author$project$View$pokemonType(missingSTABType);
+					},
+					elm$core$Set$toList(
+						A2(author$project$Page$Team$missingSTABCoverage, teamPokemonTypes, allPokemonTypes))));
+		} else {
+			return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+		}
+	});
+var author$project$Page$Team$viewTeamMembers = function (members) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+					]))
+			]),
+		A2(
+			elm$core$List$map,
+			function (pokemon) {
+				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+			},
+			members));
+};
+var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+					]))
+			]),
+		A2(
+			elm$core$List$map,
+			function (pokemonType) {
+				return author$project$View$pokemonType(pokemonType.name);
+			},
+			pokemonTypes));
+};
+var author$project$Page$Team$viewTeamSTABCoverage = function (pokemonTypes) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+					]))
+			]),
+		A2(
+			elm$core$List$map,
+			function (stabType) {
+				return author$project$View$pokemonType(stabType);
+			},
+			elm$core$Set$toList(
+				author$project$Page$Team$teamSTABCoverage(pokemonTypes))));
+};
+var author$project$Page$Team$teamStrengths = function (pokemonTypes) {
+	return elm$core$Set$fromList(
+		elm$core$List$concat(
+			A2(
+				elm$core$List$map,
+				function (pokemonType) {
+					return A2(
+						elm$core$List$map,
+						function (base) {
+							return base.name;
+						},
+						A2(
+							elm$core$List$append,
+							pokemonType.damageRelations.noDamageFrom,
+							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageFrom, pokemonType.damageRelations.doubleDamageTo)));
+				},
+				pokemonTypes)));
+};
+var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
+	return elm$core$Set$fromList(
+		elm$core$List$concat(
+			A2(
+				elm$core$List$map,
+				function (pokemonType) {
+					return A2(
+						elm$core$List$map,
+						function (base) {
+							return base.name;
+						},
+						A2(
+							elm$core$List$append,
+							pokemonType.damageRelations.noDamageTo,
+							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageTo, pokemonType.damageRelations.doubleDamageFrom)));
+				},
+				pokemonTypes)));
+};
 var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$div,
@@ -11467,7 +11510,8 @@ var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 				_List_fromArray(
 					[
 						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
 					]))
 			]),
 		A2(
@@ -11496,7 +11540,9 @@ var author$project$Page$Team$view = F2(
 						author$project$View$subTitle('Team Weaknesses'),
 						author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes),
 						author$project$View$subTitle('Team STAB Coverage'),
-						author$project$Page$Team$viewTeamSTABCoverage(team.pokemonTypes)
+						author$project$Page$Team$viewTeamSTABCoverage(team.pokemonTypes),
+						author$project$View$subTitle('Missing STAB Coverage'),
+						A2(author$project$Page$Team$viewMissingSTABCoverage, team.pokemonTypes, pokemonTypesWebData)
 					])));
 	});
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;

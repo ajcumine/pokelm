@@ -34,6 +34,7 @@ viewTeamMembers members =
         [ css
             [ displayFlex
             , justifyContent center
+            , flexWrap wrap
             ]
         ]
         (List.map (\pokemon -> View.pokemon pokemon.name pokemon.id) members)
@@ -45,6 +46,7 @@ viewTeamPokemonTypes pokemonTypes =
         [ css
             [ displayFlex
             , justifyContent center
+            , flexWrap wrap
             ]
         ]
         (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
@@ -84,6 +86,7 @@ viewTeamWeaknesses pokemonTypes =
         [ css
             [ displayFlex
             , justifyContent center
+            , flexWrap wrap
             ]
         ]
         (Set.diff (teamWeaknesses pokemonTypes) (teamStrengths pokemonTypes)
@@ -110,6 +113,7 @@ viewTeamSTABCoverage pokemonTypes =
         [ css
             [ displayFlex
             , justifyContent center
+            , flexWrap wrap
             ]
         ]
         (teamSTABCoverage pokemonTypes
@@ -118,19 +122,36 @@ viewTeamSTABCoverage pokemonTypes =
         )
 
 
+missingSTABCoverage : List PokemonType -> List Base -> Set String
+missingSTABCoverage teamPokemonTypes allPokemonTypes =
+    Set.diff
+        (allPokemonTypes
+            |> List.map (\base -> base.name)
+            |> Set.fromList
+        )
+        (teamSTABCoverage teamPokemonTypes)
 
--- viewMissingSTABCoverage : List PokemonType -> Styled.Html msg
--- viewMissingSTABCoverage pokemonTypes =
---     Styled.div
---         [ css
---             [ displayFlex
---             , justifyContent center
---             ]
---         ]
---         []
--- weakness = DF or HT or NT -- SET String of name
--- strength = DT or HF or NF -- SET String of name
--- Set.diff weaknesses strengths
+
+viewMissingSTABCoverage : List PokemonType -> PokemonTypesWebData -> Styled.Html msg
+viewMissingSTABCoverage teamPokemonTypes pokemonTypesWebData =
+    case pokemonTypesWebData of
+        RemoteData.Success allPokemonTypes ->
+            Styled.div
+                [ css
+                    [ displayFlex
+                    , justifyContent center
+                    , flexWrap wrap
+                    ]
+                ]
+                (missingSTABCoverage teamPokemonTypes allPokemonTypes
+                    |> Set.toList
+                    |> List.map (\missingSTABType -> View.pokemonType missingSTABType)
+                )
+
+        _ ->
+            Styled.div
+                []
+                []
 
 
 view : Team -> PokemonTypesWebData -> Html msg
@@ -146,9 +167,8 @@ view team pokemonTypesWebData =
             , viewTeamWeaknesses team.pokemonTypes
             , View.subTitle "Team STAB Coverage"
             , viewTeamSTABCoverage team.pokemonTypes
-
-            -- , View.subTitle "Missing STAB Coverage"
-            -- , viewMissingSTABCoverage team.pokemonTypes
+            , View.subTitle "Missing STAB Coverage"
+            , viewMissingSTABCoverage team.pokemonTypes pokemonTypesWebData
             ]
 
 
