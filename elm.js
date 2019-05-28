@@ -10877,8 +10877,27 @@ var author$project$View$pokemonType = function (typeName) {
 					]))
 			]));
 };
+var rtfeldman$elm_css$Html$Styled$h2 = rtfeldman$elm_css$Html$Styled$node('h2');
+var author$project$View$subTitle = function (text) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$h2,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
+						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+					]))
+			]),
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$text(text)
+			]));
+};
+var rtfeldman$elm_css$Css$auto = {alignItemsOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, flexBasis: rtfeldman$elm_css$Css$Structure$Compatible, intOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, justifyContentOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, overflow: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, tableLayout: rtfeldman$elm_css$Css$Structure$Compatible, textRendering: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, value: 'auto'};
+var rtfeldman$elm_css$Css$margin2 = rtfeldman$elm_css$Css$prop2('margin');
 var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');
-var rtfeldman$elm_css$Html$Styled$h3 = rtfeldman$elm_css$Html$Styled$node('h3');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
 var rtfeldman$elm_css$Html$Styled$Attributes$src = function (url) {
 	return A2(rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'src', url);
@@ -10918,54 +10937,113 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 					author$project$View$pageTitle(
 					elm$core$String$fromInt(pokemon.id) + (': ' + pokemon.name)),
 					A2(
-					rtfeldman$elm_css$Html$Styled$img,
+					rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$src(
-							author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$displayFlex,
+									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								]))
 						]),
-					_List_Nil),
+					_List_fromArray(
+						[
+							A2(
+							rtfeldman$elm_css$Html$Styled$img,
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Html$Styled$Attributes$src(
+									author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
+								]),
+							_List_Nil),
+							A2(
+							rtfeldman$elm_css$Html$Styled$img,
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Html$Styled$Attributes$src(
+									author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
+								]),
+							_List_Nil)
+						])),
 					A2(
-					rtfeldman$elm_css$Html$Styled$img,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$Attributes$src(
-							author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
-						]),
-					_List_Nil),
-					A2(elm$core$List$member, pokemon, teamMembers) ? A2(
 					rtfeldman$elm_css$Html$Styled$button,
 					_List_fromArray(
 						[
 							rtfeldman$elm_css$Html$Styled$Events$onClick(
-							author$project$Msg$RemoveFromTeam(pokemon))
+							A2(elm$core$List$member, pokemon, teamMembers) ? author$project$Msg$RemoveFromTeam(pokemon) : author$project$Msg$AddToTeam(pokemon)),
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$backgroundColor(
+									rtfeldman$elm_css$Css$hex('#ffffff')),
+									rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
+									A2(
+									rtfeldman$elm_css$Css$margin2,
+									rtfeldman$elm_css$Css$px(8),
+									rtfeldman$elm_css$Css$auto),
+									A2(
+									rtfeldman$elm_css$Css$padding2,
+									rtfeldman$elm_css$Css$px(12),
+									rtfeldman$elm_css$Css$px(16)),
+									rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
+									rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
+									rtfeldman$elm_css$Css$color(
+									rtfeldman$elm_css$Css$hex('#000000')),
+									rtfeldman$elm_css$Css$borderRadius(
+									rtfeldman$elm_css$Css$px(3)),
+									A5(
+									rtfeldman$elm_css$Css$boxShadow5,
+									rtfeldman$elm_css$Css$px(0),
+									rtfeldman$elm_css$Css$px(1),
+									rtfeldman$elm_css$Css$px(3),
+									rtfeldman$elm_css$Css$px(1),
+									A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
+									rtfeldman$elm_css$Css$hover(
+									_List_fromArray(
+										[
+											rtfeldman$elm_css$Css$backgroundColor(
+											rtfeldman$elm_css$Css$hex('#00000005')),
+											A5(
+											rtfeldman$elm_css$Css$boxShadow5,
+											rtfeldman$elm_css$Css$px(0),
+											rtfeldman$elm_css$Css$px(2),
+											rtfeldman$elm_css$Css$px(8),
+											rtfeldman$elm_css$Css$px(4),
+											A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
+										])),
+									rtfeldman$elm_css$Css$Transitions$transition(
+									_List_fromArray(
+										[
+											A3(
+											rtfeldman$elm_css$Css$Transitions$backgroundColor3,
+											135,
+											0,
+											A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
+											A3(
+											rtfeldman$elm_css$Css$Transitions$background3,
+											135,
+											0,
+											A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+										]))
+								]))
 						]),
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$text('Remove from Team')
-						])) : A2(
-					rtfeldman$elm_css$Html$Styled$button,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$Events$onClick(
-							author$project$Msg$AddToTeam(pokemon))
-						]),
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('Add to Team')
+							rtfeldman$elm_css$Html$Styled$text(
+							A2(elm$core$List$member, pokemon, teamMembers) ? 'Remove from Team' : 'Add to Team')
 						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$h3,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('Types')
-						])),
+					author$project$View$subTitle('Types'),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$css(_List_Nil)
+							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									rtfeldman$elm_css$Css$displayFlex,
+									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								]))
 						]),
 					A2(
 						elm$core$List$map,
@@ -10973,13 +11051,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 							return author$project$View$pokemonType(pokemonType.name);
 						},
 						pokemon.types)),
-					A2(
-					rtfeldman$elm_css$Html$Styled$h3,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('Evolution Chain')
-						])),
+					author$project$View$subTitle('Evolution Chain'),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_Nil,
@@ -10987,13 +11059,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 						[
 							author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
 						])),
-					A2(
-					rtfeldman$elm_css$Html$Styled$h3,
-					_List_Nil,
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Html$Styled$text('Varieties')
-						])),
+					author$project$View$subTitle('Varieties'),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
@@ -11142,24 +11208,6 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.halfDamageTo),
 				A2(author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.noDamageFrom),
 				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.noDamageTo)
-			]));
-};
-var rtfeldman$elm_css$Html$Styled$h2 = rtfeldman$elm_css$Html$Styled$node('h2');
-var author$project$View$subTitle = function (text) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$h2,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
-					]))
-			]),
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$text(text)
 			]));
 };
 var author$project$Page$PokemonType$viewType = function (pokemonType) {

@@ -1,6 +1,7 @@
 module Page.Pokemon exposing (fetch, init, view)
 
 import Css exposing (..)
+import Css.Transitions exposing (transition)
 import Html exposing (Html)
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, src)
@@ -62,27 +63,62 @@ viewPokemonDetails : Pokemon -> List Pokemon -> Styled.Html Msg
 viewPokemonDetails pokemon teamMembers =
     Styled.div []
         [ View.pageTitle (String.fromInt pokemon.id ++ ": " ++ pokemon.name)
-        , Styled.img [ src (pokemonImageSrc pokemon.id) ] []
-        , Styled.img [ src (shinyImageSrc pokemon.id) ] []
-        , if List.member pokemon teamMembers then
-            Styled.button
-                [ onClick <| RemoveFromTeam pokemon ]
-                [ Styled.text "Remove from Team" ]
-
-          else
-            Styled.button
-                [ onClick <| AddToTeam pokemon ]
-                [ Styled.text "Add to Team" ]
-        , Styled.h3 [] [ Styled.text "Types" ]
         , Styled.div
             [ css
-                []
+                [ displayFlex
+                , justifyContent center
+                ]
+            ]
+            [ Styled.img [ src (pokemonImageSrc pokemon.id) ] []
+            , Styled.img [ src (shinyImageSrc pokemon.id) ] []
+            ]
+        , Styled.button
+            [ onClick <|
+                if List.member pokemon teamMembers then
+                    RemoveFromTeam pokemon
+
+                else
+                    AddToTeam pokemon
+            , css
+                [ backgroundColor (hex "#ffffff")
+                , display block
+                , margin2 (px 8) auto
+                , padding2 (px 12) (px 16)
+                , textAlign center
+                , textDecoration none
+                , color (hex "#000000")
+                , borderRadius (px 3)
+                , boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.16)
+                , hover
+                    [ backgroundColor (hex "#00000005")
+                    , boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
+                    ]
+                , transition
+                    [ Css.Transitions.backgroundColor3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                    , Css.Transitions.background3 135 0 (Css.Transitions.cubicBezier 0.4 0 0.2 1)
+                    ]
+                ]
+            ]
+            [ Styled.text
+                (if List.member pokemon teamMembers then
+                    "Remove from Team"
+
+                 else
+                    "Add to Team"
+                )
+            ]
+        , View.subTitle "Types"
+        , Styled.div
+            [ css
+                [ displayFlex
+                , justifyContent center
+                ]
             ]
             (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemon.types)
-        , Styled.h3 [] [ Styled.text "Evolution Chain" ]
+        , View.subTitle "Evolution Chain"
         , Styled.div []
             [ viewEvolution pokemon.evolutionChain ]
-        , Styled.h3 [] [ Styled.text "Varieties" ]
+        , View.subTitle "Varieties"
         , Styled.div
             [ css
                 [ displayFlex
