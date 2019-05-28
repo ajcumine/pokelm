@@ -128,6 +128,8 @@ missingSTABCoverage teamPokemonTypes allPokemonTypes =
         (allPokemonTypes
             |> List.map (\base -> base.name)
             |> Set.fromList
+            |> Set.remove "shadow"
+            |> Set.remove "unknown"
         )
         (teamSTABCoverage teamPokemonTypes)
 

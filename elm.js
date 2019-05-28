@@ -11264,6 +11264,12 @@ var author$project$Page$PokemonType$view = function (model) {
 	return rtfeldman$elm_css$Html$Styled$toUnstyled(
 		author$project$Page$PokemonType$viewPokemonType(model));
 };
+var elm$core$Set$remove = F2(
+	function (key, _n0) {
+		var dict = _n0.a;
+		return elm$core$Set$Set_elm_builtin(
+			A2(elm$core$Dict$remove, key, dict));
+	});
 var author$project$Page$PokemonTypes$viewTypes = function (model) {
 	switch (model.$) {
 		case 'NotAsked':
@@ -11289,10 +11295,23 @@ var author$project$Page$PokemonTypes$viewTypes = function (model) {
 					]),
 				A2(
 					elm$core$List$map,
-					function (pokemonType) {
-						return author$project$View$pokemonType(pokemonType.name);
+					function (filteredType) {
+						return author$project$View$pokemonType(filteredType);
 					},
-					pokemonTypes));
+					elm$core$Set$toList(
+						A2(
+							elm$core$Set$remove,
+							'unknown',
+							A2(
+								elm$core$Set$remove,
+								'shadow',
+								elm$core$Set$fromList(
+									A2(
+										elm$core$List$map,
+										function (pokemonType) {
+											return pokemonType.name;
+										},
+										pokemonTypes)))))));
 	}
 };
 var author$project$Page$PokemonTypes$view = function (model) {
@@ -11368,13 +11387,19 @@ var author$project$Page$Team$missingSTABCoverage = F2(
 	function (teamPokemonTypes, allPokemonTypes) {
 		return A2(
 			elm$core$Set$diff,
-			elm$core$Set$fromList(
+			A2(
+				elm$core$Set$remove,
+				'unknown',
 				A2(
-					elm$core$List$map,
-					function (base) {
-						return base.name;
-					},
-					allPokemonTypes)),
+					elm$core$Set$remove,
+					'shadow',
+					elm$core$Set$fromList(
+						A2(
+							elm$core$List$map,
+							function (base) {
+								return base.name;
+							},
+							allPokemonTypes)))),
 			author$project$Page$Team$teamSTABCoverage(teamPokemonTypes));
 	});
 var author$project$Page$Team$viewMissingSTABCoverage = F2(

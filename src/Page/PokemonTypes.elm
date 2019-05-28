@@ -9,6 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, PokemonTypesWebData)
 import RemoteData exposing (WebData)
+import Set
 import View
 
 
@@ -45,7 +46,14 @@ viewTypes model =
                     , justifyContent center
                     ]
                 ]
-                (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
+                (pokemonTypes
+                    |> List.map (\pokemonType -> pokemonType.name)
+                    |> Set.fromList
+                    |> Set.remove "shadow"
+                    |> Set.remove "unknown"
+                    |> Set.toList
+                    |> List.map (\filteredType -> View.pokemonType filteredType)
+                )
 
 
 view : PokemonTypesWebData -> Html msg
