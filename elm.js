@@ -11425,7 +11425,13 @@ var author$project$Page$Team$viewMissingSTABCoverage = F2(
 					elm$core$Set$toList(
 						A2(author$project$Page$Team$missingSTABCoverage, teamPokemonTypes, allPokemonTypes))));
 		} else {
-			return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+			return A2(
+				rtfeldman$elm_css$Html$Styled$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Types...')
+					]));
 		}
 	});
 var author$project$Page$Team$viewTeamMembers = function (members) {
@@ -11447,6 +11453,25 @@ var author$project$Page$Team$viewTeamMembers = function (members) {
 				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
 			},
 			members));
+};
+var author$project$Page$Team$viewTeamNumber = function (members) {
+	return A2(
+		rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						rtfeldman$elm_css$Css$displayFlex,
+						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+					]))
+			]),
+		_List_fromArray(
+			[
+				rtfeldman$elm_css$Html$Styled$text(
+				elm$core$String$fromInt(
+					elm$core$List$length(members)) + ' of 6')
+			]));
 };
 var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 	return A2(
@@ -11558,6 +11583,7 @@ var author$project$Page$Team$view = F2(
 				_List_fromArray(
 					[
 						author$project$View$pageTitle('Team'),
+						author$project$Page$Team$viewTeamNumber(team.members),
 						author$project$Page$Team$viewTeamMembers(team.members),
 						author$project$View$subTitle('Team Types'),
 						author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),

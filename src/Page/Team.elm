@@ -28,6 +28,18 @@ init =
 --- VIEW
 
 
+viewTeamNumber : List Pokemon -> Styled.Html msg
+viewTeamNumber members =
+    Styled.div
+        [ css
+            [ displayFlex
+            , justifyContent center
+            ]
+        ]
+        [ Styled.text ((members |> List.length |> String.fromInt) ++ " of 6")
+        ]
+
+
 viewTeamMembers : List Pokemon -> Styled.Html msg
 viewTeamMembers members =
     Styled.div
@@ -153,7 +165,7 @@ viewMissingSTABCoverage teamPokemonTypes pokemonTypesWebData =
         _ ->
             Styled.div
                 []
-                []
+                [ Styled.text "Loading Pokemon Types..." ]
 
 
 view : Team -> PokemonTypesWebData -> Html msg
@@ -162,6 +174,7 @@ view team pokemonTypesWebData =
         Styled.div
             []
             [ View.pageTitle "Team"
+            , viewTeamNumber team.members
             , viewTeamMembers team.members
             , View.subTitle "Team Types"
             , viewTeamPokemonTypes team.pokemonTypes
