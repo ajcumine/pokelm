@@ -1,4 +1,4 @@
-module Page.PokemonTypes exposing (fetch, init, view)
+module Page.PokemonTypes exposing (fetch, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -11,15 +11,6 @@ import Model exposing (Base, PokemonTypesWebData)
 import RemoteData exposing (WebData)
 import Set
 import View
-
-
-
--- MODEL
-
-
-init : PokemonTypesWebData
-init =
-    RemoteData.NotAsked
 
 
 

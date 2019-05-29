@@ -27,9 +27,9 @@ init flags url navKey =
         model =
             { key = navKey
             , route = route
-            , pokedex = Pokedex.init
+            , pokedex = RemoteData.Loading
             , pokemon = Pokemon.init
-            , pokemonTypes = PokemonTypes.init
+            , pokemonTypes = RemoteData.Loading
             , pokemonType = PokemonType.init
             , query = ""
             , team = Team.init
@@ -96,7 +96,12 @@ update msg model =
                 cmd =
                     fetchRouteData model route
             in
-            ( { model | route = route, query = "" }
+            ( { model
+                | route = route
+                , query = ""
+                , pokemon = RemoteData.Loading
+                , pokemonType = RemoteData.Loading
+              }
             , cmd
             )
 

@@ -6723,7 +6723,6 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
 		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
 	});
-var author$project$Page$Pokedex$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonTypes$getId = function (url) {
@@ -6762,7 +6761,6 @@ var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
 		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
 		url: 'https://pokeapi.co/api/v2/type'
 	});
-var author$project$Page$PokemonTypes$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$Team$init = {members: _List_Nil, pokemonTypes: _List_Nil};
 var author$project$Route$NotFound = {$: 'NotFound'};
 var author$project$Route$Pokedex = {$: 'Pokedex'};
@@ -7066,7 +7064,7 @@ var author$project$Route$fromUrl = function (url) {
 var author$project$Main$init = F3(
 	function (flags, url, navKey) {
 		var route = author$project$Route$fromUrl(url);
-		var model = {key: navKey, pokedex: author$project$Page$Pokedex$init, pokemon: author$project$Page$Pokemon$init, pokemonType: author$project$Page$PokemonType$init, pokemonTypes: author$project$Page$PokemonTypes$init, query: '', route: route, team: author$project$Page$Team$init};
+		var model = {key: navKey, pokedex: krisajenkins$remotedata$RemoteData$Loading, pokemon: author$project$Page$Pokemon$init, pokemonType: author$project$Page$PokemonType$init, pokemonTypes: krisajenkins$remotedata$RemoteData$Loading, query: '', route: route, team: author$project$Page$Team$init};
 		var cmd = elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
@@ -7397,7 +7395,7 @@ var author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{query: '', route: route}),
+						{pokemon: krisajenkins$remotedata$RemoteData$Loading, pokemonType: krisajenkins$remotedata$RemoteData$Loading, query: '', route: route}),
 					cmd);
 			case 'PokedexFetchResponse':
 				var response = msg.a;
@@ -10173,7 +10171,7 @@ var rtfeldman$elm_css$Html$Styled$div = rtfeldman$elm_css$Html$Styled$node('div'
 var author$project$Page$Pokedex$viewPokedex = function (model) {
 	switch (model.$) {
 		case 'NotAsked':
-			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
+			return rtfeldman$elm_css$Html$Styled$text('Initialising...');
 		case 'Loading':
 			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
 		case 'Failure':

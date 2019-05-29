@@ -1,4 +1,4 @@
-module Page.Pokedex exposing (fetch, init, view)
+module Page.Pokedex exposing (fetch, view)
 
 import Css exposing (..)
 import Html exposing (Html)
@@ -12,15 +12,6 @@ import View
 
 
 
--- MODEL
-
-
-init : PokedexWebData
-init =
-    RemoteData.NotAsked
-
-
-
 -- VIEW
 
 
@@ -28,7 +19,7 @@ viewPokedex : PokedexWebData -> Styled.Html msg
 viewPokedex model =
     case model of
         RemoteData.NotAsked ->
-            Styled.text "Not Asked"
+            Styled.text "Initialising..."
 
         RemoteData.Loading ->
             Styled.text "Loading Pokemon..."
