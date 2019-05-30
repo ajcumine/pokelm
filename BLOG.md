@@ -1,6 +1,6 @@
-This document, whatever it may end up as, is to outline my journey in learning elm.
-
 I decided to learn elm, the strongly typed, functional programming language.
+
+This document, whatever it may end up as, outlines my journey in learning elm.
 
 ### Why?
 
@@ -134,10 +134,10 @@ I found that initially I couldn't split these function signatures apart in my he
 
 ```elm
 Task.map2 :
-            (a -> b -> result)  --- argument 1
-            -> Task x a         --- argument 2
-            -> Task x b         --- argument 3
-            -> Task x result    --- return value
+    (a -> b -> result)  --- argument 1
+    -> Task x a         --- argument 2
+    -> Task x b         --- argument 3
+    -> Task x result    --- return value
 ```
 
 I will explain why I end up using `Task.map2` now so this is easier to understand. In my Pokemon page I need make three `Http.get` requests to return the whole Pokemon model that I need to show what I want on that page. One of these requests is dependant on the result of a previous request. All of the decoded data needs to be merged into a single Pokemon record.
@@ -387,4 +387,79 @@ In this [commit](https://github.com/ajcumine/pokelm/commit/f38a1ec16e05744af8db3
 
 In order to use the search on any page you would need to ensure that all the Pokedex data was fetched on every page. This meant I had to move the `Pokedex.fetch |> Cmd.map PokedexFetchResponse` to the `init` function of my `Main` module and use `Cmd.batch` to run this and whatever route based fetching I needed to do.
 
+```elm
+init : a -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url navKey =
+    let
+        route =
+            Route.fromUrl url
+
+        model =
+            { key = navKey
+            , route = route
+            , pokedex = RemoteData.Loading
+            , pokemon = Pokemon.init
+            , pokemonTypes = RemoteData.Loading
+            , pokemonType = PokemonType.init
+            , query = ""
+            }
+
+        cmd =
+            Cmd.batch
+                [ fetchRouteData model route
+                , Pokedex.fetch |> Cmd.map PokedexFetchResponse
+                ]
+    in
+    ( model, cmd )
+```
+
 In order to use a `Msg` in the input of the navigation bar I needed to move the `type Msg` from the `Main` module into it's own `Msg` module to avoid cyclic dependencies. I also needed to move the `Model` type alias from the `Main` module into it's own `Model` module so I could use it in the `Navigation` module, again to avoid cyclic dependencies.
+
+### Type Cleanup
+
+Creating the Model.elm and Msg.elm module files gave me the opportunity to move all of my Model types from the individual Page models to this centralised location. I moved the `Model` of each page over to the core Model.elm file one by one as I was unsure how much this would affect my codebase. Surprisingly to me, it barely caused any issue as I just had to expose and import each type I wanted to use and change some names of types. The only problem I encountered was exposing a type rather than a type alias.
+
+```elm
+type alias EvolutionChain =
+    { name : String
+    , id : Int
+    , evolutionChain : Evolutions
+    }
+
+
+type Evolutions
+    = Evolutions (List EvolutionChain)
+
+```
+
+Above we can see that the type `EvolutionChain` is a type alias, used to define the types of a record, whereas `Evolutions` is a standard type. When exposing a type alias you simply name the type, in my use case:
+
+```elm
+-- exposing from the module
+module Model exposing (EvolutionChain)
+
+-- importing for use elsewhere
+import Model exposing (EvolutionChain)
+
+```
+
+However this is not the same for a types like `Evolutions`. Here we must "open" our imports:
+
+```elm
+-- exposing from the module
+module Model exposing (Evolutions(..))
+
+-- importing for use elsewhere
+import Model exposing (Evolutions(..))
+
+```
+
+This is repeated for the union type `Msg` in [Msg.elm](https://github.com/ajcumine/pokelm/blob/e1251ea8747b985d60e007334b36d4731d409427/src/Msg.elm).
+
+### Sets
+
+In building the team page I wanted to show the strengths and weaknesses of a team. To do this I would list the different damage relation Pokemon types for each Pokemon in the team. This would often result in the same Pokemon type appearing more than once, which is not really what I would want to see. To make each Pokemon type unique I could have checked their presence in a list, but instead I decided to use [Sets](https://package.elm-lang.org/packages/elm/core/latest/Set). This forces uniqueness.
+
+### Decoders
+
+Oops.
