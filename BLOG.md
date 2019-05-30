@@ -2,7 +2,30 @@ I decided to learn elm, the strongly typed, functional programming language.
 
 This document, whatever it may end up as, outlines my journey in learning elm.
 
-### Why?
+## Table of Contents
+
+- [Why?](#why-)
+- [First Steps](#first-steps)
+- [PokElm](#pokelm)
+- [Typed CSS (CS-YES!)](#typed-css--cs-yes--)
+- [Elm Application](#elm-application)
+- [Where did I do wrong?](#where-did-i-do-wrong-)
+- [Imports](#imports)
+- [Function type signatures](#function-type-signatures)
+- [Back to Elm Application](#back-to-elm-application)
+- [Page 2](#page-2)
+- [Refactoring](#refactoring)
+- [Getting to a base point](#getting-to-a-base-point)
+- [Click](#click)
+- [View functions](#view-functions)
+- [GitHub Pages](#github-pages)
+- [Conditional Rendering](#conditional-rendering)
+- [Search](#search)
+- [Type Cleanup](#type-cleanup)
+- [Sets](#sets)
+- [Decoders](#decoders)
+
+## Why?
 
 Because I've been using typescript for a year now and although I thing it's type system is fantastic for reducing bugs in your code, you're still writing javascript. I'm not saying that's bad at all, just that javascript was written to be an object oriented language and I've been writing it in a functional way for a few years now. Maybe it's time to use a language that was built for what I want rather than using tooling to force another language to do what I think I want.
 
@@ -10,7 +33,7 @@ I'm currently between projects at work and this "bench" time is used for getting
 
 A number of my colleagues had been singing the praises of elm in the past few years, and on my last trip to St Louis in 2017 for StrangeLoop conference, the elm conference was happening in the days before it where I also heard fantastic things about it.
 
-### First Steps
+## First Steps
 
 So here we go, where to learn elm?
 
@@ -30,7 +53,7 @@ I read along through guide learning about elm types, types versus type aliases, 
 
 At this point I decided to build something with what I had learnt and what I could see was coming up in this guide.
 
-### PokElm
+## PokElm
 
 Feel free to skip reading this paragraph as it's just some background info on me. I've been play the Pokemon games since I was 9 when a friend from Hong Kong brought a bootleg copy of Pokemon red to school. That followed with getting my own gameboy and playing every main series pokemon game in the series of and on for years. When Pokemon go came out I played that too. The website [serebii.net](https://www.serebii.net/) is where I go to for any Pokemon related news and it has excellent resources for the games. I wondered how they built it and if they had an public API so I had a quick look at the network requests on the site and was disappointed to see nothing I could use. So I had a little google and found [PokéAPI](https://pokeapi.co/) which allows for 100 requests per IP address per minute, more than enough for a little fun learning elm.
 
@@ -49,7 +72,7 @@ getUuid url =
 
 I struggled with understanding the correct way to parse a url string and as it was the only thing blocking me I found a dirty way to handle the string and moved on. Something that I will return to at some point.
 
-### Typed CSS (CS-YES!)
+## Typed CSS (CS-YES!)
 
 But the rest of the code was working as I would have wanted it to so I was happy at this stage. One thing I wanted to know about was styling. My current basic elm styling had no type safety, you could type whatever you wanted after `style` and so long as it was two strings, the compiler would run successfully. As far as I know `style "hot" "potato"` is not valid css.
 
@@ -59,7 +82,7 @@ There were some problems though as I tried to `display flex`. As `flex` is alrea
 
 I was pretty happy with this so after converting my css over to `elm-css` moved on ([github](https://github.com/ajcumine/pokelm/tree/ddccce1a7152d4f0bce406919133378c77edd5aa)).
 
-### Elm Application
+## Elm Application
 
 So far I had been running my code using elm reactor and that is great, but I was at a point where I was done with the Pokedex listing and wanted to make a page for each Pokemon. I made a link for each Pokemon to their page and then...
 
@@ -73,11 +96,11 @@ I didn't some of the fundamental parts of elm. I'd been following guides thinkin
 
 We're about to go off on a little tangent here, away from the Elm Application for a while.
 
-### Where did I do wrong?
+## Where did I do wrong?
 
 Below are some of the things I thought I understood while starting my journey in elm but I really did not, or things I struggled with and ended up realising I had got very wrong. The reason I may have done these things could be anything, from the documentation wasn't there, to, I was tired and didn't read it properly.
 
-#### Imports
+## Imports
 
 From the very beginning of the official guide I had been importing package modules into my Main.elm and exposing everything. For example:
 
@@ -118,7 +141,7 @@ But it meant that finding the documentation for each thing was very difficult as
 
 What I learnt quickly was that you don't have to expose anything, personally now I tend not to. The instances where I do are very rare but when I do I almost never expose everything at once with `(..)`. When I added `elm-css` I started to change this and now I tend to import modules `as` something so I don't have to write so much, but then it is clear what module owns what and documentation is easy to find.
 
-#### Function type signatures
+## Function type signatures
 
 Now this is a really odd one, because not understanding type signatures in a strongly types language is a critical failure. I'm not saying I didn't understand them at all, what I'm really saying is that the syntax took a lot of getting used to.
 
@@ -154,11 +177,11 @@ Arguments 2 and 3 are then just the tasks that need to be passed into the `map2`
 
 It seems so simple when I write it out like this on separate lines, but for some reason it took me a while to easily read and understand.
 
-### Back to Elm Application
+## Back to Elm Application
 
 I had a number of problems getting the elm application to work as I wanted in the end. I ended up working with a colleague who was familiar with elm and having him explain some of the things that I was struggling with. He shared one of his personal projects with me and I used that along with his guidance and some other open source projects to get to [this point ](https://github.com/ajcumine/pokelm/tree/92b62586fd9eb737fe803581939069d5abf21de5). As you can see from the Main.elm in the code at this point, all of the update logic and model changes are handled here. All Pokedex and route logic are handled in their own separate modules, with only a thin layer exposed between them.
 
-### Page 2
+## Page 2
 
 I added a second page on the `/pokemon` route and had that give me the name and id of the Pokemon for the route. Fairly simple so far. But I wanted more details, things that could only be provided by a series of Http.get requests chained together. This is where I started investigating [Tasks](https://package.elm-lang.org/packages/elm/core/latest/Task).
 
@@ -166,7 +189,7 @@ With a little help pairing with a colleague I converted my single get request in
 
 I then added two more chained requests and mapped the data out into a model I wanted using `Task.andThen` and `Task.map2`. There was even a recursive type for decoding in there which took a little bit of work but I managed to get working. With all this I had my Pokemon page ready ([github](https://github.com/ajcumine/pokelm/tree/48fb0490cfd47a1ff62f508b49c3c769ac818e5f)).
 
-### Refactoring
+## Refactoring
 
 **TLDR:** _Don't worry about refactoring unless there's a problem to solve with it. Long files are ok in elm._
 
@@ -248,7 +271,7 @@ View.pokemon id name =
 
 With all this research into refactoring in elm, it seemed like I didn't really have a problem to solve yet and that I can just keep going.
 
-### Getting to a base point
+## Getting to a base point
 
 I added images for each Pokemon to the assets directory in my project folder. Then set up the page for Pokemon types. This made me realise, unsurprisingly, that `type` is a reserved word in Elm. This isn't an issue at all as I just named everything that was a type `Type` and everything that was a variable to `pokemonType`. Later I made the (better) decision to fix this to be just `PokemonType` and `pokemonType` to maintain consistency and readability across the project.
 
@@ -263,7 +286,7 @@ I added a link to the Pokemon type page in the navigation bar. where I showed a 
 
 From here most of the work would be styling the site, and adding more information based on data from existing API calls.
 
-### Click
+## Click
 
 Again I started to think about some improvements and optimisations. A very simple one would be to only request data from APIs when we didn't already have it. This was simple to add to the Pokemon types and Pokedex pages. For both we simply ask if the data has been requested and if not we fetch it, for the Pokedex data:
 
@@ -284,7 +307,7 @@ I realised I needed to add another chain in the Http requests I was making for t
 
 This was the point ([github](https://github.com/ajcumine/pokelm/tree/5b59da8e75b0a81535f8d01635bb604ba797b0f2)) where I started to really understand Elm as a language. Things started to click at last. I don't know if you've had this experience, but it's very satisfying. From now on I'm going to point out interesting little things I did and found as I continued through the work on this project.
 
-### View functions
+## View functions
 
 In the end I did create a `View` module to hold repeated bits of html code, the first of any substance was `View.pokemon`:
 
@@ -333,7 +356,7 @@ Note here that we do not pass a whole `Pokemon` data type to the function just a
 
 Helper functions for view functions were also placed here and kept private to the module. I also added some other view functions for things like page titles and subtitles.
 
-### GitHub Pages
+## GitHub Pages
 
 I changed the build to compile an `elm.js` and be used by an `index.html` at the project route. This allowed me to make use of GitHub Pages and have GitHub serve my project online at https://ajcumine.github.io/pokelm/.
 
@@ -341,7 +364,7 @@ Changing to using a javascript file allowed me to add a CSS normaliser in the `i
 
 Hosting on GitHub Pages also meant I had to fix the paths for my assets.
 
-### Conditional Rendering
+## Conditional Rendering
 
 I found that I was rendering some things that had no information in them so I decided to add some conditional rendering to the damage relations part of the Pokemon type pages.
 
@@ -381,7 +404,7 @@ viewDamageRelation sectionTitle pokemonTypes =
 
 Here `BaseTypes` is a `List` of `PokemonType`. The list is always present but it may be empty. Using the `case ... of` syntax we choose to render an empty `div` rather than the styled information box when there are no `PokemonType` present.
 
-### Search
+## Search
 
 In this [commit](https://github.com/ajcumine/pokelm/commit/f38a1ec16e05744af8db3ac6a4c055650b4bedfb) I added Search Pokemon functionality to my navigation bar. This ended up being a really interesting problem as it required a lot of changes to the core structure of my elm code.
 
@@ -415,7 +438,7 @@ init flags url navKey =
 
 In order to use a `Msg` in the input of the navigation bar I needed to move the `type Msg` from the `Main` module into it's own `Msg` module to avoid cyclic dependencies. I also needed to move the `Model` type alias from the `Main` module into it's own `Model` module so I could use it in the `Navigation` module, again to avoid cyclic dependencies.
 
-### Type Cleanup
+## Type Cleanup
 
 Creating the Model.elm and Msg.elm module files gave me the opportunity to move all of my Model types from the individual Page models to this centralised location. I moved the `Model` of each page over to the core Model.elm file one by one as I was unsure how much this would affect my codebase. Surprisingly to me, it barely caused any issue as I just had to expose and import each type I wanted to use and change some names of types. The only problem I encountered was exposing a type rather than a type alias.
 
@@ -456,10 +479,22 @@ import Model exposing (Evolutions(..))
 
 This is repeated for the union type `Msg` in [Msg.elm](https://github.com/ajcumine/pokelm/blob/e1251ea8747b985d60e007334b36d4731d409427/src/Msg.elm).
 
-### Sets
+During my refactoring and moving all the Model types into the Model.elm file I noticed that a common type alias I would write was a record with a `String` `name` and an `Int` `id`. There was no reason to repeat this for every type using it so I refactored my code down to use this as a `type Base`:
+
+```elm
+type alias Base =
+    { name : String
+    , id : Int
+    }
+
+```
+
+This was a clear type that I could reuse for all fetched data across my application.
+
+## Sets
 
 In building the team page I wanted to show the strengths and weaknesses of a team. To do this I would list the different damage relation Pokemon types for each Pokemon in the team. This would often result in the same Pokemon type appearing more than once, which is not really what I would want to see. To make each Pokemon type unique I could have checked their presence in a list, but instead I decided to use [Sets](https://package.elm-lang.org/packages/elm/core/latest/Set). This forces uniqueness.
 
-### Decoders
+## Decoders
 
-Oops.
+I realise now that I haven't mentioned decoders in my journey with Elm at all despite them being a massive part of the logic so far. I believe that this is due to the nature of learning about decoders themselves. They are incredible powerful and initially quite intimidating to understand, but once understood they are almost entirely ignored as they become second nature. In my application I use JSON decoders to parse JSON from Http requests into the records I want to store in my state. These decoders map the JSON matching types and fields to create the types expected by record they describe. If they types do not match then the decoding fails and an error is passed instead.
