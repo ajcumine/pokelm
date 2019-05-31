@@ -7,6 +7,7 @@ import Html.Styled.Attributes exposing (css)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Base, Pokedex, PokedexWebData)
+import Parse
 import RemoteData exposing (WebData)
 import View
 
@@ -52,16 +53,11 @@ view model =
 -- SERIALISATION
 
 
-getId : String -> Int
-getId url =
-    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
-
-
 pokemonDecoder : Decoder Base
 pokemonDecoder =
     Decode.map2 Base
         (Decode.field "name" Decode.string)
-        (Decode.field "url" (Decode.string |> Decode.map getId))
+        (Decode.field "url" (Decode.string |> Decode.map Parse.idFromPokeApiUrlString))
 
 
 pokedexDecoder : Decoder Pokedex

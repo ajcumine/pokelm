@@ -11,6 +11,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonWebData, Species, Team)
 import Msg exposing (Msg(..))
+import Parse
 import RemoteData exposing (WebData)
 import RemoteData.Http
 import Route
@@ -160,7 +161,7 @@ pokemonTypeDecoder : Decoder Base
 pokemonTypeDecoder =
     Decode.succeed Base
         |> Pipeline.requiredAt [ "type", "name" ] Decode.string
-        |> Pipeline.requiredAt [ "type", "url" ] (Decode.string |> Decode.map getId)
+        |> Pipeline.requiredAt [ "type", "url" ] (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
 
 
 pokemonDecoder : Decoder BasePokemon
@@ -172,16 +173,11 @@ pokemonDecoder =
         |> Pipeline.requiredAt [ "species", "url" ] Decode.string
 
 
-getId : String -> Int
-getId url =
-    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
-
-
 evolutionDecoder : Decoder EvolutionChain
 evolutionDecoder =
     Decode.succeed EvolutionChain
         |> Pipeline.requiredAt [ "species", "name" ] Decode.string
-        |> Pipeline.requiredAt [ "species", "url" ] (Decode.string |> Decode.map getId)
+        |> Pipeline.requiredAt [ "species", "url" ] (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
         |> Pipeline.required "evolves_to" (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
@@ -189,7 +185,7 @@ evolutionsDecoder : Decoder EvolutionChain
 evolutionsDecoder =
     Decode.succeed EvolutionChain
         |> Pipeline.requiredAt [ "chain", "species", "name" ] Decode.string
-        |> Pipeline.requiredAt [ "chain", "species", "url" ] (Decode.string |> Decode.map getId)
+        |> Pipeline.requiredAt [ "chain", "species", "url" ] (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
         |> Pipeline.requiredAt [ "chain", "evolves_to" ] (Decode.map Evolutions (Decode.list (Decode.lazy (\_ -> evolutionDecoder))))
 
 
@@ -197,7 +193,7 @@ varietyDecoder : Decoder Base
 varietyDecoder =
     Decode.succeed Base
         |> Pipeline.requiredAt [ "pokemon", "name" ] Decode.string
-        |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map getId)
+        |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
 
 
 speciesDecoder : Decoder Species

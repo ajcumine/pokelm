@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, DamageRelations, PokemonType, PokemonTypeWebData)
+import Parse
 import RemoteData exposing (WebData)
 import View
 
@@ -123,23 +124,18 @@ view model =
 -- SERIALISATION
 
 
-getId : String -> Int
-getId url =
-    String.split "/" url |> List.reverse |> List.tail |> Maybe.withDefault [ "1" ] |> List.head |> Maybe.withDefault "0" |> String.toInt |> Maybe.withDefault 0
-
-
 pokemonDecoder : Decoder Base
 pokemonDecoder =
     Decode.succeed Base
         |> Pipeline.requiredAt [ "pokemon", "name" ] Decode.string
-        |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map getId)
+        |> Pipeline.requiredAt [ "pokemon", "url" ] (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
 
 
 basePokemonTypeDecoder : Decoder Base
 basePokemonTypeDecoder =
     Decode.succeed Base
         |> Pipeline.required "name" Decode.string
-        |> Pipeline.required "url" (Decode.string |> Decode.map getId)
+        |> Pipeline.required "url" (Decode.string |> Decode.map Parse.idFromPokeApiUrlString)
 
 
 damageRelationDecoder : Decoder DamageRelations

@@ -1643,6 +1643,23 @@ function _Json_addEntry(func)
 var _Json_encodeNull = _Json_wrap(null);
 
 
+function _Url_percentEncode(string)
+{
+	return encodeURIComponent(string);
+}
+
+function _Url_percentDecode(string)
+{
+	try
+	{
+		return elm$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch (e)
+	{
+		return elm$core$Maybe$Nothing;
+	}
+}
+
 
 // TASKS
 
@@ -2486,23 +2503,6 @@ function _Http_track(router, xhr, tracker)
 			size: event.lengthComputable ? elm$core$Maybe$Just(event.total) : elm$core$Maybe$Nothing
 		}))));
 	});
-}
-
-function _Url_percentEncode(string)
-{
-	return encodeURIComponent(string);
-}
-
-function _Url_percentDecode(string)
-{
-	try
-	{
-		return elm$core$Maybe$Just(decodeURIComponent(string));
-	}
-	catch (e)
-	{
-		return elm$core$Maybe$Nothing;
-	}
 }
 
 
@@ -5132,24 +5132,165 @@ var author$project$Model$Base = F2(
 	function (name, id) {
 		return {id: id, name: name};
 	});
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
+var elm$core$String$toInt = _String_toInt;
+var elm$core$Basics$identity = function (x) {
+	return x;
 };
-var elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(xs);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
+var elm$url$Url$Parser$Parser = function (a) {
+	return {$: 'Parser', a: a};
 };
+var elm$url$Url$Parser$State = F5(
+	function (visited, unvisited, params, frag, value) {
+		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
+	});
+var elm$url$Url$Parser$custom = F2(
+	function (tipe, stringToSomething) {
+		return elm$url$Url$Parser$Parser(
+			function (_n0) {
+				var visited = _n0.visited;
+				var unvisited = _n0.unvisited;
+				var params = _n0.params;
+				var frag = _n0.frag;
+				var value = _n0.value;
+				if (!unvisited.b) {
+					return _List_Nil;
+				} else {
+					var next = unvisited.a;
+					var rest = unvisited.b;
+					var _n2 = stringToSomething(next);
+					if (_n2.$ === 'Just') {
+						var nextValue = _n2.a;
+						return _List_fromArray(
+							[
+								A5(
+								elm$url$Url$Parser$State,
+								A2(elm$core$List$cons, next, visited),
+								rest,
+								params,
+								frag,
+								value(nextValue))
+							]);
+					} else {
+						return _List_Nil;
+					}
+				}
+			});
+	});
+var elm$url$Url$Parser$int = A2(elm$url$Url$Parser$custom, 'NUMBER', elm$core$String$toInt);
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$concat = function (lists) {
+	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
+};
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var elm$core$List$concatMap = F2(
+	function (f, list) {
+		return elm$core$List$concat(
+			A2(elm$core$List$map, f, list));
+	});
+var elm$url$Url$Parser$oneOf = function (parsers) {
+	return elm$url$Url$Parser$Parser(
+		function (state) {
+			return A2(
+				elm$core$List$concatMap,
+				function (_n0) {
+					var parser = _n0.a;
+					return parser(state);
+				},
+				parsers);
+		});
+};
+var elm$url$Url$Parser$s = function (str) {
+	return elm$url$Url$Parser$Parser(
+		function (_n0) {
+			var visited = _n0.visited;
+			var unvisited = _n0.unvisited;
+			var params = _n0.params;
+			var frag = _n0.frag;
+			var value = _n0.value;
+			if (!unvisited.b) {
+				return _List_Nil;
+			} else {
+				var next = unvisited.a;
+				var rest = unvisited.b;
+				return _Utils_eq(next, str) ? _List_fromArray(
+					[
+						A5(
+						elm$url$Url$Parser$State,
+						A2(elm$core$List$cons, next, visited),
+						rest,
+						params,
+						frag,
+						value)
+					]) : _List_Nil;
+			}
+		});
+};
+var elm$url$Url$Parser$slash = F2(
+	function (_n0, _n1) {
+		var parseBefore = _n0.a;
+		var parseAfter = _n1.a;
+		return elm$url$Url$Parser$Parser(
+			function (state) {
+				return A2(
+					elm$core$List$concatMap,
+					parseAfter,
+					parseBefore(state));
+			});
+	});
+var author$project$Parse$parser = elm$url$Url$Parser$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			elm$url$Url$Parser$slash,
+			elm$url$Url$Parser$s('api'),
+			A2(
+				elm$url$Url$Parser$slash,
+				elm$url$Url$Parser$s('v2'),
+				A2(
+					elm$url$Url$Parser$slash,
+					elm$url$Url$Parser$s('pokemon-species'),
+					elm$url$Url$Parser$int))),
+			A2(
+			elm$url$Url$Parser$slash,
+			elm$url$Url$Parser$s('api'),
+			A2(
+				elm$url$Url$Parser$slash,
+				elm$url$Url$Parser$s('v2'),
+				A2(
+					elm$url$Url$Parser$slash,
+					elm$url$Url$Parser$s('type'),
+					elm$url$Url$Parser$int))),
+			A2(
+			elm$url$Url$Parser$slash,
+			elm$url$Url$Parser$s('api'),
+			A2(
+				elm$url$Url$Parser$slash,
+				elm$url$Url$Parser$s('v2'),
+				A2(
+					elm$url$Url$Parser$slash,
+					elm$url$Url$Parser$s('pokemon'),
+					elm$url$Url$Parser$int)))
+		]));
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5159,58 +5300,189 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var elm$core$String$toInt = _String_toInt;
-var author$project$Page$Pokemon$getId = function (url) {
+var elm$url$Url$Https = {$: 'Https'};
+var elm$core$String$length = _String_length;
+var elm$core$String$slice = _String_slice;
+var elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			elm$core$String$slice,
+			n,
+			elm$core$String$length(string),
+			string);
+	});
+var elm$core$String$startsWith = _String_startsWith;
+var elm$url$Url$Http = {$: 'Http'};
+var elm$core$String$indexes = _String_indexes;
+var elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var elm$core$String$left = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
+	});
+var elm$core$String$contains = _String_contains;
+var elm$url$Url$Url = F6(
+	function (protocol, host, port_, path, query, fragment) {
+		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
+	});
+var elm$url$Url$chompBeforePath = F5(
+	function (protocol, path, params, frag, str) {
+		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, ':', str);
+			if (!_n0.b) {
+				return elm$core$Maybe$Just(
+					A6(elm$url$Url$Url, protocol, str, elm$core$Maybe$Nothing, path, params, frag));
+			} else {
+				if (!_n0.b.b) {
+					var i = _n0.a;
+					var _n1 = elm$core$String$toInt(
+						A2(elm$core$String$dropLeft, i + 1, str));
+					if (_n1.$ === 'Nothing') {
+						return elm$core$Maybe$Nothing;
+					} else {
+						var port_ = _n1;
+						return elm$core$Maybe$Just(
+							A6(
+								elm$url$Url$Url,
+								protocol,
+								A2(elm$core$String$left, i, str),
+								port_,
+								path,
+								params,
+								frag));
+					}
+				} else {
+					return elm$core$Maybe$Nothing;
+				}
+			}
+		}
+	});
+var elm$url$Url$chompBeforeQuery = F4(
+	function (protocol, params, frag, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '/', str);
+			if (!_n0.b) {
+				return A5(elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
+			} else {
+				var i = _n0.a;
+				return A5(
+					elm$url$Url$chompBeforePath,
+					protocol,
+					A2(elm$core$String$dropLeft, i, str),
+					params,
+					frag,
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$chompBeforeFragment = F3(
+	function (protocol, frag, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '?', str);
+			if (!_n0.b) {
+				return A4(elm$url$Url$chompBeforeQuery, protocol, elm$core$Maybe$Nothing, frag, str);
+			} else {
+				var i = _n0.a;
+				return A4(
+					elm$url$Url$chompBeforeQuery,
+					protocol,
+					elm$core$Maybe$Just(
+						A2(elm$core$String$dropLeft, i + 1, str)),
+					frag,
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$chompAfterProtocol = F2(
+	function (protocol, str) {
+		if (elm$core$String$isEmpty(str)) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var _n0 = A2(elm$core$String$indexes, '#', str);
+			if (!_n0.b) {
+				return A3(elm$url$Url$chompBeforeFragment, protocol, elm$core$Maybe$Nothing, str);
+			} else {
+				var i = _n0.a;
+				return A3(
+					elm$url$Url$chompBeforeFragment,
+					protocol,
+					elm$core$Maybe$Just(
+						A2(elm$core$String$dropLeft, i + 1, str)),
+					A2(elm$core$String$left, i, str));
+			}
+		}
+	});
+var elm$url$Url$fromString = function (str) {
+	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
+		elm$url$Url$chompAfterProtocol,
+		elm$url$Url$Http,
+		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
+		elm$url$Url$chompAfterProtocol,
+		elm$url$Url$Https,
+		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
+};
+var author$project$Parse$urlFromString = function (urlString) {
 	return A2(
 		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
+		{fragment: elm$core$Maybe$Nothing, host: 'pokeapi.co', path: '/api/v2/pokemon-species/132/', port_: elm$core$Maybe$Nothing, protocol: elm$url$Url$Https, query: elm$core$Maybe$Nothing},
+		elm$url$Url$fromString(urlString));
 };
-var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['type', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['type', 'name']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var elm$json$Json$Decode$list = _Json_decodeList;
-var author$project$Page$Pokemon$pokemonDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['species', 'url']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'types',
-		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Model$BasePokemon)))));
+var elm$url$Url$Parser$getFirstMatch = function (states) {
+	getFirstMatch:
+	while (true) {
+		if (!states.b) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var state = states.a;
+			var rest = states.b;
+			var _n1 = state.unvisited;
+			if (!_n1.b) {
+				return elm$core$Maybe$Just(state.value);
+			} else {
+				if ((_n1.a === '') && (!_n1.b.b)) {
+					return elm$core$Maybe$Just(state.value);
+				} else {
+					var $temp$states = rest;
+					states = $temp$states;
+					continue getFirstMatch;
+				}
+			}
+		}
+	}
+};
+var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
+	if (!segments.b) {
+		return _List_Nil;
+	} else {
+		if ((segments.a === '') && (!segments.b.b)) {
+			return _List_Nil;
+		} else {
+			var segment = segments.a;
+			var rest = segments.b;
+			return A2(
+				elm$core$List$cons,
+				segment,
+				elm$url$Url$Parser$removeFinalEmpty(rest));
+		}
+	}
+};
+var elm$url$Url$Parser$preparePath = function (path) {
+	var _n0 = A2(elm$core$String$split, '/', path);
+	if (_n0.b && (_n0.a === '')) {
+		var segments = _n0.b;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	} else {
+		var segments = _n0;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	}
+};
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var elm$core$Basics$compare = _Utils_compare;
@@ -5726,6 +5998,115 @@ var elm$core$Dict$update = F3(
 			return A2(elm$core$Dict$remove, targetKey, dictionary);
 		}
 	});
+var elm$url$Url$percentDecode = _Url_percentDecode;
+var elm$url$Url$Parser$addToParametersHelp = F2(
+	function (value, maybeList) {
+		if (maybeList.$ === 'Nothing') {
+			return elm$core$Maybe$Just(
+				_List_fromArray(
+					[value]));
+		} else {
+			var list = maybeList.a;
+			return elm$core$Maybe$Just(
+				A2(elm$core$List$cons, value, list));
+		}
+	});
+var elm$url$Url$Parser$addParam = F2(
+	function (segment, dict) {
+		var _n0 = A2(elm$core$String$split, '=', segment);
+		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
+			var rawKey = _n0.a;
+			var _n1 = _n0.b;
+			var rawValue = _n1.a;
+			var _n2 = elm$url$Url$percentDecode(rawKey);
+			if (_n2.$ === 'Nothing') {
+				return dict;
+			} else {
+				var key = _n2.a;
+				var _n3 = elm$url$Url$percentDecode(rawValue);
+				if (_n3.$ === 'Nothing') {
+					return dict;
+				} else {
+					var value = _n3.a;
+					return A3(
+						elm$core$Dict$update,
+						key,
+						elm$url$Url$Parser$addToParametersHelp(value),
+						dict);
+				}
+			}
+		} else {
+			return dict;
+		}
+	});
+var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
+	if (maybeQuery.$ === 'Nothing') {
+		return elm$core$Dict$empty;
+	} else {
+		var qry = maybeQuery.a;
+		return A3(
+			elm$core$List$foldr,
+			elm$url$Url$Parser$addParam,
+			elm$core$Dict$empty,
+			A2(elm$core$String$split, '&', qry));
+	}
+};
+var elm$url$Url$Parser$parse = F2(
+	function (_n0, url) {
+		var parser = _n0.a;
+		return elm$url$Url$Parser$getFirstMatch(
+			parser(
+				A5(
+					elm$url$Url$Parser$State,
+					_List_Nil,
+					elm$url$Url$Parser$preparePath(url.path),
+					elm$url$Url$Parser$prepareQuery(url.query),
+					url.fragment,
+					elm$core$Basics$identity)));
+	});
+var author$project$Parse$idFromPokeApiUrlString = function (urlString) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		132,
+		A2(
+			elm$url$Url$Parser$parse,
+			author$project$Parse$parser,
+			author$project$Parse$urlFromString(urlString)));
+};
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$string = _Json_decodeString;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['type', 'url']),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['type', 'name']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Model$Base)));
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var elm$json$Json$Decode$list = _Json_decodeList;
+var author$project$Page$Pokemon$pokemonDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['species', 'url']),
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'types',
+		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			elm$json$Json$Decode$int,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'name',
+				elm$json$Json$Decode$string,
+				elm$json$Json$Decode$succeed(author$project$Model$BasePokemon)))));
 var elm$core$Maybe$isJust = function (maybe) {
 	if (maybe.$ === 'Just') {
 		return true;
@@ -5812,9 +6193,6 @@ var elm$http$Http$BadUrl = function (a) {
 };
 var elm$http$Http$NetworkError = {$: 'NetworkError'};
 var elm$http$Http$Timeout = {$: 'Timeout'};
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
 var elm$http$Http$stringResolver = A2(_Http_expect, '', elm$core$Basics$identity);
 var ohanhi$remotedata_http$RemoteData$Http$taskResolver = function (fromGoodStatus) {
 	var fail = A2(elm$core$Basics$composeL, elm$core$Result$Ok, krisajenkins$remotedata$RemoteData$Failure);
@@ -5951,7 +6329,7 @@ function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
 			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 			_List_fromArray(
 				['species', 'url']),
-			A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+			A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 			A3(
 				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 				_List_fromArray(
@@ -5982,7 +6360,7 @@ var author$project$Page$Pokemon$evolutionsDecoder = A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
 			['chain', 'species', 'url']),
-		A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+		A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 		A3(
 			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 			_List_fromArray(
@@ -6000,7 +6378,7 @@ var author$project$Page$Pokemon$varietyDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Page$Pokemon$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
@@ -6064,20 +6442,6 @@ var elm$core$Task$Perform = function (a) {
 	return {$: 'Perform', a: a};
 };
 var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var elm$core$Task$map = F2(
 	function (func, taskA) {
 		return A2(
@@ -6190,27 +6554,10 @@ var author$project$Model$DamageRelations = F6(
 	function (doubleDamageFrom, doubleDamageTo, halfDamageFrom, halfDamageTo, noDamageFrom, noDamageTo) {
 		return {doubleDamageFrom: doubleDamageFrom, doubleDamageTo: doubleDamageTo, halfDamageFrom: halfDamageFrom, halfDamageTo: halfDamageTo, noDamageFrom: noDamageFrom, noDamageTo: noDamageTo};
 	});
-var author$project$Page$PokemonType$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
 var author$project$Page$PokemonType$basePokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'url',
-	A2(elm$json$Json$Decode$map, author$project$Page$PokemonType$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'name',
@@ -6245,7 +6592,7 @@ var author$project$Page$PokemonType$pokemonDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Page$PokemonType$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
@@ -6517,27 +6864,10 @@ var author$project$Page$PokemonType$fetch = function (idOrName) {
 			url: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
-var author$project$Page$Team$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
 var author$project$Page$Team$basePokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'url',
-	A2(elm$json$Json$Decode$map, author$project$Page$Team$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'name',
@@ -6572,7 +6902,7 @@ var author$project$Page$Team$pokemonDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Page$Team$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
@@ -6610,17 +6940,6 @@ var author$project$Page$Team$fetchPokemonTypes = function (ids) {
 			return author$project$Page$Team$fetchPokemonType(pokemonTypeId);
 		},
 		elm$core$Set$toList(ids));
-};
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
 };
 var elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
@@ -6688,23 +7007,6 @@ var author$project$Msg$PokedexFetchResponse = function (a) {
 var author$project$Msg$PokemonTypesFetchResponse = function (a) {
 	return {$: 'PokemonTypesFetchResponse', a: a};
 };
-var author$project$Page$Pokedex$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
 var author$project$Page$Pokedex$pokemonDecoder = A3(
 	elm$json$Json$Decode$map2,
 	author$project$Model$Base,
@@ -6712,7 +7014,7 @@ var author$project$Page$Pokedex$pokemonDecoder = A3(
 	A2(
 		elm$json$Json$Decode$field,
 		'url',
-		A2(elm$json$Json$Decode$map, author$project$Page$Pokedex$getId, elm$json$Json$Decode$string)));
+		A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string)));
 var author$project$Page$Pokedex$pokedexDecoder = A2(
 	elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -6725,27 +7027,10 @@ var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	});
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$PokemonTypes$getId = function (url) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		0,
-		elm$core$String$toInt(
-			A2(
-				elm$core$Maybe$withDefault,
-				'0',
-				elm$core$List$head(
-					A2(
-						elm$core$Maybe$withDefault,
-						_List_fromArray(
-							['1']),
-						elm$core$List$tail(
-							elm$core$List$reverse(
-								A2(elm$core$String$split, '/', url))))))));
-};
 var author$project$Page$PokemonTypes$typeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'url',
-	A2(elm$json$Json$Decode$map, author$project$Page$PokemonTypes$getId, elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'name',
@@ -6772,13 +7057,6 @@ var author$project$Route$PokemonType = function (a) {
 };
 var author$project$Route$PokemonTypes = {$: 'PokemonTypes'};
 var author$project$Route$Team = {$: 'Team'};
-var elm$url$Url$Parser$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
-var elm$url$Url$Parser$State = F5(
-	function (visited, unvisited, params, frag, value) {
-		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
-	});
 var elm$url$Url$Parser$mapState = F2(
 	function (func, _n0) {
 		var visited = _n0.visited;
@@ -6809,94 +7087,6 @@ var elm$url$Url$Parser$map = F2(
 					elm$url$Url$Parser$mapState(value),
 					parseArg(
 						A5(elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-			});
-	});
-var elm$core$List$concatMap = F2(
-	function (f, list) {
-		return elm$core$List$concat(
-			A2(elm$core$List$map, f, list));
-	});
-var elm$url$Url$Parser$oneOf = function (parsers) {
-	return elm$url$Url$Parser$Parser(
-		function (state) {
-			return A2(
-				elm$core$List$concatMap,
-				function (_n0) {
-					var parser = _n0.a;
-					return parser(state);
-				},
-				parsers);
-		});
-};
-var elm$url$Url$Parser$s = function (str) {
-	return elm$url$Url$Parser$Parser(
-		function (_n0) {
-			var visited = _n0.visited;
-			var unvisited = _n0.unvisited;
-			var params = _n0.params;
-			var frag = _n0.frag;
-			var value = _n0.value;
-			if (!unvisited.b) {
-				return _List_Nil;
-			} else {
-				var next = unvisited.a;
-				var rest = unvisited.b;
-				return _Utils_eq(next, str) ? _List_fromArray(
-					[
-						A5(
-						elm$url$Url$Parser$State,
-						A2(elm$core$List$cons, next, visited),
-						rest,
-						params,
-						frag,
-						value)
-					]) : _List_Nil;
-			}
-		});
-};
-var elm$url$Url$Parser$slash = F2(
-	function (_n0, _n1) {
-		var parseBefore = _n0.a;
-		var parseAfter = _n1.a;
-		return elm$url$Url$Parser$Parser(
-			function (state) {
-				return A2(
-					elm$core$List$concatMap,
-					parseAfter,
-					parseBefore(state));
-			});
-	});
-var elm$url$Url$Parser$custom = F2(
-	function (tipe, stringToSomething) {
-		return elm$url$Url$Parser$Parser(
-			function (_n0) {
-				var visited = _n0.visited;
-				var unvisited = _n0.unvisited;
-				var params = _n0.params;
-				var frag = _n0.frag;
-				var value = _n0.value;
-				if (!unvisited.b) {
-					return _List_Nil;
-				} else {
-					var next = unvisited.a;
-					var rest = unvisited.b;
-					var _n2 = stringToSomething(next);
-					if (_n2.$ === 'Just') {
-						var nextValue = _n2.a;
-						return _List_fromArray(
-							[
-								A5(
-								elm$url$Url$Parser$State,
-								A2(elm$core$List$cons, next, visited),
-								rest,
-								params,
-								frag,
-								value(nextValue))
-							]);
-					} else {
-						return _List_Nil;
-					}
-				}
 			});
 	});
 var elm$url$Url$Parser$string = A2(elm$url$Url$Parser$custom, 'STRING', elm$core$Maybe$Just);
@@ -6932,121 +7122,6 @@ var author$project$Route$parser = elm$url$Url$Parser$oneOf(
 			author$project$Route$Team,
 			elm$url$Url$Parser$s('team'))
 		]));
-var elm$url$Url$Parser$getFirstMatch = function (states) {
-	getFirstMatch:
-	while (true) {
-		if (!states.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var state = states.a;
-			var rest = states.b;
-			var _n1 = state.unvisited;
-			if (!_n1.b) {
-				return elm$core$Maybe$Just(state.value);
-			} else {
-				if ((_n1.a === '') && (!_n1.b.b)) {
-					return elm$core$Maybe$Just(state.value);
-				} else {
-					var $temp$states = rest;
-					states = $temp$states;
-					continue getFirstMatch;
-				}
-			}
-		}
-	}
-};
-var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
-	if (!segments.b) {
-		return _List_Nil;
-	} else {
-		if ((segments.a === '') && (!segments.b.b)) {
-			return _List_Nil;
-		} else {
-			var segment = segments.a;
-			var rest = segments.b;
-			return A2(
-				elm$core$List$cons,
-				segment,
-				elm$url$Url$Parser$removeFinalEmpty(rest));
-		}
-	}
-};
-var elm$url$Url$Parser$preparePath = function (path) {
-	var _n0 = A2(elm$core$String$split, '/', path);
-	if (_n0.b && (_n0.a === '')) {
-		var segments = _n0.b;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	} else {
-		var segments = _n0;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	}
-};
-var elm$url$Url$percentDecode = _Url_percentDecode;
-var elm$url$Url$Parser$addToParametersHelp = F2(
-	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
-			return elm$core$Maybe$Just(
-				_List_fromArray(
-					[value]));
-		} else {
-			var list = maybeList.a;
-			return elm$core$Maybe$Just(
-				A2(elm$core$List$cons, value, list));
-		}
-	});
-var elm$url$Url$Parser$addParam = F2(
-	function (segment, dict) {
-		var _n0 = A2(elm$core$String$split, '=', segment);
-		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
-			var rawKey = _n0.a;
-			var _n1 = _n0.b;
-			var rawValue = _n1.a;
-			var _n2 = elm$url$Url$percentDecode(rawKey);
-			if (_n2.$ === 'Nothing') {
-				return dict;
-			} else {
-				var key = _n2.a;
-				var _n3 = elm$url$Url$percentDecode(rawValue);
-				if (_n3.$ === 'Nothing') {
-					return dict;
-				} else {
-					var value = _n3.a;
-					return A3(
-						elm$core$Dict$update,
-						key,
-						elm$url$Url$Parser$addToParametersHelp(value),
-						dict);
-				}
-			}
-		} else {
-			return dict;
-		}
-	});
-var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 'Nothing') {
-		return elm$core$Dict$empty;
-	} else {
-		var qry = maybeQuery.a;
-		return A3(
-			elm$core$List$foldr,
-			elm$url$Url$Parser$addParam,
-			elm$core$Dict$empty,
-			A2(elm$core$String$split, '&', qry));
-	}
-};
-var elm$url$Url$Parser$parse = F2(
-	function (_n0, url) {
-		var parser = _n0.a;
-		return elm$url$Url$Parser$getFirstMatch(
-			parser(
-				A5(
-					elm$url$Url$Parser$State,
-					_List_Nil,
-					elm$url$Url$Parser$preparePath(url.path),
-					elm$url$Url$Parser$prepareQuery(url.query),
-					url.fragment,
-					elm$core$Basics$identity)));
-	});
 var author$project$Route$fromUrl = function (url) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -7194,134 +7269,6 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 		default:
 			return 3;
 	}
-};
-var elm$core$String$length = _String_length;
-var elm$core$String$slice = _String_slice;
-var elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			elm$core$String$slice,
-			n,
-			elm$core$String$length(string),
-			string);
-	});
-var elm$core$String$startsWith = _String_startsWith;
-var elm$url$Url$Http = {$: 'Http'};
-var elm$url$Url$Https = {$: 'Https'};
-var elm$core$String$indexes = _String_indexes;
-var elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
-var elm$core$String$left = F2(
-	function (n, string) {
-		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
-	});
-var elm$core$String$contains = _String_contains;
-var elm$url$Url$Url = F6(
-	function (protocol, host, port_, path, query, fragment) {
-		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
-	});
-var elm$url$Url$chompBeforePath = F5(
-	function (protocol, path, params, frag, str) {
-		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, ':', str);
-			if (!_n0.b) {
-				return elm$core$Maybe$Just(
-					A6(elm$url$Url$Url, protocol, str, elm$core$Maybe$Nothing, path, params, frag));
-			} else {
-				if (!_n0.b.b) {
-					var i = _n0.a;
-					var _n1 = elm$core$String$toInt(
-						A2(elm$core$String$dropLeft, i + 1, str));
-					if (_n1.$ === 'Nothing') {
-						return elm$core$Maybe$Nothing;
-					} else {
-						var port_ = _n1;
-						return elm$core$Maybe$Just(
-							A6(
-								elm$url$Url$Url,
-								protocol,
-								A2(elm$core$String$left, i, str),
-								port_,
-								path,
-								params,
-								frag));
-					}
-				} else {
-					return elm$core$Maybe$Nothing;
-				}
-			}
-		}
-	});
-var elm$url$Url$chompBeforeQuery = F4(
-	function (protocol, params, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '/', str);
-			if (!_n0.b) {
-				return A5(elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
-			} else {
-				var i = _n0.a;
-				return A5(
-					elm$url$Url$chompBeforePath,
-					protocol,
-					A2(elm$core$String$dropLeft, i, str),
-					params,
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompBeforeFragment = F3(
-	function (protocol, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '?', str);
-			if (!_n0.b) {
-				return A4(elm$url$Url$chompBeforeQuery, protocol, elm$core$Maybe$Nothing, frag, str);
-			} else {
-				var i = _n0.a;
-				return A4(
-					elm$url$Url$chompBeforeQuery,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompAfterProtocol = F2(
-	function (protocol, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '#', str);
-			if (!_n0.b) {
-				return A3(elm$url$Url$chompBeforeFragment, protocol, elm$core$Maybe$Nothing, str);
-			} else {
-				var i = _n0.a;
-				return A3(
-					elm$url$Url$chompBeforeFragment,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$fromString = function (str) {
-	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Http,
-		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Https,
-		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
@@ -7542,6 +7489,15 @@ var rtfeldman$elm_css$Css$prop1 = F2(
 		return A2(rtfeldman$elm_css$Css$property, key, arg.value);
 	});
 var rtfeldman$elm_css$Css$backgroundImage = rtfeldman$elm_css$Css$prop1('background-image');
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
 var rtfeldman$elm_css$Css$Internal$property = F2(
 	function (key, value) {
 		return rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
@@ -7687,6 +7643,15 @@ var elm$core$String$fromList = _String_fromList;
 var elm$core$String$toLower = _String_toLower;
 var elm$core$Basics$negate = function (n) {
 	return -n;
+};
+var elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(xs);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
 };
 var elm$core$Basics$pow = _Basics_pow;
 var elm$core$String$fromChar = function (_char) {
