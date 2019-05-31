@@ -77,14 +77,14 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
   return fun.a === 9 ? fun.f(a, b, c, d, e, f, g, h, i) : fun(a)(b)(c)(d)(e)(f)(g)(h)(i);
 }
 
-console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.0/optimize for better performance and smaller assets.');
 
 
-var _List_Nil_UNUSED = { $: 0 };
-var _List_Nil = { $: '[]' };
 
-function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
+var _List_Nil = { $: 0 };
+var _List_Nil_UNUSED = { $: '[]' };
+
+function _List_Cons(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons_UNUSED(hd, tl) { return { $: '::', a: hd, b: tl }; }
 
 
 var _List_cons = F2(_List_Cons);
@@ -194,7 +194,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 		return false;
 	}
 
-	/**/
+	/**_UNUSED/
 	if (x.$ === 'Set_elm_builtin')
 	{
 		x = elm$core$Set$toList(x);
@@ -207,7 +207,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 	}
 	//*/
 
-	/**_UNUSED/
+	/**/
 	if (x.$ < 0)
 	{
 		x = elm$core$Dict$toList(x);
@@ -242,7 +242,7 @@ function _Utils_cmp(x, y, ord)
 		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
 	}
 
-	/**/
+	/**_UNUSED/
 	if (x instanceof String)
 	{
 		var a = x.valueOf();
@@ -251,10 +251,10 @@ function _Utils_cmp(x, y, ord)
 	}
 	//*/
 
-	/**_UNUSED/
+	/**/
 	if (typeof x.$ === 'undefined')
 	//*/
-	/**/
+	/**_UNUSED/
 	if (x.$[0] === '#')
 	//*/
 	{
@@ -284,17 +284,17 @@ var _Utils_compare = F2(function(x, y)
 
 // COMMON VALUES
 
-var _Utils_Tuple0_UNUSED = 0;
-var _Utils_Tuple0 = { $: '#0' };
+var _Utils_Tuple0 = 0;
+var _Utils_Tuple0_UNUSED = { $: '#0' };
 
-function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
 
-function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
 
-function _Utils_chr_UNUSED(c) { return c; }
-function _Utils_chr(c) { return new String(c); }
+function _Utils_chr(c) { return c; }
+function _Utils_chr_UNUSED(c) { return new String(c); }
 
 
 // RECORDS
@@ -499,12 +499,12 @@ var _JsArray_appendN = F3(function(n, dest, source)
 
 // LOG
 
-var _Debug_log_UNUSED = F2(function(tag, value)
+var _Debug_log = F2(function(tag, value)
 {
 	return value;
 });
 
-var _Debug_log = F2(function(tag, value)
+var _Debug_log_UNUSED = F2(function(tag, value)
 {
 	console.log(tag + ': ' + _Debug_toString(value));
 	return value;
@@ -530,12 +530,12 @@ function _Debug_todoCase(moduleName, region, value)
 
 // TO STRING
 
-function _Debug_toString_UNUSED(value)
+function _Debug_toString(value)
 {
 	return '<internals>';
 }
 
-function _Debug_toString(value)
+function _Debug_toString_UNUSED(value)
 {
 	return _Debug_toAnsiString(false, value);
 }
@@ -720,13 +720,13 @@ function _Debug_toHexDigit(n)
 // CRASH
 
 
-function _Debug_crash_UNUSED(identifier)
+function _Debug_crash(identifier)
 {
 	throw new Error('https://github.com/elm/core/blob/1.0.0/hints/' + identifier + '.md');
 }
 
 
-function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
+function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 {
 	switch(identifier)
 	{
@@ -784,11 +784,11 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.start.line === region.end.line)
+	if (region.bk.aE === region.bC.aE)
 	{
-		return 'on line ' + region.start.line;
+		return 'on line ' + region.bk.aE;
 	}
-	return 'on lines ' + region.start.line + ' through ' + region.end.line;
+	return 'on lines ' + region.bk.aE + ' through ' + region.bC.aE;
 }
 
 
@@ -1212,7 +1212,7 @@ function _String_fromList(chars)
 
 
 
-/**/
+/**_UNUSED/
 function _Json_errorToString(error)
 {
 	return elm$json$Json$Decode$errorToString(error);
@@ -1616,11 +1616,11 @@ var _Json_encode = F2(function(indentLevel, value)
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 });
 
-function _Json_wrap(value) { return { $: 0, a: value }; }
-function _Json_unwrap(value) { return value.a; }
+function _Json_wrap_UNUSED(value) { return { $: 0, a: value }; }
+function _Json_unwrap_UNUSED(value) { return value.a; }
 
-function _Json_wrap_UNUSED(value) { return value; }
-function _Json_unwrap_UNUSED(value) { return value; }
+function _Json_wrap(value) { return value; }
+function _Json_unwrap(value) { return value; }
 
 function _Json_emptyArray() { return []; }
 function _Json_emptyObject() { return {}; }
@@ -1874,9 +1874,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cr,
+		impl.cN,
+		impl.cL,
 		function() { return function() {} }
 	);
 });
@@ -1889,7 +1889,7 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
 	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
-	elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
+	elm$core$Result$isOk(result) || _Debug_crash(2 /**_UNUSED/, _Json_errorToString(result.a) /**/);
 	var managers = {};
 	result = init(result.a);
 	var model = result.a;
@@ -2288,7 +2288,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 //
 
 
-function _Platform_export_UNUSED(exports)
+function _Platform_export(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsProd(scope['Elm'], exports)
@@ -2309,7 +2309,7 @@ function _Platform_mergeExportsProd(obj, exports)
 }
 
 
-function _Platform_export(exports)
+function _Platform_export_UNUSED(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
@@ -2338,25 +2338,25 @@ var _Http_toTask = F3(function(router, toTask, request)
 	return _Scheduler_binding(function(callback)
 	{
 		function done(response) {
-			callback(toTask(request.expect.a(response)));
+			callback(toTask(request.cg.a(response)));
 		}
 
 		var xhr = new XMLHttpRequest();
 		xhr.addEventListener('error', function() { done(elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done(elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
-		elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.cg.b, xhr)); });
+		elm$core$Maybe$isJust(request.s) && _Http_track(router, xhr, request.s.a);
 
 		try {
-			xhr.open(request.method, request.url, true);
+			xhr.open(request.p, request.cP, true);
 		} catch (e) {
-			return done(elm$http$Http$BadUrl_(request.url));
+			return done(elm$http$Http$BadUrl_(request.cP));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
-		xhr.send(request.body.b);
+		request.b7.a && xhr.setRequestHeader('Content-Type', request.b7.a);
+		xhr.send(request.b7.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -2367,13 +2367,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.l; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.timeout.a || 0;
-	xhr.responseType = request.expect.d;
-	xhr.withCredentials = request.allowCookiesFromOtherDomains;
+	xhr.timeout = request.q.a || 0;
+	xhr.responseType = request.cg.d;
+	xhr.withCredentials = request.X;
 }
 
 
@@ -2394,10 +2394,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		url: xhr.responseURL,
-		statusCode: xhr.status,
-		statusText: xhr.statusText,
-		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		cP: xhr.responseURL,
+		bX: xhr.status,
+		cK: xhr.statusText,
+		l: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -2492,15 +2492,15 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Sending({
-			sent: event.loaded,
-			size: event.total
+			cI: event.loaded,
+			bj: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Receiving({
-			received: event.loaded,
-			size: event.lengthComputable ? elm$core$Maybe$Just(event.total) : elm$core$Maybe$Nothing
+			cD: event.loaded,
+			bj: event.lengthComputable ? elm$core$Maybe$Just(event.total) : elm$core$Maybe$Nothing
 		}))));
 	});
 }
@@ -2524,10 +2524,10 @@ var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args
 {
 	// NOTE: this function needs _Platform_export available to work
 
-	/**_UNUSED/
+	/**/
 	var node = args['node'];
 	//*/
-	/**/
+	/**_UNUSED/
 	var node = args && args['node'] ? args['node'] : _Debug_crash(0);
 	//*/
 
@@ -2782,24 +2782,24 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 	return key == 'innerHTML' || key == 'formAction' ? 'data-' + key : key;
 }
 
-function _VirtualDom_noJavaScriptUri_UNUSED(value)
+function _VirtualDom_noJavaScriptUri(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,'')) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptUri(value)
+function _VirtualDom_noJavaScriptUri_UNUSED(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,''))
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
 		: value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
+function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri(value)
+function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value)
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
@@ -2851,9 +2851,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		message: func(record.message),
-		stopPropagation: record.stopPropagation,
-		preventDefault: record.preventDefault
+		H: func(record.H),
+		bl: record.bl,
+		bg: record.bg
 	}
 });
 
@@ -3121,11 +3121,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.message;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
+		var message = !tag ? value : tag < 3 ? value.a : value.H;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.bl;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.bg) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -4075,15 +4075,15 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cr,
+		impl.cN,
+		impl.cL,
 		function(sendToApp, initialModel) {
-			var view = impl.view;
-			/**_UNUSED/
+			var view = impl.cQ;
+			/**/
 			var domNode = args['node'];
 			//*/
-			/**/
+			/**_UNUSED/
 			var domNode = args && args['node'] ? args['node'] : _Debug_crash(0);
 			//*/
 			var currNode = _VirtualDom_virtualize(domNode);
@@ -4111,12 +4111,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cr,
+		impl.cN,
+		impl.cL,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
-			var view = impl.view;
+			var divertHrefToApp = impl.aK && impl.aK(sendToApp)
+			var view = impl.cQ;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4124,12 +4124,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.body);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.b7);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.title) && (_VirtualDom_doc.title = title = doc.title);
+				(title !== doc.cM) && (_VirtualDom_doc.title = title = doc.cM);
 			});
 		}
 	);
@@ -4185,12 +4185,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.onUrlChange;
-	var onUrlRequest = impl.onUrlRequest;
+	var onUrlChange = impl.cw;
+	var onUrlRequest = impl.cx;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		setup: function(sendToApp)
+		aK: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4206,9 +4206,9 @@ function _Browser_application(impl)
 					var next = elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.protocol === next.protocol
-							&& curr.host === next.host
-							&& curr.port_.a === next.port_.a
+							&& curr.cC === next.cC
+							&& curr.co === next.co
+							&& curr.cB.a === next.cB.a
 						)
 							? elm$browser$Browser$Internal(next)
 							: elm$browser$Browser$External(href)
@@ -4216,13 +4216,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		init: function(flags)
+		cr: function(flags)
 		{
-			return A3(impl.init, flags, _Browser_getUrl(), key);
+			return A3(impl.cr, flags, _Browser_getUrl(), key);
 		},
-		view: impl.view,
-		update: impl.update,
-		subscriptions: impl.subscriptions
+		cQ: impl.cQ,
+		cN: impl.cN,
+		cL: impl.cL
 	});
 }
 
@@ -4288,17 +4288,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { hidden: 'hidden', change: 'visibilitychange' }
+		? { cn: 'hidden', b8: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { hidden: 'mozHidden', change: 'mozvisibilitychange' }
+		? { cn: 'mozHidden', b8: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { hidden: 'msHidden', change: 'msvisibilitychange' }
+		? { cn: 'msHidden', b8: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
-		: { hidden: 'hidden', change: 'visibilitychange' };
+		? { cn: 'webkitHidden', b8: 'webkitvisibilitychange' }
+		: { cn: 'hidden', b8: 'visibilitychange' };
 }
 
 
@@ -4379,12 +4379,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		scene: _Browser_getScene(),
-		viewport: {
-			x: _Browser_window.pageXOffset,
-			y: _Browser_window.pageYOffset,
-			width: _Browser_doc.documentElement.clientWidth,
-			height: _Browser_doc.documentElement.clientHeight
+		bV: _Browser_getScene(),
+		b2: {
+			a4: _Browser_window.pageXOffset,
+			a5: _Browser_window.pageYOffset,
+			av: _Browser_doc.documentElement.clientWidth,
+			ag: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4394,8 +4394,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		av: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		ag: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4418,15 +4418,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			scene: {
-				width: node.scrollWidth,
-				height: node.scrollHeight
+			bV: {
+				av: node.scrollWidth,
+				ag: node.scrollHeight
 			},
-			viewport: {
-				x: node.scrollLeft,
-				y: node.scrollTop,
-				width: node.clientWidth,
-				height: node.clientHeight
+			b2: {
+				a4: node.scrollLeft,
+				a5: node.scrollTop,
+				av: node.clientWidth,
+				ag: node.clientHeight
 			}
 		};
 	});
@@ -4456,18 +4456,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			scene: _Browser_getScene(),
-			viewport: {
-				x: x,
-				y: y,
-				width: _Browser_doc.documentElement.clientWidth,
-				height: _Browser_doc.documentElement.clientHeight
+			bV: _Browser_getScene(),
+			b2: {
+				a4: x,
+				a5: y,
+				av: _Browser_doc.documentElement.clientWidth,
+				ag: _Browser_doc.documentElement.clientHeight
 			},
-			element: {
-				x: x + rect.left,
-				y: y + rect.top,
-				width: rect.width,
-				height: rect.height
+			ce: {
+				a4: x + rect.left,
+				a5: y + rect.top,
+				av: rect.width,
+				ag: rect.height
 			}
 		};
 	});
@@ -4540,34 +4540,34 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 	return a >>> offset;
 });
 var author$project$Msg$PokemonFetchResponse = function (a) {
-	return {$: 'PokemonFetchResponse', a: a};
+	return {$: 3, a: a};
 };
 var author$project$Msg$PokemonTypeFetchResponse = function (a) {
-	return {$: 'PokemonTypeFetchResponse', a: a};
+	return {$: 4, a: a};
 };
 var author$project$Msg$TeamPokemonTypeFetchResponse = function (a) {
-	return {$: 'TeamPokemonTypeFetchResponse', a: a};
+	return {$: 9, a: a};
 };
 var krisajenkins$remotedata$RemoteData$Failure = function (a) {
-	return {$: 'Failure', a: a};
+	return {$: 2, a: a};
 };
-var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
-var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
+var krisajenkins$remotedata$RemoteData$Loading = {$: 1};
+var krisajenkins$remotedata$RemoteData$NotAsked = {$: 0};
 var krisajenkins$remotedata$RemoteData$Success = function (a) {
-	return {$: 'Success', a: a};
+	return {$: 3, a: a};
 };
 var krisajenkins$remotedata$RemoteData$succeed = krisajenkins$remotedata$RemoteData$Success;
 var author$project$Page$Pokemon$buildPokemonData = F2(
 	function (basePokemon, pokemonDetailResponse) {
 		switch (pokemonDetailResponse.$) {
-			case 'Success':
+			case 3:
 				var pokemonDetail = pokemonDetailResponse.a;
 				return krisajenkins$remotedata$RemoteData$succeed(
-					{evolutionChain: pokemonDetail.evolutionChain, id: basePokemon.id, name: basePokemon.name, types: basePokemon.types, varieties: pokemonDetail.varieties});
-			case 'Failure':
+					{a7: pokemonDetail.a7, aC: basePokemon.aC, aG: basePokemon.aG, b1: basePokemon.b1, bn: pokemonDetail.bn});
+			case 2:
 				var error = pokemonDetailResponse.a;
 				return krisajenkins$remotedata$RemoteData$Failure(error);
-			case 'NotAsked':
+			case 0:
 				return krisajenkins$remotedata$RemoteData$NotAsked;
 			default:
 				return krisajenkins$remotedata$RemoteData$Loading;
@@ -4580,16 +4580,16 @@ var elm$core$Basics$apR = F2(
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
+		return {$: 0, a: a, b: b, c: c, d: d};
 	});
-var elm$core$Basics$EQ = {$: 'EQ'};
-var elm$core$Basics$GT = {$: 'GT'};
-var elm$core$Basics$LT = {$: 'LT'};
+var elm$core$Basics$EQ = 1;
+var elm$core$Basics$GT = 2;
+var elm$core$Basics$LT = 0;
 var elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
 		while (true) {
-			if (t.$ === 'RBEmpty_elm_builtin') {
+			if (t.$ === -2) {
 				return acc;
 			} else {
 				var key = t.b;
@@ -4635,7 +4635,7 @@ var elm$core$Dict$keys = function (dict) {
 		dict);
 };
 var elm$core$Set$toList = function (_n0) {
-	var dict = _n0.a;
+	var dict = _n0;
 	return elm$core$Dict$keys(dict);
 };
 var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -4645,7 +4645,7 @@ var elm$core$Array$foldr = F3(
 		var tail = _n0.d;
 		var helper = F2(
 			function (node, acc) {
-				if (node.$ === 'SubTree') {
+				if (!node.$) {
 					var subTree = node.a;
 					return A3(elm$core$Elm$JsArray$foldr, helper, acc, subTree);
 				} else {
@@ -4674,10 +4674,10 @@ var elm$core$Array$shiftStep = elm$core$Basics$ceiling(
 var elm$core$Elm$JsArray$empty = _JsArray_empty;
 var elm$core$Array$empty = A4(elm$core$Array$Array_elm_builtin, 0, elm$core$Array$shiftStep, elm$core$Elm$JsArray$empty, elm$core$Elm$JsArray$empty);
 var elm$core$Array$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
+	return {$: 1, a: a};
 };
 var elm$core$Array$SubTree = function (a) {
-	return {$: 'SubTree', a: a};
+	return {$: 0, a: a};
 };
 var elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
 var elm$core$List$foldl = F3(
@@ -4761,28 +4761,28 @@ var elm$core$Basics$sub = _Basics_sub;
 var elm$core$Elm$JsArray$length = _JsArray_length;
 var elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.nodeListSize) {
+		if (!builder.g) {
 			return A4(
 				elm$core$Array$Array_elm_builtin,
-				elm$core$Elm$JsArray$length(builder.tail),
+				elm$core$Elm$JsArray$length(builder.i),
 				elm$core$Array$shiftStep,
 				elm$core$Elm$JsArray$empty,
-				builder.tail);
+				builder.i);
 		} else {
-			var treeLen = builder.nodeListSize * elm$core$Array$branchFactor;
+			var treeLen = builder.g * elm$core$Array$branchFactor;
 			var depth = elm$core$Basics$floor(
 				A2(elm$core$Basics$logBase, elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? elm$core$List$reverse(builder.nodeList) : builder.nodeList;
-			var tree = A2(elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
+			var correctNodeList = reverseNodeList ? elm$core$List$reverse(builder.j) : builder.j;
+			var tree = A2(elm$core$Array$treeFromBuilder, correctNodeList, builder.g);
 			return A4(
 				elm$core$Array$Array_elm_builtin,
-				elm$core$Elm$JsArray$length(builder.tail) + treeLen,
+				elm$core$Elm$JsArray$length(builder.i) + treeLen,
 				A2(elm$core$Basics$max, 5, depth * elm$core$Array$shiftStep),
 				tree,
-				builder.tail);
+				builder.i);
 		}
 	});
-var elm$core$Basics$False = {$: 'False'};
+var elm$core$Basics$False = 1;
 var elm$core$Basics$idiv = _Basics_idiv;
 var elm$core$Basics$lt = _Utils_lt;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
@@ -4794,7 +4794,7 @@ var elm$core$Array$initializeHelp = F5(
 				return A2(
 					elm$core$Array$builderToArray,
 					false,
-					{nodeList: nodeList, nodeListSize: (len / elm$core$Array$branchFactor) | 0, tail: tail});
+					{j: nodeList, g: (len / elm$core$Array$branchFactor) | 0, i: tail});
 			} else {
 				var leaf = elm$core$Array$Leaf(
 					A3(elm$core$Elm$JsArray$initialize, elm$core$Array$branchFactor, fromIndex, fn));
@@ -4826,18 +4826,18 @@ var elm$core$Array$initialize = F2(
 		}
 	});
 var elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
+	return {$: 0, a: a};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
+var elm$core$Maybe$Nothing = {$: 1};
 var elm$core$Result$Err = function (a) {
-	return {$: 'Err', a: a};
+	return {$: 1, a: a};
 };
 var elm$core$Result$Ok = function (a) {
-	return {$: 'Ok', a: a};
+	return {$: 0, a: a};
 };
-var elm$core$Basics$True = {$: 'True'};
+var elm$core$Basics$True = 0;
 var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
+	if (!result.$) {
 		return true;
 	} else {
 		return false;
@@ -4845,18 +4845,18 @@ var elm$core$Result$isOk = function (result) {
 };
 var elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
-		return {$: 'Failure', a: a, b: b};
+		return {$: 3, a: a, b: b};
 	});
 var elm$json$Json$Decode$Field = F2(
 	function (a, b) {
-		return {$: 'Field', a: a, b: b};
+		return {$: 0, a: a, b: b};
 	});
 var elm$json$Json$Decode$Index = F2(
 	function (a, b) {
-		return {$: 'Index', a: a, b: b};
+		return {$: 1, a: a, b: b};
 	});
 var elm$json$Json$Decode$OneOf = function (a) {
-	return {$: 'OneOf', a: a};
+	return {$: 2, a: a};
 };
 var elm$core$Basics$and = _Basics_and;
 var elm$core$Basics$append = _Utils_append;
@@ -4958,12 +4958,12 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 		errorToStringHelp:
 		while (true) {
 			switch (error.$) {
-				case 'Field':
+				case 0:
 					var f = error.a;
 					var err = error.b;
 					var isSimple = function () {
 						var _n1 = elm$core$String$uncons(f);
-						if (_n1.$ === 'Nothing') {
+						if (_n1.$ === 1) {
 							return false;
 						} else {
 							var _n2 = _n1.a;
@@ -4978,7 +4978,7 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 'Index':
+				case 1:
 					var i = error.a;
 					var err = error.b;
 					var indexName = '[' + (elm$core$String$fromInt(i) + ']');
@@ -4987,7 +4987,7 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 'OneOf':
+				case 2:
 					var errors = error.a;
 					if (!errors.b) {
 						return 'Ran into a Json.Decode.oneOf with no possibilities' + function () {
@@ -5126,55 +5126,52 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
 	});
 var author$project$Model$BasePokemon = F4(
 	function (name, id, types, speciesUrl) {
-		return {id: id, name: name, speciesUrl: speciesUrl, types: types};
+		return {aC: id, aG: name, cJ: speciesUrl, b1: types};
 	});
 var author$project$Model$Base = F2(
 	function (name, id) {
-		return {id: id, name: name};
+		return {aC: id, aG: name};
 	});
 var elm$core$String$toInt = _String_toInt;
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var elm$url$Url$Parser$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
+var elm$url$Url$Parser$Parser = elm$core$Basics$identity;
 var elm$url$Url$Parser$State = F5(
 	function (visited, unvisited, params, frag, value) {
-		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
+		return {O: frag, S: params, L: unvisited, A: value, W: visited};
 	});
 var elm$url$Url$Parser$custom = F2(
 	function (tipe, stringToSomething) {
-		return elm$url$Url$Parser$Parser(
-			function (_n0) {
-				var visited = _n0.visited;
-				var unvisited = _n0.unvisited;
-				var params = _n0.params;
-				var frag = _n0.frag;
-				var value = _n0.value;
-				if (!unvisited.b) {
-					return _List_Nil;
+		return function (_n0) {
+			var visited = _n0.W;
+			var unvisited = _n0.L;
+			var params = _n0.S;
+			var frag = _n0.O;
+			var value = _n0.A;
+			if (!unvisited.b) {
+				return _List_Nil;
+			} else {
+				var next = unvisited.a;
+				var rest = unvisited.b;
+				var _n2 = stringToSomething(next);
+				if (!_n2.$) {
+					var nextValue = _n2.a;
+					return _List_fromArray(
+						[
+							A5(
+							elm$url$Url$Parser$State,
+							A2(elm$core$List$cons, next, visited),
+							rest,
+							params,
+							frag,
+							value(nextValue))
+						]);
 				} else {
-					var next = unvisited.a;
-					var rest = unvisited.b;
-					var _n2 = stringToSomething(next);
-					if (_n2.$ === 'Just') {
-						var nextValue = _n2.a;
-						return _List_fromArray(
-							[
-								A5(
-								elm$url$Url$Parser$State,
-								A2(elm$core$List$cons, next, visited),
-								rest,
-								params,
-								frag,
-								value(nextValue))
-							]);
-					} else {
-						return _List_Nil;
-					}
+					return _List_Nil;
 				}
-			});
+			}
+		};
 	});
 var elm$url$Url$Parser$int = A2(elm$url$Url$Parser$custom, 'NUMBER', elm$core$String$toInt);
 var elm$core$List$append = F2(
@@ -5208,54 +5205,51 @@ var elm$core$List$concatMap = F2(
 			A2(elm$core$List$map, f, list));
 	});
 var elm$url$Url$Parser$oneOf = function (parsers) {
-	return elm$url$Url$Parser$Parser(
-		function (state) {
-			return A2(
-				elm$core$List$concatMap,
-				function (_n0) {
-					var parser = _n0.a;
-					return parser(state);
-				},
-				parsers);
-		});
+	return function (state) {
+		return A2(
+			elm$core$List$concatMap,
+			function (_n0) {
+				var parser = _n0;
+				return parser(state);
+			},
+			parsers);
+	};
 };
 var elm$url$Url$Parser$s = function (str) {
-	return elm$url$Url$Parser$Parser(
-		function (_n0) {
-			var visited = _n0.visited;
-			var unvisited = _n0.unvisited;
-			var params = _n0.params;
-			var frag = _n0.frag;
-			var value = _n0.value;
-			if (!unvisited.b) {
-				return _List_Nil;
-			} else {
-				var next = unvisited.a;
-				var rest = unvisited.b;
-				return _Utils_eq(next, str) ? _List_fromArray(
-					[
-						A5(
-						elm$url$Url$Parser$State,
-						A2(elm$core$List$cons, next, visited),
-						rest,
-						params,
-						frag,
-						value)
-					]) : _List_Nil;
-			}
-		});
+	return function (_n0) {
+		var visited = _n0.W;
+		var unvisited = _n0.L;
+		var params = _n0.S;
+		var frag = _n0.O;
+		var value = _n0.A;
+		if (!unvisited.b) {
+			return _List_Nil;
+		} else {
+			var next = unvisited.a;
+			var rest = unvisited.b;
+			return _Utils_eq(next, str) ? _List_fromArray(
+				[
+					A5(
+					elm$url$Url$Parser$State,
+					A2(elm$core$List$cons, next, visited),
+					rest,
+					params,
+					frag,
+					value)
+				]) : _List_Nil;
+		}
+	};
 };
 var elm$url$Url$Parser$slash = F2(
 	function (_n0, _n1) {
-		var parseBefore = _n0.a;
-		var parseAfter = _n1.a;
-		return elm$url$Url$Parser$Parser(
-			function (state) {
-				return A2(
-					elm$core$List$concatMap,
-					parseAfter,
-					parseBefore(state));
-			});
+		var parseBefore = _n0;
+		var parseAfter = _n1;
+		return function (state) {
+			return A2(
+				elm$core$List$concatMap,
+				parseAfter,
+				parseBefore(state));
+		};
 	});
 var author$project$Parse$parser = elm$url$Url$Parser$oneOf(
 	_List_fromArray(
@@ -5293,14 +5287,14 @@ var author$project$Parse$parser = elm$url$Url$Parser$oneOf(
 		]));
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
+		if (!maybe.$) {
 			var value = maybe.a;
 			return value;
 		} else {
 			return _default;
 		}
 	});
-var elm$url$Url$Https = {$: 'Https'};
+var elm$url$Url$Https = 1;
 var elm$core$String$length = _String_length;
 var elm$core$String$slice = _String_slice;
 var elm$core$String$dropLeft = F2(
@@ -5312,7 +5306,7 @@ var elm$core$String$dropLeft = F2(
 			string);
 	});
 var elm$core$String$startsWith = _String_startsWith;
-var elm$url$Url$Http = {$: 'Http'};
+var elm$url$Url$Http = 0;
 var elm$core$String$indexes = _String_indexes;
 var elm$core$String$isEmpty = function (string) {
 	return string === '';
@@ -5324,7 +5318,7 @@ var elm$core$String$left = F2(
 var elm$core$String$contains = _String_contains;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
+		return {cj: fragment, co: host, cz: path, cB: port_, cC: protocol, bh: query};
 	});
 var elm$url$Url$chompBeforePath = F5(
 	function (protocol, path, params, frag, str) {
@@ -5340,7 +5334,7 @@ var elm$url$Url$chompBeforePath = F5(
 					var i = _n0.a;
 					var _n1 = elm$core$String$toInt(
 						A2(elm$core$String$dropLeft, i + 1, str));
-					if (_n1.$ === 'Nothing') {
+					if (_n1.$ === 1) {
 						return elm$core$Maybe$Nothing;
 					} else {
 						var port_ = _n1;
@@ -5422,16 +5416,16 @@ var elm$url$Url$chompAfterProtocol = F2(
 var elm$url$Url$fromString = function (str) {
 	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
 		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Http,
+		0,
 		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
 		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Https,
+		1,
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var author$project$Parse$urlFromString = function (urlString) {
 	return A2(
 		elm$core$Maybe$withDefault,
-		{fragment: elm$core$Maybe$Nothing, host: 'pokeapi.co', path: '/api/v2/pokemon-species/132/', port_: elm$core$Maybe$Nothing, protocol: elm$url$Url$Https, query: elm$core$Maybe$Nothing},
+		{cj: elm$core$Maybe$Nothing, co: 'pokeapi.co', cz: '/api/v2/pokemon-species/132/', cB: elm$core$Maybe$Nothing, cC: 1, bh: elm$core$Maybe$Nothing},
 		elm$url$Url$fromString(urlString));
 };
 var elm$url$Url$Parser$getFirstMatch = function (states) {
@@ -5442,12 +5436,12 @@ var elm$url$Url$Parser$getFirstMatch = function (states) {
 		} else {
 			var state = states.a;
 			var rest = states.b;
-			var _n1 = state.unvisited;
+			var _n1 = state.L;
 			if (!_n1.b) {
-				return elm$core$Maybe$Just(state.value);
+				return elm$core$Maybe$Just(state.A);
 			} else {
 				if ((_n1.a === '') && (!_n1.b.b)) {
-					return elm$core$Maybe$Just(state.value);
+					return elm$core$Maybe$Just(state.A);
 				} else {
 					var $temp$states = rest;
 					states = $temp$states;
@@ -5483,14 +5477,14 @@ var elm$url$Url$Parser$preparePath = function (path) {
 		return elm$url$Url$Parser$removeFinalEmpty(segments);
 	}
 };
-var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var elm$core$Basics$compare = _Utils_compare;
 var elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
 		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
+			if (dict.$ === -2) {
 				return elm$core$Maybe$Nothing;
 			} else {
 				var key = dict.b;
@@ -5498,14 +5492,14 @@ var elm$core$Dict$get = F2(
 				var left = dict.d;
 				var right = dict.e;
 				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
-				switch (_n1.$) {
-					case 'LT':
+				switch (_n1) {
+					case 0:
 						var $temp$targetKey = targetKey,
 							$temp$dict = left;
 						targetKey = $temp$targetKey;
 						dict = $temp$dict;
 						continue get;
-					case 'EQ':
+					case 1:
 						return elm$core$Maybe$Just(value);
 					default:
 						var $temp$targetKey = targetKey,
@@ -5517,21 +5511,21 @@ var elm$core$Dict$get = F2(
 			}
 		}
 	});
-var elm$core$Dict$Black = {$: 'Black'};
+var elm$core$Dict$Black = 1;
 var elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
-		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
+		return {$: -1, a: a, b: b, c: c, d: d, e: e};
 	});
-var elm$core$Dict$Red = {$: 'Red'};
+var elm$core$Dict$Red = 0;
 var elm$core$Dict$balance = F5(
 	function (color, key, value, left, right) {
-		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
+		if ((right.$ === -1) && (!right.a)) {
 			var _n1 = right.a;
 			var rK = right.b;
 			var rV = right.c;
 			var rLeft = right.d;
 			var rRight = right.e;
-			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+			if ((left.$ === -1) && (!left.a)) {
 				var _n3 = left.a;
 				var lK = left.b;
 				var lV = left.c;
@@ -5539,22 +5533,22 @@ var elm$core$Dict$balance = F5(
 				var lRight = left.e;
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Red,
+					0,
 					key,
 					value,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, rK, rV, rLeft, rRight));
+					A5(elm$core$Dict$RBNode_elm_builtin, 1, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
 					color,
 					rK,
 					rV,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, left, rLeft),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, key, value, left, rLeft),
 					rRight);
 			}
 		} else {
-			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
+			if ((((left.$ === -1) && (!left.a)) && (left.d.$ === -1)) && (!left.d.a)) {
 				var _n5 = left.a;
 				var lK = left.b;
 				var lV = left.c;
@@ -5567,11 +5561,11 @@ var elm$core$Dict$balance = F5(
 				var lRight = left.e;
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Red,
+					0,
 					lK,
 					lV,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, llK, llV, llLeft, llRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, key, value, lRight, right));
+					A5(elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 1, key, value, lRight, right));
 			} else {
 				return A5(elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
 			}
@@ -5579,8 +5573,8 @@ var elm$core$Dict$balance = F5(
 	});
 var elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
+		if (dict.$ === -2) {
+			return A5(elm$core$Dict$RBNode_elm_builtin, 0, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
 		} else {
 			var nColor = dict.a;
 			var nKey = dict.b;
@@ -5588,8 +5582,8 @@ var elm$core$Dict$insertHelp = F3(
 			var nLeft = dict.d;
 			var nRight = dict.e;
 			var _n1 = A2(elm$core$Basics$compare, key, nKey);
-			switch (_n1.$) {
-				case 'LT':
+			switch (_n1) {
+				case 0:
 					return A5(
 						elm$core$Dict$balance,
 						nColor,
@@ -5597,7 +5591,7 @@ var elm$core$Dict$insertHelp = F3(
 						nValue,
 						A3(elm$core$Dict$insertHelp, key, value, nLeft),
 						nRight);
-				case 'EQ':
+				case 1:
 					return A5(elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
 				default:
 					return A5(
@@ -5613,13 +5607,13 @@ var elm$core$Dict$insertHelp = F3(
 var elm$core$Dict$insert = F3(
 	function (key, value, dict) {
 		var _n0 = A3(elm$core$Dict$insertHelp, key, value, dict);
-		if ((_n0.$ === 'RBNode_elm_builtin') && (_n0.a.$ === 'Red')) {
+		if ((_n0.$ === -1) && (!_n0.a)) {
 			var _n1 = _n0.a;
 			var k = _n0.b;
 			var v = _n0.c;
 			var l = _n0.d;
 			var r = _n0.e;
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, k, v, l, r);
+			return A5(elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
 		} else {
 			var x = _n0;
 			return x;
@@ -5628,7 +5622,7 @@ var elm$core$Dict$insert = F3(
 var elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
-		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+		if ((dict.$ === -1) && (dict.d.$ === -1)) {
 			var left = dict.d;
 			var $temp$dict = left;
 			dict = $temp$dict;
@@ -5639,8 +5633,8 @@ var elm$core$Dict$getMin = function (dict) {
 	}
 };
 var elm$core$Dict$moveRedLeft = function (dict) {
-	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
-		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
+	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
+		if ((dict.e.d.$ === -1) && (!dict.e.d.a)) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
@@ -5663,17 +5657,17 @@ var elm$core$Dict$moveRedLeft = function (dict) {
 			var rRight = _n2.e;
 			return A5(
 				elm$core$Dict$RBNode_elm_builtin,
-				elm$core$Dict$Red,
+				0,
 				rlK,
 				rlV,
 				A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
 					rlL),
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, rK, rV, rlR, rRight));
+				A5(elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rlR, rRight));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
@@ -5690,22 +5684,22 @@ var elm$core$Dict$moveRedLeft = function (dict) {
 			var rV = _n5.c;
 			var rLeft = _n5.d;
 			var rRight = _n5.e;
-			if (clr.$ === 'Black') {
+			if (clr === 1) {
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
@@ -5713,8 +5707,8 @@ var elm$core$Dict$moveRedLeft = function (dict) {
 	}
 };
 var elm$core$Dict$moveRedRight = function (dict) {
-	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
-		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
+	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
+		if ((dict.d.d.$ === -1) && (!dict.d.d.a)) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
@@ -5737,17 +5731,17 @@ var elm$core$Dict$moveRedRight = function (dict) {
 			var rRight = _n4.e;
 			return A5(
 				elm$core$Dict$RBNode_elm_builtin,
-				elm$core$Dict$Red,
+				0,
 				lK,
 				lV,
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, llK, llV, llLeft, llRight),
+				A5(elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
 				A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
 					lRight,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight)));
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight)));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
@@ -5764,22 +5758,22 @@ var elm$core$Dict$moveRedRight = function (dict) {
 			var rV = _n6.c;
 			var rLeft = _n6.d;
 			var rRight = _n6.e;
-			if (clr.$ === 'Black') {
+			if (clr === 1) {
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
@@ -5788,7 +5782,7 @@ var elm$core$Dict$moveRedRight = function (dict) {
 };
 var elm$core$Dict$removeHelpPrepEQGT = F7(
 	function (targetKey, dict, color, key, value, left, right) {
-		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+		if ((left.$ === -1) && (!left.a)) {
 			var _n1 = left.a;
 			var lK = left.b;
 			var lV = left.c;
@@ -5800,13 +5794,13 @@ var elm$core$Dict$removeHelpPrepEQGT = F7(
 				lK,
 				lV,
 				lLeft,
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, lRight, right));
+				A5(elm$core$Dict$RBNode_elm_builtin, 0, key, value, lRight, right));
 		} else {
 			_n2$2:
 			while (true) {
-				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
-					if (right.d.$ === 'RBNode_elm_builtin') {
-						if (right.d.a.$ === 'Black') {
+				if ((right.$ === -1) && (right.a === 1)) {
+					if (right.d.$ === -1) {
+						if (right.d.a === 1) {
 							var _n3 = right.a;
 							var _n4 = right.d;
 							var _n5 = _n4.a;
@@ -5827,7 +5821,7 @@ var elm$core$Dict$removeHelpPrepEQGT = F7(
 		}
 	});
 var elm$core$Dict$removeMin = function (dict) {
-	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+	if ((dict.$ === -1) && (dict.d.$ === -1)) {
 		var color = dict.a;
 		var key = dict.b;
 		var value = dict.c;
@@ -5835,8 +5829,8 @@ var elm$core$Dict$removeMin = function (dict) {
 		var lColor = left.a;
 		var lLeft = left.d;
 		var right = dict.e;
-		if (lColor.$ === 'Black') {
-			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+		if (lColor === 1) {
+			if ((lLeft.$ === -1) && (!lLeft.a)) {
 				var _n3 = lLeft.a;
 				return A5(
 					elm$core$Dict$RBNode_elm_builtin,
@@ -5847,7 +5841,7 @@ var elm$core$Dict$removeMin = function (dict) {
 					right);
 			} else {
 				var _n4 = elm$core$Dict$moveRedLeft(dict);
-				if (_n4.$ === 'RBNode_elm_builtin') {
+				if (_n4.$ === -1) {
 					var nColor = _n4.a;
 					var nKey = _n4.b;
 					var nValue = _n4.c;
@@ -5879,7 +5873,7 @@ var elm$core$Dict$removeMin = function (dict) {
 };
 var elm$core$Dict$removeHelp = F2(
 	function (targetKey, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
+		if (dict.$ === -2) {
 			return elm$core$Dict$RBEmpty_elm_builtin;
 		} else {
 			var color = dict.a;
@@ -5888,10 +5882,10 @@ var elm$core$Dict$removeHelp = F2(
 			var left = dict.d;
 			var right = dict.e;
 			if (_Utils_cmp(targetKey, key) < 0) {
-				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
+				if ((left.$ === -1) && (left.a === 1)) {
 					var _n4 = left.a;
 					var lLeft = left.d;
-					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+					if ((lLeft.$ === -1) && (!lLeft.a)) {
 						var _n6 = lLeft.a;
 						return A5(
 							elm$core$Dict$RBNode_elm_builtin,
@@ -5902,7 +5896,7 @@ var elm$core$Dict$removeHelp = F2(
 							right);
 					} else {
 						var _n7 = elm$core$Dict$moveRedLeft(dict);
-						if (_n7.$ === 'RBNode_elm_builtin') {
+						if (_n7.$ === -1) {
 							var nColor = _n7.a;
 							var nKey = _n7.b;
 							var nValue = _n7.c;
@@ -5938,7 +5932,7 @@ var elm$core$Dict$removeHelp = F2(
 	});
 var elm$core$Dict$removeHelpEQGT = F2(
 	function (targetKey, dict) {
-		if (dict.$ === 'RBNode_elm_builtin') {
+		if (dict.$ === -1) {
 			var color = dict.a;
 			var key = dict.b;
 			var value = dict.c;
@@ -5946,7 +5940,7 @@ var elm$core$Dict$removeHelpEQGT = F2(
 			var right = dict.e;
 			if (_Utils_eq(targetKey, key)) {
 				var _n1 = elm$core$Dict$getMin(right);
-				if (_n1.$ === 'RBNode_elm_builtin') {
+				if (_n1.$ === -1) {
 					var minKey = _n1.b;
 					var minValue = _n1.c;
 					return A5(
@@ -5975,13 +5969,13 @@ var elm$core$Dict$removeHelpEQGT = F2(
 var elm$core$Dict$remove = F2(
 	function (key, dict) {
 		var _n0 = A2(elm$core$Dict$removeHelp, key, dict);
-		if ((_n0.$ === 'RBNode_elm_builtin') && (_n0.a.$ === 'Red')) {
+		if ((_n0.$ === -1) && (!_n0.a)) {
 			var _n1 = _n0.a;
 			var k = _n0.b;
 			var v = _n0.c;
 			var l = _n0.d;
 			var r = _n0.e;
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, k, v, l, r);
+			return A5(elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
 		} else {
 			var x = _n0;
 			return x;
@@ -5991,7 +5985,7 @@ var elm$core$Dict$update = F3(
 	function (targetKey, alter, dictionary) {
 		var _n0 = alter(
 			A2(elm$core$Dict$get, targetKey, dictionary));
-		if (_n0.$ === 'Just') {
+		if (!_n0.$) {
 			var value = _n0.a;
 			return A3(elm$core$Dict$insert, targetKey, value, dictionary);
 		} else {
@@ -6001,7 +5995,7 @@ var elm$core$Dict$update = F3(
 var elm$url$Url$percentDecode = _Url_percentDecode;
 var elm$url$Url$Parser$addToParametersHelp = F2(
 	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
+		if (maybeList.$ === 1) {
 			return elm$core$Maybe$Just(
 				_List_fromArray(
 					[value]));
@@ -6019,12 +6013,12 @@ var elm$url$Url$Parser$addParam = F2(
 			var _n1 = _n0.b;
 			var rawValue = _n1.a;
 			var _n2 = elm$url$Url$percentDecode(rawKey);
-			if (_n2.$ === 'Nothing') {
+			if (_n2.$ === 1) {
 				return dict;
 			} else {
 				var key = _n2.a;
 				var _n3 = elm$url$Url$percentDecode(rawValue);
-				if (_n3.$ === 'Nothing') {
+				if (_n3.$ === 1) {
 					return dict;
 				} else {
 					var value = _n3.a;
@@ -6040,7 +6034,7 @@ var elm$url$Url$Parser$addParam = F2(
 		}
 	});
 var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 'Nothing') {
+	if (maybeQuery.$ === 1) {
 		return elm$core$Dict$empty;
 	} else {
 		var qry = maybeQuery.a;
@@ -6053,15 +6047,15 @@ var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
 };
 var elm$url$Url$Parser$parse = F2(
 	function (_n0, url) {
-		var parser = _n0.a;
+		var parser = _n0;
 		return elm$url$Url$Parser$getFirstMatch(
 			parser(
 				A5(
 					elm$url$Url$Parser$State,
 					_List_Nil,
-					elm$url$Url$Parser$preparePath(url.path),
-					elm$url$Url$Parser$prepareQuery(url.query),
-					url.fragment,
+					elm$url$Url$Parser$preparePath(url.cz),
+					elm$url$Url$Parser$prepareQuery(url.bh),
+					url.cj,
 					elm$core$Basics$identity)));
 	});
 var author$project$Parse$idFromPokeApiUrlString = function (urlString) {
@@ -6108,7 +6102,7 @@ var author$project$Page$Pokemon$pokemonDecoder = A3(
 				elm$json$Json$Decode$string,
 				elm$json$Json$Decode$succeed(author$project$Model$BasePokemon)))));
 var elm$core$Maybe$isJust = function (maybe) {
-	if (maybe.$ === 'Just') {
+	if (!maybe.$) {
 		return true;
 	} else {
 		return false;
@@ -6118,7 +6112,7 @@ var elm$core$Platform$sendToApp = _Platform_sendToApp;
 var elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var elm$core$Result$map = F2(
 	function (func, ra) {
-		if (ra.$ === 'Ok') {
+		if (!ra.$) {
 			var a = ra.a;
 			return elm$core$Result$Ok(
 				func(a));
@@ -6129,28 +6123,28 @@ var elm$core$Result$map = F2(
 	});
 var elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
-		return {$: 'BadStatus_', a: a, b: b};
+		return {$: 3, a: a, b: b};
 	});
 var elm$http$Http$BadUrl_ = function (a) {
-	return {$: 'BadUrl_', a: a};
+	return {$: 0, a: a};
 };
 var elm$http$Http$GoodStatus_ = F2(
 	function (a, b) {
-		return {$: 'GoodStatus_', a: a, b: b};
+		return {$: 4, a: a, b: b};
 	});
-var elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var elm$http$Http$NetworkError_ = {$: 2};
 var elm$http$Http$Receiving = function (a) {
-	return {$: 'Receiving', a: a};
+	return {$: 1, a: a};
 };
 var elm$http$Http$Sending = function (a) {
-	return {$: 'Sending', a: a};
+	return {$: 0, a: a};
 };
-var elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var elm$http$Http$Timeout_ = {$: 1};
 var elm$http$Http$emptyBody = _Http_emptyBody;
 var elm$core$Task$fail = _Scheduler_fail;
 var elm$core$Task$succeed = _Scheduler_succeed;
 var elm$http$Http$resultToTask = function (result) {
-	if (result.$ === 'Ok') {
+	if (!result.$) {
 		var a = result.a;
 		return elm$core$Task$succeed(a);
 	} else {
@@ -6161,23 +6155,23 @@ var elm$http$Http$resultToTask = function (result) {
 var elm$http$Http$riskyTask = function (r) {
 	return A3(
 		_Http_toTask,
-		_Utils_Tuple0,
+		0,
 		elm$http$Http$resultToTask,
-		{allowCookiesFromOtherDomains: true, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
+		{X: true, b7: r.b7, cg: r.bU, l: r.l, p: r.p, q: r.q, s: elm$core$Maybe$Nothing, cP: r.cP});
 };
 var elm$http$Http$task = function (r) {
 	return A3(
 		_Http_toTask,
-		_Utils_Tuple0,
+		0,
 		elm$http$Http$resultToTask,
-		{allowCookiesFromOtherDomains: false, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
+		{X: false, b7: r.b7, cg: r.bU, l: r.l, p: r.p, q: r.q, s: elm$core$Maybe$Nothing, cP: r.cP});
 };
 var ohanhi$remotedata_http$RemoteData$Http$createTask = function (_n0) {
-	var risky = _n0.risky;
+	var risky = _n0.an;
 	return risky ? elm$http$Http$riskyTask : elm$http$Http$task;
 };
 var elm$http$Http$BadBody = function (a) {
-	return {$: 'BadBody', a: a};
+	return {$: 4, a: a};
 };
 var elm$json$Json$Decode$decodeString = _Json_runOnString;
 var elm$core$Basics$composeL = F3(
@@ -6186,32 +6180,32 @@ var elm$core$Basics$composeL = F3(
 			f(x));
 	});
 var elm$http$Http$BadStatus = function (a) {
-	return {$: 'BadStatus', a: a};
+	return {$: 3, a: a};
 };
 var elm$http$Http$BadUrl = function (a) {
-	return {$: 'BadUrl', a: a};
+	return {$: 0, a: a};
 };
-var elm$http$Http$NetworkError = {$: 'NetworkError'};
-var elm$http$Http$Timeout = {$: 'Timeout'};
+var elm$http$Http$NetworkError = {$: 2};
+var elm$http$Http$Timeout = {$: 1};
 var elm$http$Http$stringResolver = A2(_Http_expect, '', elm$core$Basics$identity);
 var ohanhi$remotedata_http$RemoteData$Http$taskResolver = function (fromGoodStatus) {
 	var fail = A2(elm$core$Basics$composeL, elm$core$Result$Ok, krisajenkins$remotedata$RemoteData$Failure);
 	return elm$http$Http$stringResolver(
 		function (response) {
 			switch (response.$) {
-				case 'BadUrl_':
+				case 0:
 					var url = response.a;
 					return fail(
 						elm$http$Http$BadUrl(url));
-				case 'Timeout_':
+				case 1:
 					return fail(elm$http$Http$Timeout);
-				case 'NetworkError_':
+				case 2:
 					return fail(elm$http$Http$NetworkError);
-				case 'BadStatus_':
+				case 3:
 					var metadata = response.a;
 					var body = response.b;
 					return fail(
-						elm$http$Http$BadStatus(metadata.statusCode));
+						elm$http$Http$BadStatus(metadata.bX));
 				default:
 					var metadata = response.a;
 					var body = response.b;
@@ -6223,7 +6217,7 @@ var ohanhi$remotedata_http$RemoteData$Http$jsonResolver = function (decoder) {
 	return ohanhi$remotedata_http$RemoteData$Http$taskResolver(
 		function (body) {
 			var _n0 = A2(elm$json$Json$Decode$decodeString, decoder, body);
-			if (_n0.$ === 'Ok') {
+			if (!_n0.$) {
 				var value = _n0.a;
 				return elm$core$Result$Ok(
 					krisajenkins$remotedata$RemoteData$Success(value));
@@ -6242,12 +6236,12 @@ var ohanhi$remotedata_http$RemoteData$Http$requestTask = F5(
 			ohanhi$remotedata_http$RemoteData$Http$createTask,
 			config,
 			{
-				body: body,
-				headers: config.headers,
-				method: method,
-				resolver: ohanhi$remotedata_http$RemoteData$Http$jsonResolver(decoder),
-				timeout: config.timeout,
-				url: url
+				b7: body,
+				l: config.l,
+				p: method,
+				bU: ohanhi$remotedata_http$RemoteData$Http$jsonResolver(decoder),
+				q: config.q,
+				cP: url
 			});
 	});
 var ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig = F3(
@@ -6256,28 +6250,28 @@ var ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig = F3(
 	});
 var elm$http$Http$Header = F2(
 	function (a, b) {
-		return {$: 'Header', a: a, b: b};
+		return {$: 0, a: a, b: b};
 	});
 var elm$http$Http$header = elm$http$Http$Header;
 var ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2(elm$http$Http$header, 'Accept', 'application/json');
 var ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
-	headers: _List_fromArray(
+	l: _List_fromArray(
 		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
-	risky: false,
-	timeout: elm$core$Maybe$Nothing,
-	tracker: elm$core$Maybe$Nothing
+	an: false,
+	q: elm$core$Maybe$Nothing,
+	s: elm$core$Maybe$Nothing
 };
 var ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig = {
-	headers: _List_fromArray(
+	l: _List_fromArray(
 		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
-	risky: false,
-	timeout: elm$core$Maybe$Nothing
+	an: false,
+	q: elm$core$Maybe$Nothing
 };
 var ohanhi$remotedata_http$RemoteData$Http$noCache = A2(elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
 var ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig = _Utils_update(
 	ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig,
 	{
-		headers: A2(elm$core$List$cons, ohanhi$remotedata_http$RemoteData$Http$noCache, ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
+		l: A2(elm$core$List$cons, ohanhi$remotedata_http$RemoteData$Http$noCache, ohanhi$remotedata_http$RemoteData$Http$defaultConfig.l)
 	});
 var ohanhi$remotedata_http$RemoteData$Http$getTask = ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig(ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig);
 var author$project$Page$Pokemon$getPokemon = function (nameOrId) {
@@ -6286,14 +6280,14 @@ var author$project$Page$Pokemon$getPokemon = function (nameOrId) {
 var author$project$Page$Pokemon$buildSpeciesEvolution = F2(
 	function (species, evolutionChainResponse) {
 		switch (evolutionChainResponse.$) {
-			case 'Success':
+			case 3:
 				var evolutionChain = evolutionChainResponse.a;
 				return krisajenkins$remotedata$RemoteData$succeed(
-					{evolutionChain: evolutionChain, varieties: species.varieties});
-			case 'Failure':
+					{a7: evolutionChain, bn: species.bn});
+			case 2:
 				var error = evolutionChainResponse.a;
 				return krisajenkins$remotedata$RemoteData$Failure(error);
-			case 'NotAsked':
+			case 0:
 				return krisajenkins$remotedata$RemoteData$NotAsked;
 			default:
 				return krisajenkins$remotedata$RemoteData$Loading;
@@ -6301,17 +6295,15 @@ var author$project$Page$Pokemon$buildSpeciesEvolution = F2(
 	});
 var author$project$Model$EvolutionChain = F3(
 	function (name, id, evolutionChain) {
-		return {evolutionChain: evolutionChain, id: id, name: name};
+		return {a7: evolutionChain, aC: id, aG: name};
 	});
-var author$project$Model$Evolutions = function (a) {
-	return {$: 'Evolutions', a: a};
-};
+var author$project$Model$Evolutions = elm$core$Basics$identity;
 var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$lazy = function (thunk) {
 	return A2(
 		elm$json$Json$Decode$andThen,
 		thunk,
-		elm$json$Json$Decode$succeed(_Utils_Tuple0));
+		elm$json$Json$Decode$succeed(0));
 };
 function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
 	return A3(
@@ -6319,7 +6311,7 @@ function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
 		'evolves_to',
 		A2(
 			elm$json$Json$Decode$map,
-			author$project$Model$Evolutions,
+			elm$core$Basics$identity,
 			elm$json$Json$Decode$list(
 				elm$json$Json$Decode$lazy(
 					function (_n0) {
@@ -6337,20 +6329,17 @@ function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
 				elm$json$Json$Decode$string,
 				elm$json$Json$Decode$succeed(author$project$Model$EvolutionChain))));
 }
-try {
-	var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
-	author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
-		return author$project$Page$Pokemon$evolutionDecoder;
-	};
-} catch ($) {
-throw 'Some top-level definitions from `Page.Pokemon` are causing infinite recursion:\n\n  ┌─────┐\n  │    evolutionDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
+var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
+author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
+	return author$project$Page$Pokemon$evolutionDecoder;
+};
 var author$project$Page$Pokemon$evolutionsDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['chain', 'evolves_to']),
 	A2(
 		elm$json$Json$Decode$map,
-		author$project$Model$Evolutions,
+		elm$core$Basics$identity,
 		elm$json$Json$Decode$list(
 			elm$json$Json$Decode$lazy(
 				function (_n0) {
@@ -6372,7 +6361,7 @@ var author$project$Page$Pokemon$getEvolutions = function (evolutionChainUrl) {
 };
 var author$project$Model$Species = F2(
 	function (evolutionChainUrl, varieties) {
-		return {evolutionChainUrl: evolutionChainUrl, varieties: varieties};
+		return {cf: evolutionChainUrl, bn: varieties};
 	});
 var author$project$Page$Pokemon$varietyDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
@@ -6419,18 +6408,18 @@ var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 		elm$core$Task$andThen,
 		function (speciesResponse) {
 			switch (speciesResponse.$) {
-				case 'Success':
+				case 3:
 					var species = speciesResponse.a;
 					return A3(
 						elm$core$Task$map2,
 						author$project$Page$Pokemon$buildSpeciesEvolution,
 						elm$core$Task$succeed(species),
-						author$project$Page$Pokemon$getEvolutions(species.evolutionChainUrl));
-				case 'Failure':
+						author$project$Page$Pokemon$getEvolutions(species.cf));
+				case 2:
 					var error = speciesResponse.a;
 					return elm$core$Task$succeed(
 						krisajenkins$remotedata$RemoteData$Failure(error));
-				case 'NotAsked':
+				case 0:
 					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$NotAsked);
 				default:
 					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$Loading);
@@ -6438,10 +6427,8 @@ var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
 		},
 		author$project$Page$Pokemon$getSpecies(nameOrId));
 };
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
+var elm$core$Task$Perform = elm$core$Basics$identity;
+var elm$core$Task$init = elm$core$Task$succeed(0);
 var elm$core$Task$map = F2(
 	function (func, taskA) {
 		return A2(
@@ -6461,7 +6448,7 @@ var elm$core$Task$sequence = function (tasks) {
 };
 var elm$core$Task$spawnCmd = F2(
 	function (router, _n0) {
-		var task = _n0.a;
+		var task = _n0;
 		return _Scheduler_spawn(
 			A2(
 				elm$core$Task$andThen,
@@ -6473,7 +6460,7 @@ var elm$core$Task$onEffects = F3(
 		return A2(
 			elm$core$Task$map,
 			function (_n0) {
-				return _Utils_Tuple0;
+				return 0;
 			},
 			elm$core$Task$sequence(
 				A2(
@@ -6483,13 +6470,12 @@ var elm$core$Task$onEffects = F3(
 	});
 var elm$core$Task$onSelfMsg = F3(
 	function (_n0, _n1, _n2) {
-		return elm$core$Task$succeed(_Utils_Tuple0);
+		return elm$core$Task$succeed(0);
 	});
 var elm$core$Task$cmdMap = F2(
 	function (tagger, _n0) {
-		var task = _n0.a;
-		return elm$core$Task$Perform(
-			A2(elm$core$Task$map, tagger, task));
+		var task = _n0;
+		return A2(elm$core$Task$map, tagger, task);
 	});
 _Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
 var elm$core$Task$command = _Platform_leaf('Task');
@@ -6497,26 +6483,25 @@ var elm$core$Task$onError = _Scheduler_onError;
 var elm$core$Task$attempt = F2(
 	function (resultToMessage, task) {
 		return elm$core$Task$command(
-			elm$core$Task$Perform(
+			A2(
+				elm$core$Task$onError,
 				A2(
-					elm$core$Task$onError,
+					elm$core$Basics$composeL,
+					A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
+					elm$core$Result$Err),
+				A2(
+					elm$core$Task$andThen,
 					A2(
 						elm$core$Basics$composeL,
 						A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
-						elm$core$Result$Err),
-					A2(
-						elm$core$Task$andThen,
-						A2(
-							elm$core$Basics$composeL,
-							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
-							elm$core$Result$Ok),
-						task))));
+						elm$core$Result$Ok),
+					task)));
 	});
 var author$project$Page$Pokemon$fetch = function (nameOrId) {
 	return A2(
 		elm$core$Task$attempt,
 		function (result) {
-			if (result.$ === 'Ok') {
+			if (!result.$) {
 				var response = result.a;
 				return response;
 			} else {
@@ -6527,18 +6512,18 @@ var author$project$Page$Pokemon$fetch = function (nameOrId) {
 			elm$core$Task$andThen,
 			function (basePokemonResponse) {
 				switch (basePokemonResponse.$) {
-					case 'Success':
+					case 3:
 						var basePokemon = basePokemonResponse.a;
 						return A3(
 							elm$core$Task$map2,
 							author$project$Page$Pokemon$buildPokemonData,
 							elm$core$Task$succeed(basePokemon),
-							author$project$Page$Pokemon$getPokemonDetails(basePokemon.speciesUrl));
-					case 'Failure':
+							author$project$Page$Pokemon$getPokemonDetails(basePokemon.cJ));
+					case 2:
 						var error = basePokemonResponse.a;
 						return elm$core$Task$succeed(
 							krisajenkins$remotedata$RemoteData$Failure(error));
-					case 'NotAsked':
+					case 0:
 						return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$NotAsked);
 					default:
 						return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$Loading);
@@ -6548,11 +6533,11 @@ var author$project$Page$Pokemon$fetch = function (nameOrId) {
 };
 var author$project$Model$PokemonType = F4(
 	function (name, id, pokemon, damageRelations) {
-		return {damageRelations: damageRelations, id: id, name: name, pokemon: pokemon};
+		return {b9: damageRelations, aC: id, aG: name, aZ: pokemon};
 	});
 var author$project$Model$DamageRelations = F6(
 	function (doubleDamageFrom, doubleDamageTo, halfDamageFrom, halfDamageTo, noDamageFrom, noDamageTo) {
-		return {doubleDamageFrom: doubleDamageFrom, doubleDamageTo: doubleDamageTo, halfDamageFrom: halfDamageFrom, halfDamageTo: halfDamageTo, noDamageFrom: noDamageFrom, noDamageTo: noDamageTo};
+		return {cc: doubleDamageFrom, cd: doubleDamageTo, cl: halfDamageFrom, cm: halfDamageTo, cu: noDamageFrom, cv: noDamageTo};
 	});
 var author$project$Page$PokemonType$basePokemonTypeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -6618,7 +6603,7 @@ var author$project$Page$PokemonType$pokemonTypeDecoder = A3(
 				elm$json$Json$Decode$succeed(author$project$Model$PokemonType)))));
 var elm$core$Result$mapError = F2(
 	function (f, result) {
-		if (result.$ === 'Ok') {
+		if (!result.$) {
 			var v = result.a;
 			return elm$core$Result$Ok(v);
 		} else {
@@ -6643,18 +6628,18 @@ var elm$http$Http$expectStringResponse = F2(
 var elm$http$Http$resolve = F2(
 	function (toResult, response) {
 		switch (response.$) {
-			case 'BadUrl_':
+			case 0:
 				var url = response.a;
 				return elm$core$Result$Err(
 					elm$http$Http$BadUrl(url));
-			case 'Timeout_':
+			case 1:
 				return elm$core$Result$Err(elm$http$Http$Timeout);
-			case 'NetworkError_':
+			case 2:
 				return elm$core$Result$Err(elm$http$Http$NetworkError);
-			case 'BadStatus_':
+			case 3:
 				var metadata = response.a;
 				return elm$core$Result$Err(
-					elm$http$Http$BadStatus(metadata.statusCode));
+					elm$http$Http$BadStatus(metadata.bX));
 			default:
 				var body = response.b;
 				return A2(
@@ -6677,11 +6662,11 @@ var elm$http$Http$expectJson = F2(
 				}));
 	});
 var elm$http$Http$Request = function (a) {
-	return {$: 'Request', a: a};
+	return {$: 1, a: a};
 };
 var elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {reqs: reqs, subs: subs};
+		return {bS: reqs, bY: subs};
 	});
 var elm$http$Http$init = elm$core$Task$succeed(
 	A2(elm$http$Http$State, elm$core$Dict$empty, _List_Nil));
@@ -6696,10 +6681,10 @@ var elm$http$Http$updateReqs = F3(
 			} else {
 				var cmd = cmds.a;
 				var otherCmds = cmds.b;
-				if (cmd.$ === 'Cancel') {
+				if (!cmd.$) {
 					var tracker = cmd.a;
 					var _n2 = A2(elm$core$Dict$get, tracker, reqs);
-					if (_n2.$ === 'Nothing') {
+					if (_n2.$ === 1) {
 						var $temp$router = router,
 							$temp$cmds = otherCmds,
 							$temp$reqs = reqs;
@@ -6725,8 +6710,8 @@ var elm$http$Http$updateReqs = F3(
 					return A2(
 						elm$core$Task$andThen,
 						function (pid) {
-							var _n4 = req.tracker;
-							if (_n4.$ === 'Nothing') {
+							var _n4 = req.s;
+							if (_n4.$ === 1) {
 								return A3(elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
 								var tracker = _n4.a;
@@ -6755,12 +6740,12 @@ var elm$http$Http$onEffects = F4(
 				return elm$core$Task$succeed(
 					A2(elm$http$Http$State, reqs, subs));
 			},
-			A3(elm$http$Http$updateReqs, router, cmds, state.reqs));
+			A3(elm$http$Http$updateReqs, router, cmds, state.bS));
 	});
 var elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
 		var _n0 = f(mx);
-		if (_n0.$ === 'Just') {
+		if (!_n0.$) {
 			var x = _n0.a;
 			return A2(elm$core$List$cons, x, xs);
 		} else {
@@ -6798,34 +6783,34 @@ var elm$http$Http$onSelfMsg = F3(
 				A2(
 					elm$core$List$filterMap,
 					A3(elm$http$Http$maybeSend, router, tracker, progress),
-					state.subs)));
+					state.bY)));
 	});
 var elm$http$Http$Cancel = function (a) {
-	return {$: 'Cancel', a: a};
+	return {$: 0, a: a};
 };
 var elm$http$Http$cmdMap = F2(
 	function (func, cmd) {
-		if (cmd.$ === 'Cancel') {
+		if (!cmd.$) {
 			var tracker = cmd.a;
 			return elm$http$Http$Cancel(tracker);
 		} else {
 			var r = cmd.a;
 			return elm$http$Http$Request(
 				{
-					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
-					body: r.body,
-					expect: A2(_Http_mapExpect, func, r.expect),
-					headers: r.headers,
-					method: r.method,
-					timeout: r.timeout,
-					tracker: r.tracker,
-					url: r.url
+					X: r.X,
+					b7: r.b7,
+					cg: A2(_Http_mapExpect, func, r.cg),
+					l: r.l,
+					p: r.p,
+					q: r.q,
+					s: r.s,
+					cP: r.cP
 				});
 		}
 	});
 var elm$http$Http$MySub = F2(
 	function (a, b) {
-		return {$: 'MySub', a: a, b: b};
+		return {$: 0, a: a, b: b};
 	});
 var elm$http$Http$subMap = F2(
 	function (func, _n0) {
@@ -6842,14 +6827,14 @@ var elm$http$Http$subscription = _Platform_leaf('Http');
 var elm$http$Http$request = function (r) {
 	return elm$http$Http$command(
 		elm$http$Http$Request(
-			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+			{X: false, b7: r.b7, cg: r.cg, l: r.l, p: r.p, q: r.q, s: r.s, cP: r.cP}));
 };
 var elm$http$Http$get = function (r) {
 	return elm$http$Http$request(
-		{body: elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
+		{b7: elm$http$Http$emptyBody, cg: r.cg, l: _List_Nil, p: 'GET', q: elm$core$Maybe$Nothing, s: elm$core$Maybe$Nothing, cP: r.cP});
 };
 var krisajenkins$remotedata$RemoteData$fromResult = function (result) {
-	if (result.$ === 'Err') {
+	if (result.$ === 1) {
 		var e = result.a;
 		return krisajenkins$remotedata$RemoteData$Failure(e);
 	} else {
@@ -6860,8 +6845,8 @@ var krisajenkins$remotedata$RemoteData$fromResult = function (result) {
 var author$project$Page$PokemonType$fetch = function (idOrName) {
 	return elm$http$Http$get(
 		{
-			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonType$pokemonTypeDecoder),
-			url: 'https://pokeapi.co/api/v2/type/' + idOrName
+			cg: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonType$pokemonTypeDecoder),
+			cP: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
 var author$project$Page$Team$basePokemonTypeDecoder = A3(
@@ -6929,8 +6914,8 @@ var author$project$Page$Team$pokemonTypeDecoder = A3(
 var author$project$Page$Team$fetchPokemonType = function (id) {
 	return elm$http$Http$get(
 		{
-			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Team$pokemonTypeDecoder),
-			url: 'https://pokeapi.co/api/v2/type/' + elm$core$String$fromInt(id)
+			cg: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Team$pokemonTypeDecoder),
+			cP: 'https://pokeapi.co/api/v2/type/' + elm$core$String$fromInt(id)
 		});
 };
 var author$project$Page$Team$fetchPokemonTypes = function (ids) {
@@ -6941,15 +6926,12 @@ var author$project$Page$Team$fetchPokemonTypes = function (ids) {
 		},
 		elm$core$Set$toList(ids));
 };
-var elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
+var elm$core$Set$Set_elm_builtin = elm$core$Basics$identity;
+var elm$core$Set$empty = elm$core$Dict$empty;
 var elm$core$Set$insert = F2(
 	function (key, _n0) {
-		var dict = _n0.a;
-		return elm$core$Set$Set_elm_builtin(
-			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+		var dict = _n0;
+		return A3(elm$core$Dict$insert, key, 0, dict);
 	});
 var elm$core$Set$fromList = function (list) {
 	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
@@ -6959,13 +6941,13 @@ var author$project$Page$Team$pokemonTypeIds = function (members) {
 		A2(
 			elm$core$List$map,
 			function (pokemonType) {
-				return pokemonType.id;
+				return pokemonType.aC;
 			},
 			elm$core$List$concat(
 				A2(
 					elm$core$List$map,
 					function (member) {
-						return member.types;
+						return member.b1;
 					},
 					members))));
 };
@@ -6973,39 +6955,39 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var author$project$Page$Team$fetch = function (team) {
 	return elm$core$Platform$Cmd$batch(
 		author$project$Page$Team$fetchPokemonTypes(
-			author$project$Page$Team$pokemonTypeIds(team.members)));
+			author$project$Page$Team$pokemonTypeIds(team.aF)));
 };
 var elm$core$Platform$Cmd$map = _Platform_map;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$fetchRouteData = F2(
 	function (model, route) {
 		switch (route.$) {
-			case 'Pokemon':
+			case 2:
 				var nameOrId = route.a;
 				return A2(
 					elm$core$Platform$Cmd$map,
 					author$project$Msg$PokemonFetchResponse,
 					author$project$Page$Pokemon$fetch(nameOrId));
-			case 'PokemonType':
+			case 4:
 				var nameOrId = route.a;
 				return A2(
 					elm$core$Platform$Cmd$map,
 					author$project$Msg$PokemonTypeFetchResponse,
 					author$project$Page$PokemonType$fetch(nameOrId));
-			case 'Team':
+			case 5:
 				return A2(
 					elm$core$Platform$Cmd$map,
 					author$project$Msg$TeamPokemonTypeFetchResponse,
-					author$project$Page$Team$fetch(model.team));
+					author$project$Page$Team$fetch(model.v));
 			default:
 				return elm$core$Platform$Cmd$none;
 		}
 	});
 var author$project$Msg$PokedexFetchResponse = function (a) {
-	return {$: 'PokedexFetchResponse', a: a};
+	return {$: 2, a: a};
 };
 var author$project$Msg$PokemonTypesFetchResponse = function (a) {
-	return {$: 'PokemonTypesFetchResponse', a: a};
+	return {$: 5, a: a};
 };
 var author$project$Page$Pokedex$pokemonDecoder = A3(
 	elm$json$Json$Decode$map2,
@@ -7022,8 +7004,8 @@ var author$project$Page$Pokedex$pokedexDecoder = A2(
 	elm$json$Json$Decode$list(author$project$Page$Pokedex$pokemonDecoder));
 var author$project$Page$Pokedex$fetch = elm$http$Http$get(
 	{
-		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
-		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
+		cg: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
+		cP: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
 	});
 var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
 var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
@@ -7043,27 +7025,27 @@ var author$project$Page$PokemonTypes$typesDecoder = A2(
 	elm$json$Json$Decode$list(author$project$Page$PokemonTypes$typeDecoder));
 var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
 	{
-		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
-		url: 'https://pokeapi.co/api/v2/type'
+		cg: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
+		cP: 'https://pokeapi.co/api/v2/type'
 	});
-var author$project$Page$Team$init = {members: _List_Nil, pokemonTypes: _List_Nil};
-var author$project$Route$NotFound = {$: 'NotFound'};
-var author$project$Route$Pokedex = {$: 'Pokedex'};
+var author$project$Page$Team$init = {aF: _List_Nil, K: _List_Nil};
+var author$project$Route$NotFound = {$: 0};
+var author$project$Route$Pokedex = {$: 1};
 var author$project$Route$Pokemon = function (a) {
-	return {$: 'Pokemon', a: a};
+	return {$: 2, a: a};
 };
 var author$project$Route$PokemonType = function (a) {
-	return {$: 'PokemonType', a: a};
+	return {$: 4, a: a};
 };
-var author$project$Route$PokemonTypes = {$: 'PokemonTypes'};
-var author$project$Route$Team = {$: 'Team'};
+var author$project$Route$PokemonTypes = {$: 3};
+var author$project$Route$Team = {$: 5};
 var elm$url$Url$Parser$mapState = F2(
 	function (func, _n0) {
-		var visited = _n0.visited;
-		var unvisited = _n0.unvisited;
-		var params = _n0.params;
-		var frag = _n0.frag;
-		var value = _n0.value;
+		var visited = _n0.W;
+		var unvisited = _n0.L;
+		var params = _n0.S;
+		var frag = _n0.O;
+		var value = _n0.A;
 		return A5(
 			elm$url$Url$Parser$State,
 			visited,
@@ -7074,27 +7056,25 @@ var elm$url$Url$Parser$mapState = F2(
 	});
 var elm$url$Url$Parser$map = F2(
 	function (subValue, _n0) {
-		var parseArg = _n0.a;
-		return elm$url$Url$Parser$Parser(
-			function (_n1) {
-				var visited = _n1.visited;
-				var unvisited = _n1.unvisited;
-				var params = _n1.params;
-				var frag = _n1.frag;
-				var value = _n1.value;
-				return A2(
-					elm$core$List$map,
-					elm$url$Url$Parser$mapState(value),
-					parseArg(
-						A5(elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-			});
+		var parseArg = _n0;
+		return function (_n1) {
+			var visited = _n1.W;
+			var unvisited = _n1.L;
+			var params = _n1.S;
+			var frag = _n1.O;
+			var value = _n1.A;
+			return A2(
+				elm$core$List$map,
+				elm$url$Url$Parser$mapState(value),
+				parseArg(
+					A5(elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
+		};
 	});
 var elm$url$Url$Parser$string = A2(elm$url$Url$Parser$custom, 'STRING', elm$core$Maybe$Just);
-var elm$url$Url$Parser$top = elm$url$Url$Parser$Parser(
-	function (state) {
-		return _List_fromArray(
-			[state]);
-	});
+var elm$url$Url$Parser$top = function (state) {
+	return _List_fromArray(
+		[state]);
+};
 var author$project$Route$parser = elm$url$Url$Parser$oneOf(
 	_List_fromArray(
 		[
@@ -7132,14 +7112,14 @@ var author$project$Route$fromUrl = function (url) {
 			_Utils_update(
 				url,
 				{
-					fragment: elm$core$Maybe$Nothing,
-					path: A2(elm$core$Maybe$withDefault, '', url.fragment)
+					cj: elm$core$Maybe$Nothing,
+					cz: A2(elm$core$Maybe$withDefault, '', url.cj)
 				})));
 };
 var author$project$Main$init = F3(
 	function (flags, url, navKey) {
 		var route = author$project$Route$fromUrl(url);
-		var model = {key: navKey, pokedex: krisajenkins$remotedata$RemoteData$Loading, pokemon: author$project$Page$Pokemon$init, pokemonType: author$project$Page$PokemonType$init, pokemonTypes: krisajenkins$remotedata$RemoteData$Loading, query: '', route: route, team: author$project$Page$Team$init};
+		var model = {bJ: navKey, bf: krisajenkins$remotedata$RemoteData$Loading, aZ: author$project$Page$Pokemon$init, a_: author$project$Page$PokemonType$init, K: krisajenkins$remotedata$RemoteData$Loading, bh: '', bi: route, v: author$project$Page$Team$init};
 		var cmd = elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
@@ -7154,9 +7134,9 @@ var author$project$Main$addPokemonToTeam = F2(
 		return _Utils_update(
 			team,
 			{
-				members: A2(
+				aF: A2(
 					elm$core$List$append,
-					team.members,
+					team.aF,
 					_List_fromArray(
 						[pokemon]))
 			});
@@ -7193,14 +7173,14 @@ var elm$core$List$member = F2(
 	});
 var author$project$Main$addPokemonTypeToTeam = F2(
 	function (team, pokemonTypeWebData) {
-		if (pokemonTypeWebData.$ === 'Success') {
+		if (pokemonTypeWebData.$ === 3) {
 			var pokemonType = pokemonTypeWebData.a;
-			return A2(elm$core$List$member, pokemonType, team.pokemonTypes) ? team : _Utils_update(
+			return A2(elm$core$List$member, pokemonType, team.K) ? team : _Utils_update(
 				team,
 				{
-					pokemonTypes: A2(
+					K: A2(
 						elm$core$List$append,
-						team.pokemonTypes,
+						team.K,
 						_List_fromArray(
 							[pokemonType]))
 				});
@@ -7225,28 +7205,26 @@ var author$project$Main$removePokemonFromTeam = F2(
 		return _Utils_update(
 			team,
 			{
-				members: A2(
+				aF: A2(
 					elm$core$List$filter,
 					function (member) {
 						return !_Utils_eq(member, pokemon);
 					},
-					team.members),
-				pokemonTypes: _List_Nil
+					team.aF),
+				K: _List_Nil
 			});
 	});
 var elm$browser$Browser$External = function (a) {
-	return {$: 'External', a: a};
+	return {$: 1, a: a};
 };
 var elm$browser$Browser$Internal = function (a) {
-	return {$: 'Internal', a: a};
+	return {$: 0, a: a};
 };
-var elm$browser$Browser$Dom$NotFound = function (a) {
-	return {$: 'NotFound', a: a};
-};
+var elm$browser$Browser$Dom$NotFound = elm$core$Basics$identity;
 var elm$core$Basics$never = function (_n0) {
 	never:
 	while (true) {
-		var nvr = _n0.a;
+		var nvr = _n0;
 		var $temp$_n0 = nvr;
 		_n0 = $temp$_n0;
 		continue never;
@@ -7255,16 +7233,15 @@ var elm$core$Basics$never = function (_n0) {
 var elm$core$Task$perform = F2(
 	function (toMessage, task) {
 		return elm$core$Task$command(
-			elm$core$Task$Perform(
-				A2(elm$core$Task$map, toMessage, task)));
+			A2(elm$core$Task$map, toMessage, task));
 	});
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
-		case 'Normal':
+		case 0:
 			return 0;
-		case 'MayStopPropagation':
+		case 1:
 			return 1;
-		case 'MayPreventDefault':
+		case 2:
 			return 2;
 		default:
 			return 3;
@@ -7274,7 +7251,7 @@ var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
-		if (maybePort.$ === 'Nothing') {
+		if (maybePort.$ === 1) {
 			return starter;
 		} else {
 			var port_ = maybePort.a;
@@ -7283,7 +7260,7 @@ var elm$url$Url$addPort = F2(
 	});
 var elm$url$Url$addPrefixed = F3(
 	function (prefix, maybeSegment, starter) {
-		if (maybeSegment.$ === 'Nothing') {
+		if (maybeSegment.$ === 1) {
 			return starter;
 		} else {
 			var segment = maybeSegment.a;
@@ -7294,8 +7271,8 @@ var elm$url$Url$addPrefixed = F3(
 	});
 var elm$url$Url$toString = function (url) {
 	var http = function () {
-		var _n0 = url.protocol;
-		if (_n0.$ === 'Http') {
+		var _n0 = url.cC;
+		if (!_n0) {
 			return 'http://';
 		} else {
 			return 'https://';
@@ -7304,30 +7281,30 @@ var elm$url$Url$toString = function (url) {
 	return A3(
 		elm$url$Url$addPrefixed,
 		'#',
-		url.fragment,
+		url.cj,
 		A3(
 			elm$url$Url$addPrefixed,
 			'?',
-			url.query,
+			url.bh,
 			_Utils_ap(
 				A2(
 					elm$url$Url$addPort,
-					url.port_,
-					_Utils_ap(http, url.host)),
-				url.path)));
+					url.cB,
+					_Utils_ap(http, url.co)),
+				url.cz)));
 };
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'UrlRequest':
+			case 1:
 				var urlRequest = msg.a;
-				if (urlRequest.$ === 'Internal') {
+				if (!urlRequest.$) {
 					var url = urlRequest.a;
 					return _Utils_Tuple2(
 						model,
 						A2(
 							elm$browser$Browser$Navigation$pushUrl,
-							model.key,
+							model.bJ,
 							elm$url$Url$toString(url)));
 				} else {
 					var href = urlRequest.a;
@@ -7335,66 +7312,66 @@ var author$project$Main$update = F2(
 						model,
 						elm$browser$Browser$Navigation$load(href));
 				}
-			case 'UrlChange':
+			case 0:
 				var url = msg.a;
 				var route = author$project$Route$fromUrl(url);
 				var cmd = A2(author$project$Main$fetchRouteData, model, route);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemon: krisajenkins$remotedata$RemoteData$Loading, pokemonType: krisajenkins$remotedata$RemoteData$Loading, query: '', route: route}),
+						{aZ: krisajenkins$remotedata$RemoteData$Loading, a_: krisajenkins$remotedata$RemoteData$Loading, bh: '', bi: route}),
 					cmd);
-			case 'PokedexFetchResponse':
+			case 2:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokedex: response}),
+						{bf: response}),
 					elm$core$Platform$Cmd$none);
-			case 'PokemonFetchResponse':
+			case 3:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemon: response}),
+						{aZ: response}),
 					elm$core$Platform$Cmd$none);
-			case 'PokemonTypesFetchResponse':
+			case 5:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemonTypes: response}),
+						{K: response}),
 					elm$core$Platform$Cmd$none);
-			case 'PokemonTypeFetchResponse':
+			case 4:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemonType: response}),
+						{a_: response}),
 					elm$core$Platform$Cmd$none);
-			case 'SearchQueryChange':
+			case 6:
 				var query = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{query: query}),
+						{bh: query}),
 					elm$core$Platform$Cmd$none);
-			case 'AddToTeam':
+			case 7:
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$addPokemonToTeam, model.team, pokemon)
+							v: A2(author$project$Main$addPokemonToTeam, model.v, pokemon)
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'RemoveFromTeam':
+			case 8:
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$removePokemonFromTeam, model.team, pokemon)
+							v: A2(author$project$Main$removePokemonFromTeam, model.v, pokemon)
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
@@ -7403,7 +7380,7 @@ var author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$addPokemonTypeToTeam, model.team, pokemonType)
+							v: A2(author$project$Main$addPokemonTypeToTeam, model.v, pokemonType)
 						}),
 					elm$core$Platform$Cmd$none);
 		}
@@ -7411,19 +7388,19 @@ var author$project$Main$update = F2(
 var author$project$Route$routeToString = function (route) {
 	var pieces = function () {
 		switch (route.$) {
-			case 'NotFound':
+			case 0:
 				return _List_fromArray(
 					['404']);
-			case 'Pokedex':
+			case 1:
 				return _List_Nil;
-			case 'Pokemon':
+			case 2:
 				var nameOrId = route.a;
 				return _List_fromArray(
 					['pokemon', nameOrId]);
-			case 'PokemonTypes':
+			case 3:
 				return _List_fromArray(
 					['types']);
-			case 'PokemonType':
+			case 4:
 				var nameOrId = route.a;
 				return _List_fromArray(
 					['types', nameOrId]);
@@ -7444,7 +7421,7 @@ var elm$virtual_dom$VirtualDom$property = F2(
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
 	function (a, b, c) {
-		return {$: 'Attribute', a: a, b: b, c: c};
+		return {$: 0, a: a, b: b, c: c};
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$property = F2(
 	function (key, value) {
@@ -7475,18 +7452,18 @@ var author$project$View$shinyImageSrc = function (id) {
 	return 'assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
 };
 var rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
-	return {$: 'AppendProperty', a: a};
+	return {$: 0, a: a};
 };
 var rtfeldman$elm_css$Css$property = F2(
 	function (key, value) {
 		return rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
 	});
 var rtfeldman$elm_css$Css$backgroundColor = function (c) {
-	return A2(rtfeldman$elm_css$Css$property, 'background-color', c.value);
+	return A2(rtfeldman$elm_css$Css$property, 'background-color', c.A);
 };
 var rtfeldman$elm_css$Css$prop1 = F2(
 	function (key, arg) {
-		return A2(rtfeldman$elm_css$Css$property, key, arg.value);
+		return A2(rtfeldman$elm_css$Css$property, key, arg.A);
 	});
 var rtfeldman$elm_css$Css$backgroundImage = rtfeldman$elm_css$Css$prop1('background-image');
 var elm$core$List$head = function (list) {
@@ -7503,14 +7480,14 @@ var rtfeldman$elm_css$Css$Internal$property = F2(
 		return rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
 	});
 var rtfeldman$elm_css$Css$Preprocess$ApplyStyles = function (a) {
-	return {$: 'ApplyStyles', a: a};
+	return {$: 6, a: a};
 };
 var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 	function (functionName, desiredKey, style) {
 		getOverloadedProperty:
 		while (true) {
 			switch (style.$) {
-				case 'AppendProperty':
+				case 0:
 					var str = style.a;
 					var key = A2(
 						elm$core$Maybe$withDefault,
@@ -7518,18 +7495,18 @@ var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 						elm$core$List$head(
 							A2(elm$core$String$split, ':', str)));
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, key);
-				case 'ExtendSelector':
+				case 1:
 					var selector = style.a;
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-selector'));
-				case 'NestSnippet':
+				case 2:
 					var combinator = style.a;
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-combinator'));
-				case 'WithPseudoElement':
+				case 3:
 					var pseudoElement = style.a;
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-pseudo-element setter'));
-				case 'WithMedia':
+				case 4:
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-media-query'));
-				case 'WithKeyframes':
+				case 5:
 					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-keyframes'));
 				default:
 					if (!style.a.b) {
@@ -7561,34 +7538,34 @@ var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 			}
 		}
 	});
-var rtfeldman$elm_css$Css$Internal$IncompatibleUnits = {$: 'IncompatibleUnits'};
+var rtfeldman$elm_css$Css$Internal$IncompatibleUnits = 0;
 var elm$core$String$fromFloat = _String_fromNumber;
-var rtfeldman$elm_css$Css$Structure$Compatible = {$: 'Compatible'};
+var rtfeldman$elm_css$Css$Structure$Compatible = 0;
 var rtfeldman$elm_css$Css$Internal$lengthConverter = F3(
 	function (units, unitLabel, numericValue) {
 		return {
-			absoluteLength: rtfeldman$elm_css$Css$Structure$Compatible,
-			calc: rtfeldman$elm_css$Css$Structure$Compatible,
-			flexBasis: rtfeldman$elm_css$Css$Structure$Compatible,
-			fontSize: rtfeldman$elm_css$Css$Structure$Compatible,
-			length: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNumber: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible,
-			numericValue: numericValue,
-			textIndent: rtfeldman$elm_css$Css$Structure$Compatible,
-			unitLabel: unitLabel,
-			units: units,
-			value: _Utils_ap(
+			bo: 0,
+			bx: 0,
+			ac: 0,
+			k: 0,
+			aD: 0,
+			ah: 0,
+			G: 0,
+			ai: 0,
+			aj: 0,
+			P: 0,
+			Q: 0,
+			y: 0,
+			J: numericValue,
+			ar: 0,
+			at: unitLabel,
+			aO: units,
+			A: _Utils_ap(
 				elm$core$String$fromFloat(numericValue),
 				unitLabel)
 		};
 	});
-var rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty = A3(rtfeldman$elm_css$Css$Internal$lengthConverter, rtfeldman$elm_css$Css$Internal$IncompatibleUnits, '', 0);
+var rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty = A3(rtfeldman$elm_css$Css$Internal$lengthConverter, 0, '', 0);
 var rtfeldman$elm_css$Css$backgroundPosition = function (fn) {
 	return A3(
 		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
@@ -7597,7 +7574,7 @@ var rtfeldman$elm_css$Css$backgroundPosition = function (fn) {
 		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
 };
 var rtfeldman$elm_css$Css$backgroundRepeat = rtfeldman$elm_css$Css$prop1('background-repeat');
-var rtfeldman$elm_css$Css$block = {display: rtfeldman$elm_css$Css$Structure$Compatible, value: 'block'};
+var rtfeldman$elm_css$Css$block = {f: 0, A: 'block'};
 var rtfeldman$elm_css$Css$borderRadius = rtfeldman$elm_css$Css$prop1('border-radius');
 var rtfeldman$elm_css$Css$prop5 = F6(
 	function (key, argA, argB, argC, argD, argE) {
@@ -7608,13 +7585,13 @@ var rtfeldman$elm_css$Css$prop5 = F6(
 				elm$core$String$join,
 				' ',
 				_List_fromArray(
-					[argA.value, argB.value, argC.value, argD.value, argE.value])));
+					[argA.A, argB.A, argC.A, argD.A, argE.A])));
 	});
 var rtfeldman$elm_css$Css$boxShadow5 = rtfeldman$elm_css$Css$prop5('box-shadow');
-var rtfeldman$elm_css$Css$capitalize = {textTransform: rtfeldman$elm_css$Css$Structure$Compatible, value: 'capitalize'};
+var rtfeldman$elm_css$Css$capitalize = {V: 0, A: 'capitalize'};
 var rtfeldman$elm_css$Css$center = rtfeldman$elm_css$Css$prop1('center');
 var rtfeldman$elm_css$Css$color = function (c) {
-	return A2(rtfeldman$elm_css$Css$property, 'color', c.value);
+	return A2(rtfeldman$elm_css$Css$property, 'color', c.A);
 };
 var rtfeldman$elm_css$Css$display = rtfeldman$elm_css$Css$prop1('display');
 var rtfeldman$elm_css$Css$height = rtfeldman$elm_css$Css$prop1('height');
@@ -7624,19 +7601,16 @@ var elm$core$String$toList = function (string) {
 };
 var elm$core$String$cons = _String_cons;
 var rtfeldman$elm_css$Css$withPrecedingHash = function (str) {
-	return A2(elm$core$String$startsWith, '#', str) ? str : A2(
-		elm$core$String$cons,
-		_Utils_chr('#'),
-		str);
+	return A2(elm$core$String$startsWith, '#', str) ? str : A2(elm$core$String$cons, '#', str);
 };
 var rtfeldman$elm_css$Css$erroneousHex = function (str) {
 	return {
-		alpha: 1,
-		blue: 0,
-		color: rtfeldman$elm_css$Css$Structure$Compatible,
-		green: 0,
-		red: 0,
-		value: rtfeldman$elm_css$Css$withPrecedingHash(str)
+		ax: 1,
+		az: 0,
+		x: 0,
+		aB: 0,
+		aJ: 0,
+		A: rtfeldman$elm_css$Css$withPrecedingHash(str)
 	};
 };
 var elm$core$String$fromList = _String_fromList;
@@ -7666,7 +7640,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 			} else {
 				var _char = chars.a;
 				var rest = chars.b;
-				switch (_char.valueOf()) {
+				switch (_char) {
 					case '0':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
@@ -7869,7 +7843,7 @@ var rtfeldman$elm_css$Css$validHex = F5(
 				toResult(
 					_List_fromArray(
 						[a1, a2]))));
-		if ((((results.a.a.$ === 'Ok') && (results.a.b.$ === 'Ok')) && (results.b.a.$ === 'Ok')) && (results.b.b.$ === 'Ok')) {
+		if ((((!results.a.a.$) && (!results.a.b.$)) && (!results.b.a.$)) && (!results.b.b.$)) {
 			var _n5 = results.a;
 			var red = _n5.a.a;
 			var green = _n5.b.a;
@@ -7877,12 +7851,12 @@ var rtfeldman$elm_css$Css$validHex = F5(
 			var blue = _n6.a.a;
 			var alpha = _n6.b.a;
 			return {
-				alpha: alpha / 255,
-				blue: blue,
-				color: rtfeldman$elm_css$Css$Structure$Compatible,
-				green: green,
-				red: red,
-				value: rtfeldman$elm_css$Css$withPrecedingHash(str)
+				ax: alpha / 255,
+				az: blue,
+				x: 0,
+				aB: green,
+				aJ: red,
+				A: rtfeldman$elm_css$Css$withPrecedingHash(str)
 			};
 		} else {
 			return rtfeldman$elm_css$Css$erroneousHex(str);
@@ -7906,9 +7880,7 @@ var rtfeldman$elm_css$Css$hex = function (str) {
 					_Utils_Tuple2(r, r),
 					_Utils_Tuple2(g, g),
 					_Utils_Tuple2(b, b),
-					_Utils_Tuple2(
-						_Utils_chr('f'),
-						_Utils_chr('f')));
+					_Utils_Tuple2('f', 'f'));
 			} else {
 				if (!_n0.b.b.b.b.b) {
 					var r = _n0.a;
@@ -7945,9 +7917,7 @@ var rtfeldman$elm_css$Css$hex = function (str) {
 								_Utils_Tuple2(r1, r2),
 								_Utils_Tuple2(g1, g2),
 								_Utils_Tuple2(b1, b2),
-								_Utils_Tuple2(
-									_Utils_chr('f'),
-									_Utils_chr('f')));
+								_Utils_Tuple2('f', 'f'));
 						} else {
 							if (_n0.b.b.b.b.b.b.b.b && (!_n0.b.b.b.b.b.b.b.b.b)) {
 								var r1 = _n0.a;
@@ -7989,10 +7959,10 @@ var rtfeldman$elm_css$Css$hex = function (str) {
 };
 var rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
 	function (a, b) {
-		return {$: 'ExtendSelector', a: a, b: b};
+		return {$: 1, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Structure$PseudoClassSelector = function (a) {
-	return {$: 'PseudoClassSelector', a: a};
+	return {$: 2, a: a};
 };
 var rtfeldman$elm_css$Css$pseudoClass = function (_class) {
 	return rtfeldman$elm_css$Css$Preprocess$ExtendSelector(
@@ -8000,8 +7970,8 @@ var rtfeldman$elm_css$Css$pseudoClass = function (_class) {
 };
 var rtfeldman$elm_css$Css$hover = rtfeldman$elm_css$Css$pseudoClass('hover');
 var rtfeldman$elm_css$Css$margin = rtfeldman$elm_css$Css$prop1('margin');
-var rtfeldman$elm_css$Css$noRepeat = {backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, value: 'no-repeat'};
-var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
+var rtfeldman$elm_css$Css$noRepeat = {Z: 0, C: 0, A: 'no-repeat'};
+var rtfeldman$elm_css$Css$none = {Y: 0, bv: 0, n: 0, a: 0, f: 0, cp: 0, bH: 0, ba: 0, aj: 0, P: 0, y: 0, c: 0, b: 0, bc: 0, aY: 0, cA: 0, u: 0, a$: 0, cG: 0, aq: 0, V: 0, r: 0, e: 0, cO: 0, A: 'none'};
 var rtfeldman$elm_css$Css$prop2 = F3(
 	function (key, argA, argB) {
 		return A2(
@@ -8011,12 +7981,12 @@ var rtfeldman$elm_css$Css$prop2 = F3(
 				elm$core$String$join,
 				' ',
 				_List_fromArray(
-					[argA.value, argB.value])));
+					[argA.A, argB.A])));
 	});
 var rtfeldman$elm_css$Css$padding2 = rtfeldman$elm_css$Css$prop2('padding');
 var rtfeldman$elm_css$Css$paddingTop = rtfeldman$elm_css$Css$prop1('padding-top');
-var rtfeldman$elm_css$Css$PxUnits = {$: 'PxUnits'};
-var rtfeldman$elm_css$Css$px = A2(rtfeldman$elm_css$Css$Internal$lengthConverter, rtfeldman$elm_css$Css$PxUnits, 'px');
+var rtfeldman$elm_css$Css$PxUnits = 0;
+var rtfeldman$elm_css$Css$px = A2(rtfeldman$elm_css$Css$Internal$lengthConverter, 0, 'px');
 var rtfeldman$elm_css$Css$cssFunction = F2(
 	function (funcName, args) {
 		return funcName + ('(' + (A2(elm$core$String$join, ', ', args) + ')'));
@@ -8024,12 +7994,12 @@ var rtfeldman$elm_css$Css$cssFunction = F2(
 var rtfeldman$elm_css$Css$rgba = F4(
 	function (r, g, b, alpha) {
 		return {
-			alpha: alpha,
-			blue: b,
-			color: rtfeldman$elm_css$Css$Structure$Compatible,
-			green: g,
-			red: r,
-			value: A2(
+			ax: alpha,
+			az: b,
+			x: 0,
+			aB: g,
+			aJ: r,
+			A: A2(
 				rtfeldman$elm_css$Css$cssFunction,
 				'rgba',
 				_Utils_ap(
@@ -8054,29 +8024,26 @@ var rtfeldman$elm_css$Css$textAlign = function (fn) {
 var rtfeldman$elm_css$Css$textDecoration = rtfeldman$elm_css$Css$prop1('text-decoration');
 var rtfeldman$elm_css$Css$textTransform = rtfeldman$elm_css$Css$prop1('text-transform');
 var rtfeldman$elm_css$Css$url = function (urlValue) {
-	return {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, value: 'url(' + (urlValue + ')')};
+	return {Y: 0, A: 'url(' + (urlValue + ')')};
 };
 var rtfeldman$elm_css$Css$width = rtfeldman$elm_css$Css$prop1('width');
-var rtfeldman$elm_css$Css$Transitions$Background = {$: 'Background'};
-var rtfeldman$elm_css$Css$Transitions$Transition = function (a) {
-	return {$: 'Transition', a: a};
-};
+var rtfeldman$elm_css$Css$Transitions$Background = 0;
+var rtfeldman$elm_css$Css$Transitions$Transition = elm$core$Basics$identity;
 var rtfeldman$elm_css$Css$Transitions$fullTransition = F4(
 	function (animation, duration, delay, timing) {
-		return rtfeldman$elm_css$Css$Transitions$Transition(
-			{
-				animation: animation,
-				delay: elm$core$Maybe$Just(delay),
-				duration: duration,
-				timing: elm$core$Maybe$Just(timing)
-			});
+		return {
+			aQ: animation,
+			aS: elm$core$Maybe$Just(delay),
+			bB: duration,
+			a3: elm$core$Maybe$Just(timing)
+		};
 	});
-var rtfeldman$elm_css$Css$Transitions$background3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$Background);
-var rtfeldman$elm_css$Css$Transitions$BoxShadow = {$: 'BoxShadow'};
-var rtfeldman$elm_css$Css$Transitions$boxShadow3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$BoxShadow);
+var rtfeldman$elm_css$Css$Transitions$background3 = rtfeldman$elm_css$Css$Transitions$fullTransition(0);
+var rtfeldman$elm_css$Css$Transitions$BoxShadow = 25;
+var rtfeldman$elm_css$Css$Transitions$boxShadow3 = rtfeldman$elm_css$Css$Transitions$fullTransition(25);
 var rtfeldman$elm_css$Css$Transitions$CubicBezier = F4(
 	function (a, b, c, d) {
-		return {$: 'CubicBezier', a: a, b: b, c: c, d: d};
+		return {$: 7, a: a, b: b, c: c, d: d};
 	});
 var rtfeldman$elm_css$Css$Transitions$cubicBezier = F4(
 	function (f1, f2, f3, f4) {
@@ -8084,7 +8051,7 @@ var rtfeldman$elm_css$Css$Transitions$cubicBezier = F4(
 	});
 var elm$core$Maybe$map = F2(
 	function (f, maybe) {
-		if (maybe.$ === 'Just') {
+		if (!maybe.$) {
 			var value = maybe.a;
 			return elm$core$Maybe$Just(
 				f(value));
@@ -8093,196 +8060,196 @@ var elm$core$Maybe$map = F2(
 		}
 	});
 var rtfeldman$elm_css$Css$Transitions$propToString = function (prop) {
-	switch (prop.$) {
-		case 'Background':
+	switch (prop) {
+		case 0:
 			return 'background';
-		case 'BackgroundColor':
+		case 1:
 			return 'background-color';
-		case 'BackgroundPosition':
+		case 2:
 			return 'background-position';
-		case 'BackgroundSize':
+		case 3:
 			return 'background-size';
-		case 'Border':
+		case 4:
 			return 'border';
-		case 'BorderBottom':
+		case 5:
 			return 'border-bottom';
-		case 'BorderBottomColor':
+		case 6:
 			return 'border-bottom-color';
-		case 'BorderBottomLeftRadius':
+		case 7:
 			return 'border-bottom-left-radius';
-		case 'BorderBottomRightRadius':
+		case 8:
 			return 'border-bottom-right-radius';
-		case 'BorderBottomWidth':
+		case 9:
 			return 'border-bottom-width';
-		case 'BorderColor':
+		case 10:
 			return 'border-color';
-		case 'BorderLeft':
+		case 11:
 			return 'border-left';
-		case 'BorderLeftColor':
+		case 12:
 			return 'border-left-color';
-		case 'BorderLeftWidth':
+		case 13:
 			return 'border-left-width';
-		case 'BorderRadius':
+		case 14:
 			return 'border-radius';
-		case 'BorderRight':
+		case 15:
 			return 'border-right';
-		case 'BorderRightColor':
+		case 16:
 			return 'border-right-color';
-		case 'BorderRightWidth':
+		case 17:
 			return 'border-right-width';
-		case 'BorderTop':
+		case 18:
 			return 'border-top';
-		case 'BorderTopColor':
+		case 19:
 			return 'border-top-color';
-		case 'BorderTopLeftRadius':
+		case 20:
 			return 'border-top-left-radius';
-		case 'BorderTopRightRadius':
+		case 21:
 			return 'border-top-right-radius';
-		case 'BorderTopWidth':
+		case 22:
 			return 'border-top-width';
-		case 'BorderWidth':
+		case 23:
 			return 'border-width';
-		case 'Bottom':
+		case 24:
 			return 'bottom';
-		case 'BoxShadow':
+		case 25:
 			return 'box-shadow';
-		case 'CaretColor':
+		case 26:
 			return 'caret-color';
-		case 'Clip':
+		case 27:
 			return 'clip';
-		case 'ClipPath':
+		case 28:
 			return 'clip-path';
-		case 'Color':
+		case 29:
 			return 'color';
-		case 'ColumnCount':
+		case 30:
 			return 'column-count';
-		case 'ColumnGap':
+		case 31:
 			return 'column-gap';
-		case 'ColumnRule':
+		case 32:
 			return 'column-rule';
-		case 'ColumnRuleColor':
+		case 33:
 			return 'column-rule-color';
-		case 'ColumnRuleWidth':
+		case 34:
 			return 'column-rule-width';
-		case 'ColumnWidth':
+		case 35:
 			return 'column-width';
-		case 'Columns':
+		case 36:
 			return 'columns';
-		case 'Filter':
+		case 37:
 			return 'filter';
-		case 'Flex':
+		case 38:
 			return 'flex';
-		case 'FlexBasis':
+		case 39:
 			return 'flex-basis';
-		case 'FlexGrow':
+		case 40:
 			return 'flex-grow';
-		case 'FlexShrink':
+		case 41:
 			return 'flex-shrink';
-		case 'Font':
+		case 42:
 			return 'font';
-		case 'FontSize':
+		case 43:
 			return 'font-size';
-		case 'FontSizeAdjust':
+		case 44:
 			return 'font-size-adjust';
-		case 'FontStretch':
+		case 45:
 			return 'font-stretch';
-		case 'FontVariationSettings':
+		case 46:
 			return 'font-variation-settings';
-		case 'FontWeight':
+		case 47:
 			return 'font-weight';
-		case 'GridColumnGap':
+		case 48:
 			return 'grid-column-gap';
-		case 'GridGap':
+		case 49:
 			return 'grid-gap';
-		case 'GridRowGap':
+		case 50:
 			return 'grid-row-gap';
-		case 'Height':
+		case 51:
 			return 'height';
-		case 'Left':
+		case 52:
 			return 'left';
-		case 'LetterSpacing':
+		case 53:
 			return 'letter-spacing';
-		case 'LineHeight':
+		case 54:
 			return 'line-height';
-		case 'Margin':
+		case 55:
 			return 'margin';
-		case 'MarginBottom':
+		case 56:
 			return 'margin-bottom';
-		case 'MarginLeft':
+		case 57:
 			return 'margin-left';
-		case 'MarginRight':
+		case 58:
 			return 'margin-right';
-		case 'MarginTop':
+		case 59:
 			return 'margin-top';
-		case 'Mask':
+		case 60:
 			return 'mask';
-		case 'MaskPosition':
+		case 61:
 			return 'mask-position';
-		case 'MaskSize':
+		case 62:
 			return 'mask-size';
-		case 'MaxHeight':
+		case 63:
 			return 'max-height';
-		case 'MaxWidth':
+		case 64:
 			return 'max-width';
-		case 'MinHeight':
+		case 65:
 			return 'min-height';
-		case 'MinWidth':
+		case 66:
 			return 'min-width';
-		case 'ObjectPosition':
+		case 67:
 			return 'object-position';
-		case 'Offset':
+		case 68:
 			return 'offset';
-		case 'OffsetAnchor':
+		case 69:
 			return 'offset-anchor';
-		case 'OffsetDistance':
+		case 70:
 			return 'offset-distance';
-		case 'OffsetPath':
+		case 71:
 			return 'offset-path';
-		case 'OffsetRotate':
+		case 72:
 			return 'offset-rotate';
-		case 'Opacity':
+		case 73:
 			return 'opacity';
-		case 'Order':
+		case 74:
 			return 'order';
-		case 'Outline':
+		case 75:
 			return 'outline';
-		case 'OutlineColor':
+		case 76:
 			return 'outline-color';
-		case 'OutlineOffset':
+		case 77:
 			return 'outline-offset';
-		case 'OutlineWidth':
+		case 78:
 			return 'outline-width';
-		case 'Padding':
+		case 79:
 			return 'padding';
-		case 'PaddingBottom':
+		case 80:
 			return 'padding-bottom';
-		case 'PaddingLeft':
+		case 81:
 			return 'padding-left';
-		case 'PaddingRight':
+		case 82:
 			return 'padding-right';
-		case 'PaddingTop':
+		case 83:
 			return 'padding-top';
-		case 'Right':
+		case 84:
 			return 'right';
-		case 'TabSize':
+		case 85:
 			return 'tab-size';
-		case 'TextIndent':
+		case 86:
 			return 'text-indent';
-		case 'TextShadow':
+		case 87:
 			return 'text-shadow';
-		case 'Top':
+		case 88:
 			return 'top';
-		case 'Transform':
+		case 89:
 			return 'transform';
-		case 'TransformOrigin':
+		case 90:
 			return 'transform-origin';
-		case 'VerticalAlign':
+		case 91:
 			return 'vertical-align';
-		case 'Visibility':
+		case 92:
 			return 'visibility';
-		case 'Width':
+		case 93:
 			return 'width';
-		case 'WordSpacing':
+		case 94:
 			return 'word-spacing';
 		default:
 			return 'z-index';
@@ -8293,19 +8260,19 @@ var rtfeldman$elm_css$Css$Transitions$timeToString = function (time) {
 };
 var rtfeldman$elm_css$Css$Transitions$timingFunctionToString = function (tf) {
 	switch (tf.$) {
-		case 'Ease':
+		case 0:
 			return 'ease';
-		case 'Linear':
+		case 1:
 			return 'linear';
-		case 'EaseIn':
+		case 2:
 			return 'ease-in';
-		case 'EaseOut':
+		case 3:
 			return 'ease-out';
-		case 'EaseInOut':
+		case 4:
 			return 'ease-in-out';
-		case 'StepStart':
+		case 5:
 			return 'step-start';
-		case 'StepEnd':
+		case 6:
 			return 'step-end';
 		default:
 			var _float = tf.a;
@@ -8324,10 +8291,10 @@ var rtfeldman$elm_css$Css$Transitions$transition = function (options) {
 			elm$core$List$foldl,
 			F2(
 				function (_n0, s) {
-					var animation = _n0.a.animation;
-					var duration = _n0.a.duration;
-					var delay = _n0.a.delay;
-					var timing = _n0.a.timing;
+					var animation = _n0.aQ;
+					var duration = _n0.bB;
+					var delay = _n0.aS;
+					var timing = _n0.a3;
 					return s + (A2(
 						elm$core$String$join,
 						' ',
@@ -8351,7 +8318,7 @@ var rtfeldman$elm_css$Css$Transitions$transition = function (options) {
 };
 var rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
 	function (a, b, c) {
-		return {$: 'Node', a: a, b: b, c: c};
+		return {$: 0, a: a, b: b, c: c};
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$Node;
 var rtfeldman$elm_css$Html$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$node;
@@ -8359,7 +8326,7 @@ var rtfeldman$elm_css$Html$Styled$a = rtfeldman$elm_css$Html$Styled$node('a');
 var rtfeldman$elm_css$Html$Styled$span = rtfeldman$elm_css$Html$Styled$node('span');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
+	return {$: 4, a: a};
 };
 var rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 	return rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
@@ -8368,7 +8335,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
 var rtfeldman$elm_css$Html$Styled$text = rtfeldman$elm_css$VirtualDom$Styled$text;
 var Skinney$murmur3$Murmur3$HashData = F4(
 	function (shift, seed, hash, charsProcessed) {
-		return {charsProcessed: charsProcessed, hash: hash, seed: seed, shift: shift};
+		return {_: charsProcessed, af: hash, T: seed, ao: shift};
 	});
 var Skinney$murmur3$Murmur3$c1 = 3432918353;
 var Skinney$murmur3$Murmur3$c2 = 461845907;
@@ -8386,14 +8353,14 @@ var Skinney$murmur3$Murmur3$rotlBy = F2(
 	});
 var elm$core$Bitwise$xor = _Bitwise_xor;
 var Skinney$murmur3$Murmur3$finalize = function (data) {
-	var acc = data.hash ? (data.seed ^ A2(
+	var acc = data.af ? (data.T ^ A2(
 		Skinney$murmur3$Murmur3$multiplyBy,
 		Skinney$murmur3$Murmur3$c2,
 		A2(
 			Skinney$murmur3$Murmur3$rotlBy,
 			15,
-			A2(Skinney$murmur3$Murmur3$multiplyBy, Skinney$murmur3$Murmur3$c1, data.hash)))) : data.seed;
-	var h0 = acc ^ data.charsProcessed;
+			A2(Skinney$murmur3$Murmur3$multiplyBy, Skinney$murmur3$Murmur3$c1, data.af)))) : data.T;
+	var h0 = acc ^ data._;
 	var h1 = A2(Skinney$murmur3$Murmur3$multiplyBy, 2246822507, h0 ^ (h0 >>> 16));
 	var h2 = A2(Skinney$murmur3$Murmur3$multiplyBy, 3266489909, h1 ^ (h1 >>> 13));
 	return (h2 ^ (h2 >>> 16)) >>> 0;
@@ -8416,17 +8383,17 @@ var Skinney$murmur3$Murmur3$mix = F2(
 	});
 var Skinney$murmur3$Murmur3$hashFold = F2(
 	function (c, data) {
-		var res = data.hash | ((255 & elm$core$Char$toCode(c)) << data.shift);
-		var _n0 = data.shift;
+		var res = data.af | ((255 & elm$core$Char$toCode(c)) << data.ao);
+		var _n0 = data.ao;
 		if (_n0 === 24) {
 			return {
-				charsProcessed: data.charsProcessed + 1,
-				hash: 0,
-				seed: A2(Skinney$murmur3$Murmur3$mix, data.seed, res),
-				shift: 0
+				_: data._ + 1,
+				af: 0,
+				T: A2(Skinney$murmur3$Murmur3$mix, data.T, res),
+				ao: 0
 			};
 		} else {
-			return {charsProcessed: data.charsProcessed + 1, hash: res, seed: data.seed, shift: data.shift + 8};
+			return {_: data._ + 1, af: res, T: data.T, ao: data.ao + 8};
 		}
 	});
 var elm$core$String$foldl = _String_foldl;
@@ -8451,10 +8418,10 @@ var elm$core$List$singleton = function (value) {
 		[value]);
 };
 var rtfeldman$elm_css$Css$Preprocess$stylesheet = function (snippets) {
-	return {charset: elm$core$Maybe$Nothing, imports: _List_Nil, namespaces: _List_Nil, snippets: snippets};
+	return {bz: elm$core$Maybe$Nothing, bF: _List_Nil, bL: _List_Nil, bW: snippets};
 };
 var rtfeldman$elm_css$Css$Preprocess$unwrapSnippet = function (_n0) {
-	var declarations = _n0.a;
+	var declarations = _n0;
 	return declarations;
 };
 var elm$core$List$takeReverse = F3(
@@ -8589,7 +8556,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors = function (declar
 		if (!declarations.b) {
 			return _List_Nil;
 		} else {
-			if (declarations.a.$ === 'StyleBlockDeclaration') {
+			if (!declarations.a.$) {
 				var _n1 = declarations.a.a;
 				var firstSelector = _n1.a;
 				var otherSelectors = _n1.b;
@@ -8652,7 +8619,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf = function (maybes) {
 		} else {
 			var maybe = maybes.a;
 			var rest = maybes.b;
-			if (maybe.$ === 'Nothing') {
+			if (maybe.$ === 1) {
 				var $temp$maybes = rest;
 				maybes = $temp$maybes;
 				continue oneOf;
@@ -8663,7 +8630,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf = function (maybes) {
 	}
 };
 var rtfeldman$elm_css$Css$Structure$FontFeatureValues = function (a) {
-	return {$: 'FontFeatureValues', a: a};
+	return {$: 9, a: a};
 };
 var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues = function (tuples) {
 	var expandTuples = function (tuplesToExpand) {
@@ -8686,11 +8653,11 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues = function
 };
 var rtfeldman$elm_css$Css$Structure$DocumentRule = F5(
 	function (a, b, c, d, e) {
-		return {$: 'DocumentRule', a: a, b: b, c: c, d: d, e: e};
+		return {$: 3, a: a, b: b, c: c, d: d, e: e};
 	});
 var rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
 	function (str1, str2, str3, str4, declaration) {
-		if (declaration.$ === 'StyleBlockDeclaration') {
+		if (!declaration.$) {
 			var structureStyleBlock = declaration.a;
 			return A5(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
 		} else {
@@ -8699,30 +8666,30 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
 	});
 var rtfeldman$elm_css$Css$Structure$MediaRule = F2(
 	function (a, b) {
-		return {$: 'MediaRule', a: a, b: b};
+		return {$: 1, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Structure$SupportsRule = F2(
 	function (a, b) {
-		return {$: 'SupportsRule', a: a, b: b};
+		return {$: 2, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule = F2(
 	function (mediaQueries, declaration) {
 		switch (declaration.$) {
-			case 'StyleBlockDeclaration':
+			case 0:
 				var structureStyleBlock = declaration.a;
 				return A2(
 					rtfeldman$elm_css$Css$Structure$MediaRule,
 					mediaQueries,
 					_List_fromArray(
 						[structureStyleBlock]));
-			case 'MediaRule':
+			case 1:
 				var newMediaQueries = declaration.a;
 				var structureStyleBlocks = declaration.b;
 				return A2(
 					rtfeldman$elm_css$Css$Structure$MediaRule,
 					_Utils_ap(mediaQueries, newMediaQueries),
 					structureStyleBlocks);
-			case 'SupportsRule':
+			case 2:
 				var str = declaration.a;
 				var declarations = declaration.b;
 				return A2(
@@ -8732,53 +8699,53 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule = F2(
 						elm$core$List$map,
 						rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule(mediaQueries),
 						declarations));
-			case 'DocumentRule':
+			case 3:
 				var str1 = declaration.a;
 				var str2 = declaration.b;
 				var str3 = declaration.c;
 				var str4 = declaration.d;
 				var structureStyleBlock = declaration.e;
 				return A5(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
-			case 'PageRule':
+			case 4:
 				return declaration;
-			case 'FontFace':
+			case 5:
 				return declaration;
-			case 'Keyframes':
+			case 6:
 				return declaration;
-			case 'Viewport':
+			case 7:
 				return declaration;
-			case 'CounterStyle':
+			case 8:
 				return declaration;
 			default:
 				return declaration;
 		}
 	});
 var rtfeldman$elm_css$Css$Structure$CounterStyle = function (a) {
-	return {$: 'CounterStyle', a: a};
+	return {$: 8, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$FontFace = function (a) {
-	return {$: 'FontFace', a: a};
+	return {$: 5, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$Keyframes = function (a) {
-	return {$: 'Keyframes', a: a};
+	return {$: 6, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$PageRule = F2(
 	function (a, b) {
-		return {$: 'PageRule', a: a, b: b};
+		return {$: 4, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Structure$Selector = F3(
 	function (a, b, c) {
-		return {$: 'Selector', a: a, b: b, c: c};
+		return {$: 0, a: a, b: b, c: c};
 	});
 var rtfeldman$elm_css$Css$Structure$StyleBlock = F3(
 	function (a, b, c) {
-		return {$: 'StyleBlock', a: a, b: b, c: c};
+		return {$: 0, a: a, b: b, c: c};
 	});
 var rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration = function (a) {
-	return {$: 'StyleBlockDeclaration', a: a};
+	return {$: 0, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$Viewport = function (a) {
-	return {$: 'Viewport', a: a};
+	return {$: 7, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$mapLast = F2(
 	function (update, list) {
@@ -8822,14 +8789,14 @@ var rtfeldman$elm_css$Css$Structure$appendProperty = F2(
 		} else {
 			if (!declarations.b.b) {
 				switch (declarations.a.$) {
-					case 'StyleBlockDeclaration':
+					case 0:
 						var styleBlock = declarations.a.a;
 						return _List_fromArray(
 							[
 								rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
 								A2(rtfeldman$elm_css$Css$Structure$withPropertyAppended, property, styleBlock))
 							]);
-					case 'MediaRule':
+					case 1:
 						var _n1 = declarations.a;
 						var mediaQueries = _n1.a;
 						var styleBlocks = _n1.b;
@@ -8902,19 +8869,19 @@ var rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector = F2(
 	});
 var rtfeldman$elm_css$Css$Structure$CustomSelector = F2(
 	function (a, b) {
-		return {$: 'CustomSelector', a: a, b: b};
+		return {$: 2, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Structure$TypeSelectorSequence = F2(
 	function (a, b) {
-		return {$: 'TypeSelectorSequence', a: a, b: b};
+		return {$: 0, a: a, b: b};
 	});
 var rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence = function (a) {
-	return {$: 'UniversalSelectorSequence', a: a};
+	return {$: 1, a: a};
 };
 var rtfeldman$elm_css$Css$Structure$appendRepeatable = F2(
 	function (selector, sequence) {
 		switch (sequence.$) {
-			case 'TypeSelectorSequence':
+			case 0:
 				var typeSelector = sequence.a;
 				var list = sequence.b;
 				return A2(
@@ -8924,7 +8891,7 @@ var rtfeldman$elm_css$Css$Structure$appendRepeatable = F2(
 						list,
 						_List_fromArray(
 							[selector])));
-			case 'UniversalSelectorSequence':
+			case 1:
 				var list = sequence.a;
 				return rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(
 					_Utils_ap(
@@ -9005,13 +8972,13 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 			} else {
 				if (!declarations.b.b) {
 					switch (declarations.a.$) {
-						case 'StyleBlockDeclaration':
+						case 0:
 							var styleBlock = declarations.a.a;
 							return A2(
 								elm$core$List$map,
 								rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration,
 								update(styleBlock));
-						case 'MediaRule':
+						case 1:
 							if (declarations.a.b.b) {
 								if (!declarations.a.b.b.b) {
 									var _n1 = declarations.a;
@@ -9038,7 +9005,7 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 											[
 												A2(rtfeldman$elm_css$Css$Structure$MediaRule, mediaQueries, rest)
 											]));
-									if ((_n5.b && (_n5.a.$ === 'MediaRule')) && (!_n5.b.b)) {
+									if ((_n5.b && (_n5.a.$ === 1)) && (!_n5.b.b)) {
 										var _n6 = _n5.a;
 										var newMediaQueries = _n6.a;
 										var newStyleBlocks = _n6.b;
@@ -9057,7 +9024,7 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 							} else {
 								break _n0$12;
 							}
-						case 'SupportsRule':
+						case 2:
 							var _n7 = declarations.a;
 							var str = _n7.a;
 							var nestedDeclarations = _n7.b;
@@ -9068,7 +9035,7 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 									str,
 									A2(rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, update, nestedDeclarations))
 								]);
-						case 'DocumentRule':
+						case 3:
 							var _n8 = declarations.a;
 							var str1 = _n8.a;
 							var str2 = _n8.b;
@@ -9079,16 +9046,16 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 								elm$core$List$map,
 								A4(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4),
 								update(styleBlock));
-						case 'PageRule':
+						case 4:
 							var _n9 = declarations.a;
 							return declarations;
-						case 'FontFace':
+						case 5:
 							return declarations;
-						case 'Keyframes':
+						case 6:
 							return declarations;
-						case 'Viewport':
+						case 7:
 							return declarations;
-						case 'CounterStyle':
+						case 8:
 							return declarations;
 						default:
 							return declarations;
@@ -9107,7 +9074,7 @@ var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
 	});
 var rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule = F2(
 	function (mediaQueries, declaration) {
-		if (declaration.$ === 'StyleBlockDeclaration') {
+		if (!declaration.$) {
 			var styleBlock = declaration.a;
 			return A2(
 				rtfeldman$elm_css$Css$Structure$MediaRule,
@@ -9125,37 +9092,37 @@ var rtfeldman$elm_hex$Hex$unsafeToDigit = function (num) {
 	while (true) {
 		switch (num) {
 			case 0:
-				return _Utils_chr('0');
+				return '0';
 			case 1:
-				return _Utils_chr('1');
+				return '1';
 			case 2:
-				return _Utils_chr('2');
+				return '2';
 			case 3:
-				return _Utils_chr('3');
+				return '3';
 			case 4:
-				return _Utils_chr('4');
+				return '4';
 			case 5:
-				return _Utils_chr('5');
+				return '5';
 			case 6:
-				return _Utils_chr('6');
+				return '6';
 			case 7:
-				return _Utils_chr('7');
+				return '7';
 			case 8:
-				return _Utils_chr('8');
+				return '8';
 			case 9:
-				return _Utils_chr('9');
+				return '9';
 			case 10:
-				return _Utils_chr('a');
+				return 'a';
 			case 11:
-				return _Utils_chr('b');
+				return 'b';
 			case 12:
-				return _Utils_chr('c');
+				return 'c';
 			case 13:
-				return _Utils_chr('d');
+				return 'd';
 			case 14:
-				return _Utils_chr('e');
+				return 'e';
 			case 15:
-				return _Utils_chr('f');
+				return 'f';
 			default:
 				var $temp$num = num;
 				num = $temp$num;
@@ -9189,13 +9156,13 @@ var rtfeldman$elm_hex$Hex$toString = function (num) {
 	return elm$core$String$fromList(
 		(num < 0) ? A2(
 			elm$core$List$cons,
-			_Utils_chr('-'),
+			'-',
 			A2(rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, -num)) : A2(rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, num));
 };
 var rtfeldman$elm_css$Hash$fromString = function (str) {
 	return A2(
 		elm$core$String$cons,
-		_Utils_chr('_'),
+		'_',
 		rtfeldman$elm_hex$Hex$toString(
 			A2(Skinney$murmur3$Murmur3$hashString, rtfeldman$elm_css$Hash$murmurSeed, str)));
 };
@@ -9218,7 +9185,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast = F4(
 			var _n14 = _Utils_Tuple2(
 				elm$core$List$head(nextResult),
 				rtfeldman$elm_css$Css$Preprocess$Resolve$last(declarations));
-			if ((_n14.a.$ === 'Just') && (_n14.b.$ === 'Just')) {
+			if ((!_n14.a.$) && (!_n14.b.$)) {
 				var nextResultParent = _n14.a.a;
 				var originalParent = _n14.b.a;
 				return _Utils_ap(
@@ -9263,14 +9230,14 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 			return declarations;
 		} else {
 			switch (styles.a.$) {
-				case 'AppendProperty':
+				case 0:
 					var property = styles.a.a;
 					var rest = styles.b;
 					return A2(
 						rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
 						rest,
 						A2(rtfeldman$elm_css$Css$Structure$appendProperty, property, declarations));
-				case 'ExtendSelector':
+				case 1:
 					var _n4 = styles.a;
 					var selector = _n4.a;
 					var nestedStyles = _n4.b;
@@ -9281,7 +9248,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 						rest,
 						rtfeldman$elm_css$Css$Structure$appendRepeatableToLastSelector(selector),
 						declarations);
-				case 'NestSnippet':
+				case 2:
 					var _n5 = styles.a;
 					var selectorCombinator = _n5.a;
 					var snippets = _n5.b;
@@ -9309,7 +9276,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 						});
 					var expandDeclaration = function (declaration) {
 						switch (declaration.$) {
-							case 'StyleBlockDeclaration':
+							case 0:
 								var _n7 = declaration.a;
 								var firstSelector = _n7.a;
 								var otherSelectors = _n7.b;
@@ -9337,15 +9304,15 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 									}
 								}();
 								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, nestedStyles, newDeclarations);
-							case 'MediaRule':
+							case 1:
 								var mediaQueries = declaration.a;
 								var styleBlocks = declaration.b;
 								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
-							case 'SupportsRule':
+							case 2:
 								var str = declaration.a;
 								var otherSnippets = declaration.b;
 								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, otherSnippets);
-							case 'DocumentRule':
+							case 3:
 								var str1 = declaration.a;
 								var str2 = declaration.b;
 								var str3 = declaration.c;
@@ -9355,26 +9322,26 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 									elm$core$List$map,
 									A4(rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
 									rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
-							case 'PageRule':
+							case 4:
 								var str = declaration.a;
 								var properties = declaration.b;
 								return _List_fromArray(
 									[
 										A2(rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
 									]);
-							case 'FontFace':
+							case 5:
 								var properties = declaration.a;
 								return _List_fromArray(
 									[
 										rtfeldman$elm_css$Css$Structure$FontFace(properties)
 									]);
-							case 'Viewport':
+							case 6:
 								var properties = declaration.a;
 								return _List_fromArray(
 									[
 										rtfeldman$elm_css$Css$Structure$Viewport(properties)
 									]);
-							case 'CounterStyle':
+							case 7:
 								var properties = declaration.a;
 								return _List_fromArray(
 									[
@@ -9395,7 +9362,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 								elm$core$List$map,
 								expandDeclaration,
 								A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets))));
-				case 'WithPseudoElement':
+				case 3:
 					var _n11 = styles.a;
 					var pseudoElement = _n11.a;
 					var nestedStyles = _n11.b;
@@ -9406,7 +9373,7 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 						rest,
 						rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector(pseudoElement),
 						declarations);
-				case 'WithKeyframes':
+				case 5:
 					var str = styles.a.a;
 					var rest = styles.b;
 					var name = rtfeldman$elm_css$Hash$fromString(str);
@@ -9421,9 +9388,9 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
 						_List_fromArray(
 							[
 								rtfeldman$elm_css$Css$Structure$Keyframes(
-								{declaration: str, name: name})
+								{ca: str, aG: name})
 							]));
-				case 'WithMedia':
+				case 4:
 					var _n12 = styles.a;
 					var mediaQueries = _n12.a;
 					var nestedStyles = _n12.b;
@@ -9504,18 +9471,18 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule = F2(
 	});
 var rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations = function (snippetDeclaration) {
 	switch (snippetDeclaration.$) {
-		case 'StyleBlockDeclaration':
+		case 0:
 			var styleBlock = snippetDeclaration.a;
 			return rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock);
-		case 'MediaRule':
+		case 1:
 			var mediaQueries = snippetDeclaration.a;
 			var styleBlocks = snippetDeclaration.b;
 			return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
-		case 'SupportsRule':
+		case 2:
 			var str = snippetDeclaration.a;
 			var snippets = snippetDeclaration.b;
 			return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, snippets);
-		case 'DocumentRule':
+		case 3:
 			var str1 = snippetDeclaration.a;
 			var str2 = snippetDeclaration.b;
 			var str3 = snippetDeclaration.c;
@@ -9525,26 +9492,26 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations = function (snippetD
 				elm$core$List$map,
 				A4(rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
 				rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
-		case 'PageRule':
+		case 4:
 			var str = snippetDeclaration.a;
 			var properties = snippetDeclaration.b;
 			return _List_fromArray(
 				[
 					A2(rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
 				]);
-		case 'FontFace':
+		case 5:
 			var properties = snippetDeclaration.a;
 			return _List_fromArray(
 				[
 					rtfeldman$elm_css$Css$Structure$FontFace(properties)
 				]);
-		case 'Viewport':
+		case 6:
 			var properties = snippetDeclaration.a;
 			return _List_fromArray(
 				[
 					rtfeldman$elm_css$Css$Structure$Viewport(properties)
 				]);
-		case 'CounterStyle':
+		case 7:
 			var properties = snippetDeclaration.a;
 			return _List_fromArray(
 				[
@@ -9556,13 +9523,13 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations = function (snippetD
 	}
 };
 var rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var snippets = _n0.snippets;
+	var charset = _n0.bz;
+	var imports = _n0.bF;
+	var namespaces = _n0.bL;
+	var snippets = _n0.bW;
 	var declarations = rtfeldman$elm_css$Css$Preprocess$Resolve$extract(
 		A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
-	return {charset: charset, declarations: declarations, imports: imports, namespaces: namespaces};
+	return {bz: charset, cb: declarations, bF: imports, bL: namespaces};
 };
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$all = F2(
@@ -9577,13 +9544,13 @@ var rtfeldman$elm_css$Css$Structure$compactHelp = F2(
 		var keyframesByName = _n0.a;
 		var declarations = _n0.b;
 		switch (declaration.$) {
-			case 'StyleBlockDeclaration':
+			case 0:
 				var _n2 = declaration.a;
 				var properties = _n2.c;
 				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'MediaRule':
+			case 1:
 				var styleBlocks = declaration.b;
 				return A2(
 					elm$core$List$all,
@@ -9594,36 +9561,36 @@ var rtfeldman$elm_css$Css$Structure$compactHelp = F2(
 					styleBlocks) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'SupportsRule':
+			case 2:
 				var otherDeclarations = declaration.b;
 				return elm$core$List$isEmpty(otherDeclarations) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'DocumentRule':
+			case 3:
 				return _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'PageRule':
+			case 4:
 				var properties = declaration.b;
 				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'FontFace':
+			case 5:
 				var properties = declaration.a;
 				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'Keyframes':
+			case 6:
 				var record = declaration.a;
-				return elm$core$String$isEmpty(record.declaration) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					A3(elm$core$Dict$insert, record.name, record.declaration, keyframesByName),
+				return elm$core$String$isEmpty(record.ca) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					A3(elm$core$Dict$insert, record.aG, record.ca, keyframesByName),
 					declarations);
-			case 'Viewport':
+			case 7:
 				var properties = declaration.a;
 				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
 					A2(elm$core$List$cons, declaration, declarations));
-			case 'CounterStyle':
+			case 8:
 				var properties = declaration.a;
 				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
 					keyframesByName,
@@ -9651,16 +9618,16 @@ var rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations = F2(
 					var name = _n0.a;
 					var decl = _n0.b;
 					return rtfeldman$elm_css$Css$Structure$Keyframes(
-						{declaration: decl, name: name});
+						{ca: decl, aG: name});
 				},
 				elm$core$Dict$toList(keyframesByName)),
 			compactedDeclarations);
 	});
 var rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var declarations = _n0.declarations;
+	var charset = _n0.bz;
+	var imports = _n0.bF;
+	var namespaces = _n0.bL;
+	var declarations = _n0.cb;
 	var _n1 = A3(
 		elm$core$List$foldr,
 		rtfeldman$elm_css$Css$Structure$compactHelp,
@@ -9669,7 +9636,7 @@ var rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_n0) {
 	var keyframesByName = _n1.a;
 	var compactedDeclarations = _n1.b;
 	var finalDeclarations = A2(rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations, keyframesByName, compactedDeclarations);
-	return {charset: charset, declarations: finalDeclarations, imports: imports, namespaces: namespaces};
+	return {bz: charset, cb: finalDeclarations, bF: imports, bL: namespaces};
 };
 var rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
 	return A2(
@@ -9683,19 +9650,19 @@ var rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) 
 			charset));
 };
 var rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString = function (expression) {
-	return '(' + (expression.feature + (A2(
+	return '(' + (expression.bE + (A2(
 		elm$core$Maybe$withDefault,
 		'',
 		A2(
 			elm$core$Maybe$map,
 			elm$core$Basics$append(': '),
-			expression.value)) + ')'));
+			expression.A)) + ')'));
 };
 var rtfeldman$elm_css$Css$Structure$Output$mediaTypeToString = function (mediaType) {
-	switch (mediaType.$) {
-		case 'Print':
+	switch (mediaType) {
+		case 0:
 			return 'print';
-		case 'Screen':
+		case 1:
 			return 'screen';
 		default:
 			return 'speech';
@@ -9713,17 +9680,17 @@ var rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString = function (mediaQ
 					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions))));
 		});
 	switch (mediaQuery.$) {
-		case 'AllQuery':
+		case 0:
 			var expressions = mediaQuery.a;
 			return A2(
 				elm$core$String$join,
 				' and ',
 				A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions));
-		case 'OnlyQuery':
+		case 1:
 			var mediaType = mediaQuery.a;
 			var expressions = mediaQuery.b;
 			return A3(prefixWith, 'only', mediaType, expressions);
-		case 'NotQuery':
+		case 2:
 			var mediaType = mediaQuery.a;
 			var expressions = mediaQuery.b;
 			return A3(prefixWith, 'not', mediaType, expressions);
@@ -9771,16 +9738,16 @@ var rtfeldman$elm_css$Css$Structure$Output$emitProperties = function (properties
 };
 var elm$core$String$append = _String_append;
 var rtfeldman$elm_css$Css$Structure$Output$pseudoElementToString = function (_n0) {
-	var str = _n0.a;
+	var str = _n0;
 	return '::' + str;
 };
 var rtfeldman$elm_css$Css$Structure$Output$combinatorToString = function (combinator) {
-	switch (combinator.$) {
-		case 'AdjacentSibling':
+	switch (combinator) {
+		case 0:
 			return '+';
-		case 'GeneralSibling':
+		case 1:
 			return '~';
-		case 'Child':
+		case 2:
 			return '>';
 		default:
 			return '';
@@ -9788,13 +9755,13 @@ var rtfeldman$elm_css$Css$Structure$Output$combinatorToString = function (combin
 };
 var rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString = function (repeatableSimpleSelector) {
 	switch (repeatableSimpleSelector.$) {
-		case 'ClassSelector':
+		case 0:
 			var str = repeatableSimpleSelector.a;
 			return '.' + str;
-		case 'IdSelector':
+		case 1:
 			var str = repeatableSimpleSelector.a;
 			return '#' + str;
-		case 'PseudoClassSelector':
+		case 2:
 			var str = repeatableSimpleSelector.a;
 			return ':' + str;
 		default:
@@ -9804,8 +9771,8 @@ var rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString = fu
 };
 var rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString = function (simpleSelectorSequence) {
 	switch (simpleSelectorSequence.$) {
-		case 'TypeSelectorSequence':
-			var str = simpleSelectorSequence.a.a;
+		case 0:
+			var str = simpleSelectorSequence.a;
 			var repeatableSimpleSelectors = simpleSelectorSequence.b;
 			return A2(
 				elm$core$String$join,
@@ -9814,7 +9781,7 @@ var rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString = func
 					elm$core$List$cons,
 					str,
 					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors)));
-		case 'UniversalSelectorSequence':
+		case 1:
 			var repeatableSimpleSelectors = simpleSelectorSequence.a;
 			return elm$core$List$isEmpty(repeatableSimpleSelectors) ? '*' : A2(
 				elm$core$String$join,
@@ -9901,10 +9868,10 @@ var rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock = F2(
 	});
 var rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration = function (decl) {
 	switch (decl.$) {
-		case 'StyleBlockDeclaration':
+		case 0:
 			var styleBlock = decl.a;
 			return A2(rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock, rtfeldman$elm_css$Css$Structure$Output$noIndent, styleBlock);
-		case 'MediaRule':
+		case 1:
 			var mediaQueries = decl.a;
 			var styleBlocks = decl.b;
 			var query = A2(
@@ -9922,31 +9889,31 @@ var rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration = function (de
 						rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock(rtfeldman$elm_css$Css$Structure$Output$spaceIndent)),
 					styleBlocks));
 			return '@media ' + (query + (' {\n' + (blocks + '\n}')));
-		case 'SupportsRule':
+		case 2:
 			return 'TODO';
-		case 'DocumentRule':
+		case 3:
 			return 'TODO';
-		case 'PageRule':
+		case 4:
 			return 'TODO';
-		case 'FontFace':
+		case 5:
 			return 'TODO';
-		case 'Keyframes':
-			var name = decl.a.name;
-			var declaration = decl.a.declaration;
+		case 6:
+			var name = decl.a.aG;
+			var declaration = decl.a.ca;
 			return '@keyframes ' + (name + (' {\n' + (declaration + '\n}')));
-		case 'Viewport':
+		case 7:
 			return 'TODO';
-		case 'CounterStyle':
+		case 8:
 			return 'TODO';
 		default:
 			return 'TODO';
 	}
 };
 var rtfeldman$elm_css$Css$Structure$Output$prettyPrint = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var declarations = _n0.declarations;
+	var charset = _n0.bz;
+	var imports = _n0.bF;
+	var namespaces = _n0.bL;
+	var declarations = _n0.cb;
 	return A2(
 		elm$core$String$join,
 		'\n\n',
@@ -9981,31 +9948,28 @@ var rtfeldman$elm_css$Css$Preprocess$Resolve$compile = function (styles) {
 		'\n\n',
 		A2(elm$core$List$map, rtfeldman$elm_css$Css$Preprocess$Resolve$compileHelp, styles));
 };
-var rtfeldman$elm_css$Css$Preprocess$Snippet = function (a) {
-	return {$: 'Snippet', a: a};
-};
+var rtfeldman$elm_css$Css$Preprocess$Snippet = elm$core$Basics$identity;
 var rtfeldman$elm_css$Css$Preprocess$StyleBlock = F3(
 	function (a, b, c) {
-		return {$: 'StyleBlock', a: a, b: b, c: c};
+		return {$: 0, a: a, b: b, c: c};
 	});
 var rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration = function (a) {
-	return {$: 'StyleBlockDeclaration', a: a};
+	return {$: 0, a: a};
 };
 var rtfeldman$elm_css$VirtualDom$Styled$makeSnippet = F2(
 	function (styles, sequence) {
 		var selector = A3(rtfeldman$elm_css$Css$Structure$Selector, sequence, _List_Nil, elm$core$Maybe$Nothing);
-		return rtfeldman$elm_css$Css$Preprocess$Snippet(
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration(
-					A3(rtfeldman$elm_css$Css$Preprocess$StyleBlock, selector, _List_Nil, styles))
-				]));
+		return _List_fromArray(
+			[
+				rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration(
+				A3(rtfeldman$elm_css$Css$Preprocess$StyleBlock, selector, _List_Nil, styles))
+			]);
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$murmurSeed = 15739;
 var rtfeldman$elm_css$VirtualDom$Styled$getClassname = function (styles) {
 	return elm$core$List$isEmpty(styles) ? 'unstyled' : A2(
 		elm$core$String$cons,
-		_Utils_chr('_'),
+		'_',
 		rtfeldman$elm_hex$Hex$toString(
 			A2(
 				Skinney$murmur3$Murmur3$hashString,
@@ -10131,15 +10095,15 @@ var rtfeldman$elm_css$Css$justifyContent = function (fn) {
 		'justify-content',
 		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
 };
-var rtfeldman$elm_css$Css$wrap = {flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, flexWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'wrap'};
+var rtfeldman$elm_css$Css$wrap = {aA: 0, aT: 0, A: 'wrap'};
 var rtfeldman$elm_css$Html$Styled$div = rtfeldman$elm_css$Html$Styled$node('div');
 var author$project$Page$Pokedex$viewPokedex = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
+		case 0:
 			return rtfeldman$elm_css$Html$Styled$text('Initialising...');
-		case 'Loading':
+		case 1:
 			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-		case 'Failure':
+		case 2:
 			var error = model.a;
 			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 		default:
@@ -10159,7 +10123,7 @@ var author$project$Page$Pokedex$viewPokedex = function (model) {
 				A2(
 					elm$core$List$map,
 					function (pokemon) {
-						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+						return A2(author$project$View$pokemon, pokemon.aG, pokemon.aC);
 					},
 					pokedex));
 	}
@@ -10218,7 +10182,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
 		var pairs = _n7.a;
 		var styles = _n7.b;
 		switch (html.$) {
-			case 'Unstyled':
+			case 4:
 				var vdom = html.a;
 				return _Utils_Tuple2(
 					A2(
@@ -10226,7 +10190,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
 						_Utils_Tuple2(key, vdom),
 						pairs),
 					styles);
-			case 'Node':
+			case 0:
 				var elemType = html.a;
 				var properties = html.b;
 				var children = html.c;
@@ -10249,7 +10213,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
 						_Utils_Tuple2(key, vdom),
 						pairs),
 					finalStyles);
-			case 'NodeNS':
+			case 1:
 				var ns = html.a;
 				var elemType = html.b;
 				var properties = html.c;
@@ -10274,7 +10238,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
 						_Utils_Tuple2(key, vdom),
 						pairs),
 					finalStyles);
-			case 'KeyedNode':
+			case 2:
 				var elemType = html.a;
 				var properties = html.b;
 				var children = html.c;
@@ -10329,12 +10293,12 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
 		var nodes = _n0.a;
 		var styles = _n0.b;
 		switch (html.$) {
-			case 'Unstyled':
+			case 4:
 				var vdomNode = html.a;
 				return _Utils_Tuple2(
 					A2(elm$core$List$cons, vdomNode, nodes),
 					styles);
-			case 'Node':
+			case 0:
 				var elemType = html.a;
 				var properties = html.b;
 				var children = html.c;
@@ -10354,7 +10318,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
 				return _Utils_Tuple2(
 					A2(elm$core$List$cons, vdomNode, nodes),
 					finalStyles);
-			case 'NodeNS':
+			case 1:
 				var ns = html.a;
 				var elemType = html.b;
 				var properties = html.c;
@@ -10376,7 +10340,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
 				return _Utils_Tuple2(
 					A2(elm$core$List$cons, vdomNode, nodes),
 					finalStyles);
-			case 'KeyedNode':
+			case 2:
 				var elemType = html.a;
 				var properties = html.b;
 				var children = html.c;
@@ -10422,7 +10386,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
 	});
 var elm$core$Dict$singleton = F2(
 	function (key, value) {
-		return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
+		return A5(elm$core$Dict$RBNode_elm_builtin, 1, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp = F2(
 	function (candidate, properties) {
@@ -10454,7 +10418,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp = F2(
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties = function (properties) {
 	var _n0 = A2(rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp, elm$core$Maybe$Nothing, properties);
-	if (_n0.$ === 'Nothing') {
+	if (_n0.$ === 1) {
 		return elm$core$Dict$empty;
 	} else {
 		var _n1 = _n0.a;
@@ -10464,7 +10428,7 @@ var rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties = function (propert
 	}
 };
 var rtfeldman$elm_css$Css$Structure$ClassSelector = function (a) {
-	return {$: 'ClassSelector', a: a};
+	return {$: 0, a: a};
 };
 var rtfeldman$elm_css$VirtualDom$Styled$snippetFromPair = function (_n0) {
 	var classname = _n0.a;
@@ -10635,21 +10599,21 @@ var rtfeldman$elm_css$VirtualDom$Styled$unstyleNS = F4(
 	});
 var rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
 	switch (vdom.$) {
-		case 'Unstyled':
+		case 4:
 			var plainNode = vdom.a;
 			return plainNode;
-		case 'Node':
+		case 0:
 			var elemType = vdom.a;
 			var properties = vdom.b;
 			var children = vdom.c;
 			return A3(rtfeldman$elm_css$VirtualDom$Styled$unstyle, elemType, properties, children);
-		case 'NodeNS':
+		case 1:
 			var ns = vdom.a;
 			var elemType = vdom.b;
 			var properties = vdom.c;
 			var children = vdom.d;
 			return A4(rtfeldman$elm_css$VirtualDom$Styled$unstyleNS, ns, elemType, properties, children);
-		case 'KeyedNode':
+		case 2:
 			var elemType = vdom.a;
 			var properties = vdom.b;
 			var children = vdom.c;
@@ -10675,10 +10639,10 @@ var author$project$Page$Pokedex$view = function (model) {
 				])));
 };
 var author$project$Msg$AddToTeam = function (a) {
-	return {$: 'AddToTeam', a: a};
+	return {$: 7, a: a};
 };
 var author$project$Msg$RemoveFromTeam = function (a) {
-	return {$: 'RemoveFromTeam', a: a};
+	return {$: 8, a: a};
 };
 var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
 	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
@@ -10708,10 +10672,10 @@ var author$project$Page$Pokemon$viewEvolution = function (evolution) {
 			]),
 		_List_fromArray(
 			[
-				A2(author$project$View$pokemon, evolution.name, evolution.id),
+				A2(author$project$View$pokemon, evolution.aG, evolution.aC),
 				function () {
-				var _n0 = evolution.evolutionChain;
-				var evolutions = _n0.a;
+				var _n0 = evolution.a7;
+				var evolutions = _n0;
 				return A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_Nil,
@@ -10761,9 +10725,9 @@ var author$project$View$typeColor = function (typeName) {
 			return '#000000';
 	}
 };
-var rtfeldman$elm_css$Css$uppercase = {textTransform: rtfeldman$elm_css$Css$Structure$Compatible, value: 'uppercase'};
-var rtfeldman$elm_css$Css$Transitions$BackgroundColor = {$: 'BackgroundColor'};
-var rtfeldman$elm_css$Css$Transitions$backgroundColor3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$BackgroundColor);
+var rtfeldman$elm_css$Css$uppercase = {V: 0, A: 'uppercase'};
+var rtfeldman$elm_css$Css$Transitions$BackgroundColor = 1;
+var rtfeldman$elm_css$Css$Transitions$backgroundColor3 = rtfeldman$elm_css$Css$Transitions$fullTransition(1);
 var author$project$View$pokemonType = function (typeName) {
 	return A2(
 		rtfeldman$elm_css$Html$Styled$a,
@@ -10859,7 +10823,7 @@ var author$project$View$subTitle = function (text) {
 				rtfeldman$elm_css$Html$Styled$text(text)
 			]));
 };
-var rtfeldman$elm_css$Css$auto = {alignItemsOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, flexBasis: rtfeldman$elm_css$Css$Structure$Compatible, intOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, justifyContentOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, overflow: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, tableLayout: rtfeldman$elm_css$Css$Structure$Compatible, textRendering: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, value: 'auto'};
+var rtfeldman$elm_css$Css$auto = {b4: 0, a: 0, ac: 0, aU: 0, cs: 0, ah: 0, G: 0, y: 0, ak: 0, u: 0, a2: 0, as: 0, r: 0, A: 'auto'};
 var rtfeldman$elm_css$Css$margin2 = rtfeldman$elm_css$Css$prop2('margin');
 var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');
 var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
@@ -10867,7 +10831,7 @@ var rtfeldman$elm_css$Html$Styled$Attributes$src = function (url) {
 	return A2(rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'src', url);
 };
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
+	return {$: 0, a: a};
 };
 var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var rtfeldman$elm_css$VirtualDom$Styled$on = F2(
@@ -10899,7 +10863,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 			_List_fromArray(
 				[
 					author$project$View$pageTitle(
-					elm$core$String$fromInt(pokemon.id) + (': ' + pokemon.name)),
+					elm$core$String$fromInt(pokemon.aC) + (': ' + pokemon.aG)),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
@@ -10918,7 +10882,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 							_List_fromArray(
 								[
 									rtfeldman$elm_css$Html$Styled$Attributes$src(
-									author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
+									author$project$Page$Pokemon$pokemonImageSrc(pokemon.aC))
 								]),
 							_List_Nil),
 							A2(
@@ -10926,7 +10890,7 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 							_List_fromArray(
 								[
 									rtfeldman$elm_css$Html$Styled$Attributes$src(
-									author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
+									author$project$Page$Pokemon$shinyImageSrc(pokemon.aC))
 								]),
 							_List_Nil)
 						])),
@@ -11012,16 +10976,16 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 					A2(
 						elm$core$List$map,
 						function (pokemonType) {
-							return author$project$View$pokemonType(pokemonType.name);
+							return author$project$View$pokemonType(pokemonType.aG);
 						},
-						pokemon.types)),
+						pokemon.b1)),
 					author$project$View$subTitle('Evolution Chain'),
 					A2(
 					rtfeldman$elm_css$Html$Styled$div,
 					_List_Nil,
 					_List_fromArray(
 						[
-							author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
+							author$project$Page$Pokemon$viewEvolution(pokemon.a7)
 						])),
 					author$project$View$subTitle('Varieties'),
 					A2(
@@ -11039,19 +11003,19 @@ var author$project$Page$Pokemon$viewPokemonDetails = F2(
 					A2(
 						elm$core$List$map,
 						function (variety) {
-							return A2(author$project$View$pokemon, variety.name, variety.id);
+							return A2(author$project$View$pokemon, variety.aG, variety.aC);
 						},
-						pokemon.varieties))
+						pokemon.bn))
 				]));
 	});
 var author$project$Page$Pokemon$viewPokemon = F2(
 	function (model, teamMembers) {
 		switch (model.$) {
-			case 'NotAsked':
+			case 0:
 				return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-			case 'Loading':
+			case 1:
 				return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-			case 'Failure':
+			case 2:
 				var error = model.a;
 				return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 			default:
@@ -11073,16 +11037,16 @@ var rtfeldman$elm_css$Css$prop3 = F4(
 				elm$core$String$join,
 				' ',
 				_List_fromArray(
-					[argA.value, argB.value, argC.value])));
+					[argA.A, argB.A, argC.A])));
 	});
 var rtfeldman$elm_css$Css$border3 = rtfeldman$elm_css$Css$prop3('border');
-var rtfeldman$elm_css$Css$row = {flexDirection: rtfeldman$elm_css$Css$Structure$Compatible, flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'row'};
+var rtfeldman$elm_css$Css$row = {a9: 0, aA: 0, A: 'row'};
 var rtfeldman$elm_css$Css$column = _Utils_update(
 	rtfeldman$elm_css$Css$row,
-	{value: 'column'});
+	{A: 'column'});
 var rtfeldman$elm_css$Css$flexDirection = rtfeldman$elm_css$Css$prop1('flex-direction');
 var rtfeldman$elm_css$Css$padding3 = rtfeldman$elm_css$Css$prop3('padding');
-var rtfeldman$elm_css$Css$solid = {borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, value: 'solid'};
+var rtfeldman$elm_css$Css$solid = {n: 0, U: 0, A: 'solid'};
 var rtfeldman$elm_css$Html$Styled$h4 = rtfeldman$elm_css$Html$Styled$node('h4');
 var author$project$Page$PokemonType$viewDamageRelation = F2(
 	function (sectionTitle, pokemonTypes) {
@@ -11145,7 +11109,7 @@ var author$project$Page$PokemonType$viewDamageRelation = F2(
 						A2(
 							elm$core$List$map,
 							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
+								return author$project$View$pokemonType(pokemonType.aG);
 							},
 							pokemonTypes))
 					]));
@@ -11166,12 +11130,12 @@ var author$project$Page$PokemonType$viewDamageRelations = function (damageRelati
 			]),
 		_List_fromArray(
 			[
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take double damage from', damageRelations.doubleDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal double damage to', damageRelations.doubleDamageTo),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take half damage from', damageRelations.halfDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.halfDamageTo),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.noDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.noDamageTo)
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take double damage from', damageRelations.cc),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal double damage to', damageRelations.cd),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take half damage from', damageRelations.cl),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.cm),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.cu),
+				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.cv)
 			]));
 };
 var author$project$Page$PokemonType$viewType = function (pokemonType) {
@@ -11180,16 +11144,16 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				author$project$View$pageTitle(pokemonType.name),
+				author$project$View$pageTitle(pokemonType.aG),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						author$project$View$subTitle('Damage Relations'),
-						author$project$Page$PokemonType$viewDamageRelations(pokemonType.damageRelations)
+						author$project$Page$PokemonType$viewDamageRelations(pokemonType.b9)
 					])),
-				author$project$View$subTitle(pokemonType.name + ' type Pokemon'),
+				author$project$View$subTitle(pokemonType.aG + ' type Pokemon'),
 				A2(
 				rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
@@ -11205,18 +11169,18 @@ var author$project$Page$PokemonType$viewType = function (pokemonType) {
 				A2(
 					elm$core$List$map,
 					function (pokemon) {
-						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+						return A2(author$project$View$pokemon, pokemon.aG, pokemon.aC);
 					},
-					pokemonType.pokemon))
+					pokemonType.aZ))
 			]));
 };
 var author$project$Page$PokemonType$viewPokemonType = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
+		case 0:
 			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-		case 'Loading':
+		case 1:
 			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Type...');
-		case 'Failure':
+		case 2:
 			var error = model.a;
 			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon Type');
 		default:
@@ -11230,17 +11194,16 @@ var author$project$Page$PokemonType$view = function (model) {
 };
 var elm$core$Set$remove = F2(
 	function (key, _n0) {
-		var dict = _n0.a;
-		return elm$core$Set$Set_elm_builtin(
-			A2(elm$core$Dict$remove, key, dict));
+		var dict = _n0;
+		return A2(elm$core$Dict$remove, key, dict);
 	});
 var author$project$Page$PokemonTypes$viewTypes = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
+		case 0:
 			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-		case 'Loading':
+		case 1:
 			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-		case 'Failure':
+		case 2:
 			var error = model.a;
 			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 		default:
@@ -11273,7 +11236,7 @@ var author$project$Page$PokemonTypes$viewTypes = function (model) {
 									A2(
 										elm$core$List$map,
 										function (pokemonType) {
-											return pokemonType.name;
+											return pokemonType.aG;
 										},
 										pokemonTypes)))))));
 	}
@@ -11298,9 +11261,9 @@ var author$project$Page$Team$teamSTABCoverage = function (pokemonTypes) {
 					return A2(
 						elm$core$List$map,
 						function (base) {
-							return base.name;
+							return base.aG;
 						},
-						pokemonType.damageRelations.doubleDamageTo);
+						pokemonType.b9.cd);
 				},
 				pokemonTypes)));
 };
@@ -11308,7 +11271,7 @@ var elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
 		foldl:
 		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
+			if (dict.$ === -2) {
 				return acc;
 			} else {
 				var key = dict.b;
@@ -11342,10 +11305,9 @@ var elm$core$Dict$diff = F2(
 	});
 var elm$core$Set$diff = F2(
 	function (_n0, _n1) {
-		var dict1 = _n0.a;
-		var dict2 = _n1.a;
-		return elm$core$Set$Set_elm_builtin(
-			A2(elm$core$Dict$diff, dict1, dict2));
+		var dict1 = _n0;
+		var dict2 = _n1;
+		return A2(elm$core$Dict$diff, dict1, dict2);
 	});
 var author$project$Page$Team$missingSTABCoverage = F2(
 	function (teamPokemonTypes, allPokemonTypes) {
@@ -11361,14 +11323,14 @@ var author$project$Page$Team$missingSTABCoverage = F2(
 						A2(
 							elm$core$List$map,
 							function (base) {
-								return base.name;
+								return base.aG;
 							},
 							allPokemonTypes)))),
 			author$project$Page$Team$teamSTABCoverage(teamPokemonTypes));
 	});
 var author$project$Page$Team$viewMissingSTABCoverage = F2(
 	function (teamPokemonTypes, pokemonTypesWebData) {
-		if (pokemonTypesWebData.$ === 'Success') {
+		if (pokemonTypesWebData.$ === 3) {
 			var allPokemonTypes = pokemonTypesWebData.a;
 			return A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -11415,7 +11377,7 @@ var author$project$Page$Team$viewTeamMembers = function (members) {
 		A2(
 			elm$core$List$map,
 			function (pokemon) {
-				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+				return A2(author$project$View$pokemon, pokemon.aG, pokemon.aC);
 			},
 			members));
 };
@@ -11454,7 +11416,7 @@ var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 		A2(
 			elm$core$List$map,
 			function (pokemonType) {
-				return author$project$View$pokemonType(pokemonType.name);
+				return author$project$View$pokemonType(pokemonType.aG);
 			},
 			pokemonTypes));
 };
@@ -11488,12 +11450,12 @@ var author$project$Page$Team$teamStrengths = function (pokemonTypes) {
 					return A2(
 						elm$core$List$map,
 						function (base) {
-							return base.name;
+							return base.aG;
 						},
 						A2(
 							elm$core$List$append,
-							pokemonType.damageRelations.noDamageFrom,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageFrom, pokemonType.damageRelations.doubleDamageTo)));
+							pokemonType.b9.cu,
+							A2(elm$core$List$append, pokemonType.b9.cl, pokemonType.b9.cd)));
 				},
 				pokemonTypes)));
 };
@@ -11506,12 +11468,12 @@ var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
 					return A2(
 						elm$core$List$map,
 						function (base) {
-							return base.name;
+							return base.aG;
 						},
 						A2(
 							elm$core$List$append,
-							pokemonType.damageRelations.noDamageTo,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageTo, pokemonType.damageRelations.doubleDamageFrom)));
+							pokemonType.b9.cv,
+							A2(elm$core$List$append, pokemonType.b9.cm, pokemonType.b9.cc)));
 				},
 				pokemonTypes)));
 };
@@ -11548,36 +11510,36 @@ var author$project$Page$Team$view = F2(
 				_List_fromArray(
 					[
 						author$project$View$pageTitle('Team'),
-						author$project$Page$Team$viewTeamNumber(team.members),
-						author$project$Page$Team$viewTeamMembers(team.members),
+						author$project$Page$Team$viewTeamNumber(team.aF),
+						author$project$Page$Team$viewTeamMembers(team.aF),
 						author$project$View$subTitle('Team Types'),
-						author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),
+						author$project$Page$Team$viewTeamPokemonTypes(team.K),
 						author$project$View$subTitle('Team Weaknesses'),
-						author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes),
+						author$project$Page$Team$viewTeamWeaknesses(team.K),
 						author$project$View$subTitle('Team STAB Coverage'),
-						author$project$Page$Team$viewTeamSTABCoverage(team.pokemonTypes),
+						author$project$Page$Team$viewTeamSTABCoverage(team.K),
 						author$project$View$subTitle('Missing STAB Coverage'),
-						A2(author$project$Page$Team$viewMissingSTABCoverage, team.pokemonTypes, pokemonTypesWebData)
+						A2(author$project$Page$Team$viewMissingSTABCoverage, team.K, pokemonTypesWebData)
 					])));
 	});
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$contentView = function (model) {
-	var _n0 = model.route;
+	var _n0 = model.bi;
 	switch (_n0.$) {
-		case 'NotFound':
+		case 0:
 			return elm$html$Html$text('Not Found');
-		case 'Pokedex':
-			return author$project$Page$Pokedex$view(model.pokedex);
-		case 'Pokemon':
+		case 1:
+			return author$project$Page$Pokedex$view(model.bf);
+		case 2:
 			var id = _n0.a;
-			return A2(author$project$Page$Pokemon$view, model.pokemon, model.team.members);
-		case 'PokemonTypes':
-			return author$project$Page$PokemonTypes$view(model.pokemonTypes);
-		case 'PokemonType':
+			return A2(author$project$Page$Pokemon$view, model.aZ, model.v.aF);
+		case 3:
+			return author$project$Page$PokemonTypes$view(model.K);
+		case 4:
 			var id = _n0.a;
-			return author$project$Page$PokemonType$view(model.pokemonType);
+			return author$project$Page$PokemonType$view(model.a_);
 		default:
-			return A2(author$project$Page$Team$view, model.team, model.pokemonTypes);
+			return A2(author$project$Page$Team$view, model.v, model.K);
 	}
 };
 var rtfeldman$elm_css$Css$marginRight = rtfeldman$elm_css$Css$prop1('margin-right');
@@ -11603,14 +11565,14 @@ var author$project$Navigation$viewNavLink = F2(
 				]));
 	});
 var author$project$Msg$SearchQueryChange = function (a) {
-	return {$: 'SearchQueryChange', a: a};
+	return {$: 6, a: a};
 };
 var author$project$Navigation$isMatch = F2(
 	function (queryString, pokemon) {
 		return A2(
 			elm$core$String$contains,
 			elm$core$String$toLower(queryString),
-			pokemon.name);
+			pokemon.aG);
 	});
 var author$project$Navigation$findMatches = F2(
 	function (queryString, pokedex) {
@@ -11670,22 +11632,22 @@ var author$project$Navigation$viewMatch = function (pokemon) {
 					])),
 				author$project$Route$styledHref(
 				author$project$Route$Pokemon(
-					elm$core$String$fromInt(pokemon.id)))
+					elm$core$String$fromInt(pokemon.aC)))
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(pokemon.name)
+				rtfeldman$elm_css$Html$Styled$text(pokemon.aG)
 			]));
 };
-var rtfeldman$elm_css$Css$absolute = {position: rtfeldman$elm_css$Css$Structure$Compatible, value: 'absolute'};
-var rtfeldman$elm_css$Css$initial = {alignItems: rtfeldman$elm_css$Css$Structure$Compatible, all: rtfeldman$elm_css$Css$Structure$Compatible, backgroundAttachment: rtfeldman$elm_css$Css$Structure$Compatible, backgroundBlendMode: rtfeldman$elm_css$Css$Structure$Compatible, backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, backgroundOrigin: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, boxSizing: rtfeldman$elm_css$Css$Structure$Compatible, color: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, flexBasis: rtfeldman$elm_css$Css$Structure$Compatible, flexDirection: rtfeldman$elm_css$Css$Structure$Compatible, flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, flexWrap: rtfeldman$elm_css$Css$Structure$Compatible, fontFamily: rtfeldman$elm_css$Css$Structure$Compatible, fontSize: rtfeldman$elm_css$Css$Structure$Compatible, fontStyle: rtfeldman$elm_css$Css$Structure$Compatible, fontVariant: rtfeldman$elm_css$Css$Structure$Compatible, fontWeight: rtfeldman$elm_css$Css$Structure$Compatible, intOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, justifyContent: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, length: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumber: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStylePosition: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, number: rtfeldman$elm_css$Css$Structure$Compatible, numericValue: 0, outline: rtfeldman$elm_css$Css$Structure$Compatible, overflow: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, tableLayout: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, textIndent: rtfeldman$elm_css$Css$Structure$Compatible, textRendering: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, unitLabel: '', units: rtfeldman$elm_css$Css$Internal$IncompatibleUnits, value: 'initial', visibility: rtfeldman$elm_css$Css$Structure$Compatible, whiteSpace: rtfeldman$elm_css$Css$Structure$Compatible};
+var rtfeldman$elm_css$Css$absolute = {aI: 0, A: 'absolute'};
+var rtfeldman$elm_css$Css$initial = {bq: 0, br: 0, ay: 0, bs: 0, Y: 0, bt: 0, Z: 0, C: 0, n: 0, aR: 0, x: 0, a: 0, f: 0, ac: 0, a9: 0, aA: 0, aT: 0, N: 0, k: 0, ad: 0, d: 0, F: 0, aU: 0, bI: 0, ba: 0, aD: 0, ah: 0, G: 0, ai: 0, aj: 0, P: 0, Q: 0, y: 0, aV: 0, c: 0, b: 0, bc: 0, aH: 0, J: 0, aY: 0, ak: 0, u: 0, a2: 0, aq: 0, U: 0, ar: 0, as: 0, V: 0, r: 0, at: '', aO: 0, A: 'initial', aP: 0, M: 0};
 var rtfeldman$elm_css$Css$inherit = _Utils_update(
 	rtfeldman$elm_css$Css$initial,
-	{value: 'inherit'});
+	{A: 'inherit'});
 var rtfeldman$elm_css$Css$position = rtfeldman$elm_css$Css$prop1('position');
 var author$project$Navigation$viewSearchResults = F2(
 	function (queryString, pokedexModel) {
-		if (pokedexModel.$ === 'Success') {
+		if (pokedexModel.$ === 3) {
 			var pokedex = pokedexModel.a;
 			return elm$core$String$isEmpty(queryString) ? A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil) : A2(
 				rtfeldman$elm_css$Html$Styled$div,
@@ -11727,7 +11689,7 @@ var rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
+	return {$: 1, a: a};
 };
 var rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
 	function (event, decoder) {
@@ -11825,7 +11787,7 @@ var author$project$Navigation$view = function (model) {
 				]),
 			_List_fromArray(
 				[
-					A2(author$project$Navigation$viewSearch, model.query, model.pokedex),
+					A2(author$project$Navigation$viewSearch, model.bh, model.bf),
 					A2(author$project$Navigation$viewNavLink, author$project$Route$Pokedex, 'Home'),
 					A2(author$project$Navigation$viewNavLink, author$project$Route$PokemonTypes, 'Types'),
 					A2(author$project$Navigation$viewNavLink, author$project$Route$Team, 'Team')
@@ -11860,7 +11822,7 @@ var author$project$View$pageContent = function (content) {
 var elm$html$Html$div = _VirtualDom_node('div');
 var author$project$Main$view = function (model) {
 	return {
-		body: _List_fromArray(
+		b7: _List_fromArray(
 			[
 				A2(
 				elm$html$Html$div,
@@ -11872,14 +11834,14 @@ var author$project$Main$view = function (model) {
 						author$project$Main$contentView(model))
 					]))
 			]),
-		title: 'PokElm'
+		cM: 'PokElm'
 	};
 };
 var author$project$Msg$UrlChange = function (a) {
-	return {$: 'UrlChange', a: a};
+	return {$: 0, a: a};
 };
 var author$project$Msg$UrlRequest = function (a) {
-	return {$: 'UrlRequest', a: a};
+	return {$: 1, a: a};
 };
 var elm$browser$Browser$application = _Browser_application;
 var elm$core$Basics$always = F2(
@@ -11890,12 +11852,12 @@ var elm$core$Platform$Sub$batch = _Platform_batch;
 var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Main$main = elm$browser$Browser$application(
 	{
-		init: author$project$Main$init,
-		onUrlChange: author$project$Msg$UrlChange,
-		onUrlRequest: author$project$Msg$UrlRequest,
-		subscriptions: elm$core$Basics$always(elm$core$Platform$Sub$none),
-		update: author$project$Main$update,
-		view: author$project$Main$view
+		cr: author$project$Main$init,
+		cw: author$project$Msg$UrlChange,
+		cx: author$project$Msg$UrlRequest,
+		cL: elm$core$Basics$always(elm$core$Platform$Sub$none),
+		cN: author$project$Main$update,
+		cQ: author$project$Main$view
 	});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	elm$json$Json$Decode$succeed(0))(0)}});}(this));
