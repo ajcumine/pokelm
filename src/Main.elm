@@ -31,7 +31,7 @@ init flags url navKey =
             , pokemon = Pokemon.init
             , pokemonTypes = RemoteData.Loading
             , pokemonType = PokemonType.init
-            , query = ""
+            , search = ""
             , team = Team.init
             }
 
@@ -98,7 +98,7 @@ update msg model =
             in
             ( { model
                 | route = route
-                , query = ""
+                , search = ""
                 , pokemon = RemoteData.Loading
                 , pokemonType = RemoteData.Loading
               }
@@ -125,8 +125,8 @@ update msg model =
             , Cmd.none
             )
 
-        SearchQueryChange query ->
-            ( { model | query = query }
+        SearchQueryChange searchQuery ->
+            ( { model | search = searchQuery }
             , Cmd.none
             )
 

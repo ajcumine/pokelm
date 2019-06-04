@@ -128,7 +128,7 @@ view model =
                 , padding2 (px 0) (px 40)
                 ]
             ]
-            [ viewSearch model.query model.pokedex
+            [ viewSearch model.search model.pokedex
             , viewNavLink Route.Pokedex "Home"
             , viewNavLink Route.PokemonTypes "Types"
             , viewNavLink Route.Team "Team"

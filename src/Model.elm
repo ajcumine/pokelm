@@ -12,7 +12,7 @@ type alias Model =
     , pokemon : PokemonWebData
     , pokemonType : PokemonTypeWebData
     , pokemonTypes : PokemonTypesWebData
-    , query : String
+    , search : String
     , team : Team
     }
 

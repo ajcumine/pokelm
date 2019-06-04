@@ -33,7 +33,23 @@ styledHref targetRoute =
 
 fromUrl : Url -> Route
 fromUrl url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+    let
+        fragmentList =
+            url.fragment
+                |> Maybe.withDefault ""
+                |> String.split "?"
+
+        path =
+            fragmentList
+                |> List.head
+                |> Maybe.withDefault ""
+
+        query =
+            fragmentList
+                |> List.reverse
+                |> List.head
+    in
+    { url | path = path, fragment = Nothing, query = query }
         |> Parser.parse parser
         |> Maybe.withDefault NotFound
 
