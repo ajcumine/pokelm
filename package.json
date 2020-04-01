@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "chokidar-cli": "^1.2.2",
-    "ecstatic": "^4.1.1",
+    "ecstatic": "^4.1.2",
     "elm": "^0.19.0-bugfix6",
     "uglify-js": "^3.6.0"
   }

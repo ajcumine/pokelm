@@ -437,10 +437,10 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
 
-ecstatic@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/ecstatic/-/ecstatic-4.1.1.tgz#ee58e1d9d4df7ca453b35d1f97a864e212af39f0"
-  integrity sha512-6v3nvwnfr+EBkgM5Ec8QANnIQzkOiRNJLH5C+2iofCKYIdTeuNED5BMAlPqsnsnFbies2TI7xscROCq7acp5FQ==
+ecstatic@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/ecstatic/-/ecstatic-4.1.2.tgz#3afbe29849b32bc2a1f8a90f67e01dc048c7ad40"
+  integrity sha512-lnrAOpU2f7Ra8dm1pW0D1ucyUxQIEk8RjFrvROg1YqCV0ueVu9hzgiSEbSyROqXDDiHREdqC4w3AwOTb23P4UQ==
   dependencies:
     charset "^1.0.1"
     he "^1.1.1"
