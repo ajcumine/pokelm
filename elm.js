@@ -77,14 +77,198 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
   return fun.a === 9 ? fun.f(a, b, c, d, e, f, g, h, i) : fun(a)(b)(c)(d)(e)(f)(g)(h)(i);
 }
 
-console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.0/optimize for better performance and smaller assets.');
 
 
-var _List_Nil_UNUSED = { $: 0 };
-var _List_Nil = { $: '[]' };
 
-function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
+// EQUALITY
+
+function _Utils_eq(x, y)
+{
+	for (
+		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
+		isEqual && (pair = stack.pop());
+		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
+		)
+	{}
+
+	return isEqual;
+}
+
+function _Utils_eqHelp(x, y, depth, stack)
+{
+	if (x === y)
+	{
+		return true;
+	}
+
+	if (typeof x !== 'object' || x === null || y === null)
+	{
+		typeof x === 'function' && _Debug_crash(5);
+		return false;
+	}
+
+	if (depth > 100)
+	{
+		stack.push(_Utils_Tuple2(x,y));
+		return true;
+	}
+
+	/**_UNUSED/
+	if (x.$ === 'Set_elm_builtin')
+	{
+		x = $elm$core$Set$toList(x);
+		y = $elm$core$Set$toList(y);
+	}
+	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	/**/
+	if (x.$ < 0)
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	for (var key in x)
+	{
+		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+var _Utils_equal = F2(_Utils_eq);
+var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
+
+
+
+// COMPARISONS
+
+// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
+// the particular integer values assigned to LT, EQ, and GT.
+
+function _Utils_cmp(x, y, ord)
+{
+	if (typeof x !== 'object')
+	{
+		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
+	}
+
+	/**_UNUSED/
+	if (x instanceof String)
+	{
+		var a = x.valueOf();
+		var b = y.valueOf();
+		return a === b ? 0 : a < b ? -1 : 1;
+	}
+	//*/
+
+	/**/
+	if (typeof x.$ === 'undefined')
+	//*/
+	/**_UNUSED/
+	if (x.$[0] === '#')
+	//*/
+	{
+		return (ord = _Utils_cmp(x.a, y.a))
+			? ord
+			: (ord = _Utils_cmp(x.b, y.b))
+				? ord
+				: _Utils_cmp(x.c, y.c);
+	}
+
+	// traverse conses until end of a list or a mismatch
+	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
+	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
+}
+
+var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
+var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
+var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
+var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
+
+var _Utils_compare = F2(function(x, y)
+{
+	var n = _Utils_cmp(x, y);
+	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
+});
+
+
+// COMMON VALUES
+
+var _Utils_Tuple0 = 0;
+var _Utils_Tuple0_UNUSED = { $: '#0' };
+
+function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
+
+function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+
+function _Utils_chr(c) { return c; }
+function _Utils_chr_UNUSED(c) { return new String(c); }
+
+
+// RECORDS
+
+function _Utils_update(oldRecord, updatedFields)
+{
+	var newRecord = {};
+
+	for (var key in oldRecord)
+	{
+		newRecord[key] = oldRecord[key];
+	}
+
+	for (var key in updatedFields)
+	{
+		newRecord[key] = updatedFields[key];
+	}
+
+	return newRecord;
+}
+
+
+// APPEND
+
+var _Utils_append = F2(_Utils_ap);
+
+function _Utils_ap(xs, ys)
+{
+	// append Strings
+	if (typeof xs === 'string')
+	{
+		return xs + ys;
+	}
+
+	// append Lists
+	if (!xs.b)
+	{
+		return ys;
+	}
+	var root = _List_Cons(xs.a, ys);
+	xs = xs.b
+	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		curr = curr.b = _List_Cons(xs.a, ys);
+	}
+	return root;
+}
+
+
+
+var _List_Nil = { $: 0 };
+var _List_Nil_UNUSED = { $: '[]' };
+
+function _List_Cons(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons_UNUSED(hd, tl) { return { $: '::', a: hd, b: tl }; }
 
 
 var _List_cons = F2(_List_Cons);
@@ -155,193 +339,9 @@ var _List_sortWith = F2(function(f, xs)
 {
 	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
 		var ord = A2(f, a, b);
-		return ord === elm$core$Basics$EQ ? 0 : ord === elm$core$Basics$LT ? -1 : 1;
+		return ord === $elm$core$Basics$EQ ? 0 : ord === $elm$core$Basics$LT ? -1 : 1;
 	}));
 });
-
-
-
-// EQUALITY
-
-function _Utils_eq(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-function _Utils_eqHelp(x, y, depth, stack)
-{
-	if (depth > 100)
-	{
-		stack.push(_Utils_Tuple2(x,y));
-		return true;
-	}
-
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (typeof x !== 'object' || x === null || y === null)
-	{
-		typeof x === 'function' && _Debug_crash(5);
-		return false;
-	}
-
-	/**/
-	if (x.$ === 'Set_elm_builtin')
-	{
-		x = elm$core$Set$toList(x);
-		y = elm$core$Set$toList(y);
-	}
-	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
-	{
-		x = elm$core$Dict$toList(x);
-		y = elm$core$Dict$toList(y);
-	}
-	//*/
-
-	/**_UNUSED/
-	if (x.$ < 0)
-	{
-		x = elm$core$Dict$toList(x);
-		y = elm$core$Dict$toList(y);
-	}
-	//*/
-
-	for (var key in x)
-	{
-		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-var _Utils_equal = F2(_Utils_eq);
-var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
-
-
-
-// COMPARISONS
-
-// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
-// the particular integer values assigned to LT, EQ, and GT.
-
-function _Utils_cmp(x, y, ord)
-{
-	if (typeof x !== 'object')
-	{
-		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
-	}
-
-	/**/
-	if (x instanceof String)
-	{
-		var a = x.valueOf();
-		var b = y.valueOf();
-		return a === b ? 0 : a < b ? -1 : 1;
-	}
-	//*/
-
-	/**_UNUSED/
-	if (typeof x.$ === 'undefined')
-	//*/
-	/**/
-	if (x.$[0] === '#')
-	//*/
-	{
-		return (ord = _Utils_cmp(x.a, y.a))
-			? ord
-			: (ord = _Utils_cmp(x.b, y.b))
-				? ord
-				: _Utils_cmp(x.c, y.c);
-	}
-
-	// traverse conses until end of a list or a mismatch
-	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
-	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
-}
-
-var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
-var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
-var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
-var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
-
-var _Utils_compare = F2(function(x, y)
-{
-	var n = _Utils_cmp(x, y);
-	return n < 0 ? elm$core$Basics$LT : n ? elm$core$Basics$GT : elm$core$Basics$EQ;
-});
-
-
-// COMMON VALUES
-
-var _Utils_Tuple0_UNUSED = 0;
-var _Utils_Tuple0 = { $: '#0' };
-
-function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
-
-function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
-
-function _Utils_chr_UNUSED(c) { return c; }
-function _Utils_chr(c) { return new String(c); }
-
-
-// RECORDS
-
-function _Utils_update(oldRecord, updatedFields)
-{
-	var newRecord = {};
-
-	for (var key in oldRecord)
-	{
-		newRecord[key] = oldRecord[key];
-	}
-
-	for (var key in updatedFields)
-	{
-		newRecord[key] = updatedFields[key];
-	}
-
-	return newRecord;
-}
-
-
-// APPEND
-
-var _Utils_append = F2(_Utils_ap);
-
-function _Utils_ap(xs, ys)
-{
-	// append Strings
-	if (typeof xs === 'string')
-	{
-		return xs + ys;
-	}
-
-	// append Lists
-	if (!xs.b)
-	{
-		return ys;
-	}
-	var root = _List_Cons(xs.a, ys);
-	xs = xs.b
-	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		curr = curr.b = _List_Cons(xs.a, ys);
-	}
-	return root;
-}
 
 
 
@@ -499,12 +499,12 @@ var _JsArray_appendN = F3(function(n, dest, source)
 
 // LOG
 
-var _Debug_log_UNUSED = F2(function(tag, value)
+var _Debug_log = F2(function(tag, value)
 {
 	return value;
 });
 
-var _Debug_log = F2(function(tag, value)
+var _Debug_log_UNUSED = F2(function(tag, value)
 {
 	console.log(tag + ': ' + _Debug_toString(value));
 	return value;
@@ -530,12 +530,12 @@ function _Debug_todoCase(moduleName, region, value)
 
 // TO STRING
 
-function _Debug_toString_UNUSED(value)
+function _Debug_toString(value)
 {
 	return '<internals>';
 }
 
-function _Debug_toString(value)
+function _Debug_toString_UNUSED(value)
 {
 	return _Debug_toAnsiString(false, value);
 }
@@ -591,21 +591,21 @@ function _Debug_toAnsiString(ansi, value)
 		{
 			return _Debug_ctorColor(ansi, 'Set')
 				+ _Debug_fadeColor(ansi, '.fromList') + ' '
-				+ _Debug_toAnsiString(ansi, elm$core$Set$toList(value));
+				+ _Debug_toAnsiString(ansi, $elm$core$Set$toList(value));
 		}
 
 		if (tag === 'RBNode_elm_builtin' || tag === 'RBEmpty_elm_builtin')
 		{
 			return _Debug_ctorColor(ansi, 'Dict')
 				+ _Debug_fadeColor(ansi, '.fromList') + ' '
-				+ _Debug_toAnsiString(ansi, elm$core$Dict$toList(value));
+				+ _Debug_toAnsiString(ansi, $elm$core$Dict$toList(value));
 		}
 
 		if (tag === 'Array_elm_builtin')
 		{
 			return _Debug_ctorColor(ansi, 'Array')
 				+ _Debug_fadeColor(ansi, '.fromList') + ' '
-				+ _Debug_toAnsiString(ansi, elm$core$Array$toList(value));
+				+ _Debug_toAnsiString(ansi, $elm$core$Array$toList(value));
 		}
 
 		if (tag === '::' || tag === '[]')
@@ -638,7 +638,7 @@ function _Debug_toAnsiString(ansi, value)
 		return _Debug_stringColor(ansi, '<' + value.byteLength + ' bytes>');
 	}
 
-	if (typeof File === 'function' && value instanceof File)
+	if (typeof File !== 'undefined' && value instanceof File)
 	{
 		return _Debug_internalColor(ansi, '<' + value.name + '>');
 	}
@@ -708,7 +708,7 @@ function _Debug_fadeColor(ansi, string)
 
 function _Debug_internalColor(ansi, string)
 {
-	return ansi ? '\x1b[94m' + string + '\x1b[0m' : string;
+	return ansi ? '\x1b[36m' + string + '\x1b[0m' : string;
 }
 
 function _Debug_toHexDigit(n)
@@ -720,13 +720,13 @@ function _Debug_toHexDigit(n)
 // CRASH
 
 
-function _Debug_crash_UNUSED(identifier)
+function _Debug_crash(identifier)
 {
 	throw new Error('https://github.com/elm/core/blob/1.0.0/hints/' + identifier + '.md');
 }
 
 
-function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
+function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 {
 	switch(identifier)
 	{
@@ -784,11 +784,11 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.start.line === region.end.line)
+	if (region.bc.az === region.bu.az)
 	{
-		return 'on line ' + region.start.line;
+		return 'on line ' + region.bc.az;
 	}
-	return 'on lines ' + region.start.line + ' through ' + region.end.line;
+	return 'on lines ' + region.bc.az + ' through ' + region.bu.az;
 }
 
 
@@ -853,53 +853,6 @@ var _Basics_xor = F2(function(a, b) { return a !== b; });
 
 
 
-function _Char_toCode(char)
-{
-	var code = char.charCodeAt(0);
-	if (0xD800 <= code && code <= 0xDBFF)
-	{
-		return (code - 0xD800) * 0x400 + char.charCodeAt(1) - 0xDC00 + 0x10000
-	}
-	return code;
-}
-
-function _Char_fromCode(code)
-{
-	return _Utils_chr(
-		(code < 0 || 0x10FFFF < code)
-			? '\uFFFD'
-			:
-		(code <= 0xFFFF)
-			? String.fromCharCode(code)
-			:
-		(code -= 0x10000,
-			String.fromCharCode(Math.floor(code / 0x400) + 0xD800, code % 0x400 + 0xDC00)
-		)
-	);
-}
-
-function _Char_toUpper(char)
-{
-	return _Utils_chr(char.toUpperCase());
-}
-
-function _Char_toLower(char)
-{
-	return _Utils_chr(char.toLowerCase());
-}
-
-function _Char_toLocaleUpper(char)
-{
-	return _Utils_chr(char.toLocaleUpperCase());
-}
-
-function _Char_toLocaleLower(char)
-{
-	return _Utils_chr(char.toLocaleLowerCase());
-}
-
-
-
 var _String_cons = F2(function(chr, str)
 {
 	return chr + str;
@@ -908,13 +861,13 @@ var _String_cons = F2(function(chr, str)
 function _String_uncons(string)
 {
 	var word = string.charCodeAt(0);
-	return word
-		? elm$core$Maybe$Just(
+	return !isNaN(word)
+		? $elm$core$Maybe$Just(
 			0xD800 <= word && word <= 0xDBFF
 				? _Utils_Tuple2(_Utils_chr(string[0] + string[1]), string.slice(2))
 				: _Utils_Tuple2(_Utils_chr(string[0]), string.slice(1))
 		)
-		: elm$core$Maybe$Nothing;
+		: $elm$core$Maybe$Nothing;
 }
 
 var _String_append = F2(function(a, b)
@@ -1179,14 +1132,14 @@ function _String_toInt(str)
 		var code = str.charCodeAt(i);
 		if (code < 0x30 || 0x39 < code)
 		{
-			return elm$core$Maybe$Nothing;
+			return $elm$core$Maybe$Nothing;
 		}
 		total = 10 * total + code - 0x30;
 	}
 
 	return i == start
-		? elm$core$Maybe$Nothing
-		: elm$core$Maybe$Just(code0 == 0x2D ? -total : total);
+		? $elm$core$Maybe$Nothing
+		: $elm$core$Maybe$Just(code0 == 0x2D ? -total : total);
 }
 
 
@@ -1197,11 +1150,11 @@ function _String_toFloat(s)
 	// check if it is a hex, octal, or binary number
 	if (s.length === 0 || /[\sxbo]/.test(s))
 	{
-		return elm$core$Maybe$Nothing;
+		return $elm$core$Maybe$Nothing;
 	}
 	var n = +s;
 	// faster isNaN check
-	return n === n ? elm$core$Maybe$Just(n) : elm$core$Maybe$Nothing;
+	return n === n ? $elm$core$Maybe$Just(n) : $elm$core$Maybe$Nothing;
 }
 
 function _String_fromList(chars)
@@ -1212,10 +1165,57 @@ function _String_fromList(chars)
 
 
 
-/**/
+function _Char_toCode(char)
+{
+	var code = char.charCodeAt(0);
+	if (0xD800 <= code && code <= 0xDBFF)
+	{
+		return (code - 0xD800) * 0x400 + char.charCodeAt(1) - 0xDC00 + 0x10000
+	}
+	return code;
+}
+
+function _Char_fromCode(code)
+{
+	return _Utils_chr(
+		(code < 0 || 0x10FFFF < code)
+			? '\uFFFD'
+			:
+		(code <= 0xFFFF)
+			? String.fromCharCode(code)
+			:
+		(code -= 0x10000,
+			String.fromCharCode(Math.floor(code / 0x400) + 0xD800, code % 0x400 + 0xDC00)
+		)
+	);
+}
+
+function _Char_toUpper(char)
+{
+	return _Utils_chr(char.toUpperCase());
+}
+
+function _Char_toLower(char)
+{
+	return _Utils_chr(char.toLowerCase());
+}
+
+function _Char_toLocaleUpper(char)
+{
+	return _Utils_chr(char.toLocaleUpperCase());
+}
+
+function _Char_toLocaleLower(char)
+{
+	return _Utils_chr(char.toLocaleLowerCase());
+}
+
+
+
+/**_UNUSED/
 function _Json_errorToString(error)
 {
-	return elm$json$Json$Decode$errorToString(error);
+	return $elm$json$Json$Decode$errorToString(error);
 }
 //*/
 
@@ -1248,34 +1248,34 @@ var _Json_decodeInt = _Json_decodePrim(function(value) {
 		? _Json_expecting('an INT', value)
 		:
 	(-2147483647 < value && value < 2147483647 && (value | 0) === value)
-		? elm$core$Result$Ok(value)
+		? $elm$core$Result$Ok(value)
 		:
 	(isFinite(value) && !(value % 1))
-		? elm$core$Result$Ok(value)
+		? $elm$core$Result$Ok(value)
 		: _Json_expecting('an INT', value);
 });
 
 var _Json_decodeBool = _Json_decodePrim(function(value) {
 	return (typeof value === 'boolean')
-		? elm$core$Result$Ok(value)
+		? $elm$core$Result$Ok(value)
 		: _Json_expecting('a BOOL', value);
 });
 
 var _Json_decodeFloat = _Json_decodePrim(function(value) {
 	return (typeof value === 'number')
-		? elm$core$Result$Ok(value)
+		? $elm$core$Result$Ok(value)
 		: _Json_expecting('a FLOAT', value);
 });
 
 var _Json_decodeValue = _Json_decodePrim(function(value) {
-	return elm$core$Result$Ok(_Json_wrap(value));
+	return $elm$core$Result$Ok(_Json_wrap(value));
 });
 
 var _Json_decodeString = _Json_decodePrim(function(value) {
 	return (typeof value === 'string')
-		? elm$core$Result$Ok(value)
+		? $elm$core$Result$Ok(value)
 		: (value instanceof String)
-			? elm$core$Result$Ok(value + '')
+			? $elm$core$Result$Ok(value + '')
 			: _Json_expecting('a STRING', value);
 });
 
@@ -1391,7 +1391,7 @@ var _Json_runOnString = F2(function(decoder, string)
 	}
 	catch (e)
 	{
-		return elm$core$Result$Err(A2(elm$json$Json$Decode$Failure, 'This is not valid JSON! ' + e.message, _Json_wrap(string)));
+		return $elm$core$Result$Err(A2($elm$json$Json$Decode$Failure, 'This is not valid JSON! ' + e.message, _Json_wrap(string)));
 	}
 });
 
@@ -1409,7 +1409,7 @@ function _Json_runHelp(decoder, value)
 
 		case 5:
 			return (value === null)
-				? elm$core$Result$Ok(decoder.c)
+				? $elm$core$Result$Ok(decoder.c)
 				: _Json_expecting('null', value);
 
 		case 3:
@@ -1433,7 +1433,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('an OBJECT with a field named `' + field + '`', value);
 			}
 			var result = _Json_runHelp(decoder.b, value[field]);
-			return (elm$core$Result$isOk(result)) ? result : elm$core$Result$Err(A2(elm$json$Json$Decode$Field, field, result.a));
+			return ($elm$core$Result$isOk(result)) ? result : $elm$core$Result$Err(A2($elm$json$Json$Decode$Field, field, result.a));
 
 		case 7:
 			var index = decoder.e;
@@ -1446,7 +1446,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('a LONGER array. Need index ' + index + ' but only see ' + value.length + ' entries', value);
 			}
 			var result = _Json_runHelp(decoder.b, value[index]);
-			return (elm$core$Result$isOk(result)) ? result : elm$core$Result$Err(A2(elm$json$Json$Decode$Index, index, result.a));
+			return ($elm$core$Result$isOk(result)) ? result : $elm$core$Result$Err(A2($elm$json$Json$Decode$Index, index, result.a));
 
 		case 8:
 			if (typeof value !== 'object' || value === null || _Json_isArray(value))
@@ -1461,14 +1461,14 @@ function _Json_runHelp(decoder, value)
 				if (value.hasOwnProperty(key))
 				{
 					var result = _Json_runHelp(decoder.b, value[key]);
-					if (!elm$core$Result$isOk(result))
+					if (!$elm$core$Result$isOk(result))
 					{
-						return elm$core$Result$Err(A2(elm$json$Json$Decode$Field, key, result.a));
+						return $elm$core$Result$Err(A2($elm$json$Json$Decode$Field, key, result.a));
 					}
 					keyValuePairs = _List_Cons(_Utils_Tuple2(key, result.a), keyValuePairs);
 				}
 			}
-			return elm$core$Result$Ok(elm$core$List$reverse(keyValuePairs));
+			return $elm$core$Result$Ok($elm$core$List$reverse(keyValuePairs));
 
 		case 9:
 			var answer = decoder.f;
@@ -1476,17 +1476,17 @@ function _Json_runHelp(decoder, value)
 			for (var i = 0; i < decoders.length; i++)
 			{
 				var result = _Json_runHelp(decoders[i], value);
-				if (!elm$core$Result$isOk(result))
+				if (!$elm$core$Result$isOk(result))
 				{
 					return result;
 				}
 				answer = answer(result.a);
 			}
-			return elm$core$Result$Ok(answer);
+			return $elm$core$Result$Ok(answer);
 
 		case 10:
 			var result = _Json_runHelp(decoder.b, value);
-			return (!elm$core$Result$isOk(result))
+			return (!$elm$core$Result$isOk(result))
 				? result
 				: _Json_runHelp(decoder.h(result.a), value);
 
@@ -1495,19 +1495,19 @@ function _Json_runHelp(decoder, value)
 			for (var temp = decoder.g; temp.b; temp = temp.b) // WHILE_CONS
 			{
 				var result = _Json_runHelp(temp.a, value);
-				if (elm$core$Result$isOk(result))
+				if ($elm$core$Result$isOk(result))
 				{
 					return result;
 				}
 				errors = _List_Cons(result.a, errors);
 			}
-			return elm$core$Result$Err(elm$json$Json$Decode$OneOf(elm$core$List$reverse(errors)));
+			return $elm$core$Result$Err($elm$json$Json$Decode$OneOf($elm$core$List$reverse(errors)));
 
 		case 1:
-			return elm$core$Result$Err(A2(elm$json$Json$Decode$Failure, decoder.a, _Json_wrap(value)));
+			return $elm$core$Result$Err(A2($elm$json$Json$Decode$Failure, decoder.a, _Json_wrap(value)));
 
 		case 0:
-			return elm$core$Result$Ok(decoder.a);
+			return $elm$core$Result$Ok(decoder.a);
 	}
 }
 
@@ -1518,13 +1518,13 @@ function _Json_runArrayDecoder(decoder, value, toElmValue)
 	for (var i = 0; i < len; i++)
 	{
 		var result = _Json_runHelp(decoder, value[i]);
-		if (!elm$core$Result$isOk(result))
+		if (!$elm$core$Result$isOk(result))
 		{
-			return elm$core$Result$Err(A2(elm$json$Json$Decode$Index, i, result.a));
+			return $elm$core$Result$Err(A2($elm$json$Json$Decode$Index, i, result.a));
 		}
 		array[i] = result.a;
 	}
-	return elm$core$Result$Ok(toElmValue(array));
+	return $elm$core$Result$Ok(toElmValue(array));
 }
 
 function _Json_isArray(value)
@@ -1534,12 +1534,12 @@ function _Json_isArray(value)
 
 function _Json_toElmArray(array)
 {
-	return A2(elm$core$Array$initialize, array.length, function(i) { return array[i]; });
+	return A2($elm$core$Array$initialize, array.length, function(i) { return array[i]; });
 }
 
 function _Json_expecting(type, value)
 {
-	return elm$core$Result$Err(A2(elm$json$Json$Decode$Failure, 'Expecting ' + type, _Json_wrap(value)));
+	return $elm$core$Result$Err(A2($elm$json$Json$Decode$Failure, 'Expecting ' + type, _Json_wrap(value)));
 }
 
 
@@ -1616,11 +1616,11 @@ var _Json_encode = F2(function(indentLevel, value)
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 });
 
-function _Json_wrap(value) { return { $: 0, a: value }; }
-function _Json_unwrap(value) { return value.a; }
+function _Json_wrap_UNUSED(value) { return { $: 0, a: value }; }
+function _Json_unwrap_UNUSED(value) { return value.a; }
 
-function _Json_wrap_UNUSED(value) { return value; }
-function _Json_unwrap_UNUSED(value) { return value; }
+function _Json_wrap(value) { return value; }
+function _Json_unwrap(value) { return value; }
 
 function _Json_emptyArray() { return []; }
 function _Json_emptyObject() { return {}; }
@@ -1642,23 +1642,6 @@ function _Json_addEntry(func)
 
 var _Json_encodeNull = _Json_wrap(null);
 
-
-function _Url_percentEncode(string)
-{
-	return encodeURIComponent(string);
-}
-
-function _Url_percentDecode(string)
-{
-	try
-	{
-		return elm$core$Maybe$Just(decodeURIComponent(string));
-	}
-	catch (e)
-	{
-		return elm$core$Maybe$Nothing;
-	}
-}
 
 
 // TASKS
@@ -1874,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cq,
+		impl.cQ,
+		impl.cN,
 		function() { return function() {} }
 	);
 });
@@ -1889,21 +1872,21 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
 	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
-	elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
+	$elm$core$Result$isOk(result) || _Debug_crash(2 /**_UNUSED/, _Json_errorToString(result.a) /**/);
 	var managers = {};
-	result = init(result.a);
-	var model = result.a;
+	var initPair = init(result.a);
+	var model = initPair.a;
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
 
 	function sendToApp(msg, viewMetadata)
 	{
-		result = A2(update, msg, model);
-		stepper(model = result.a, viewMetadata);
-		_Platform_dispatchEffects(managers, result.b, subscriptions(model));
+		var pair = A2(update, msg, model);
+		stepper(model = pair.a, viewMetadata);
+		_Platform_enqueueEffects(managers, pair.b, subscriptions(model));
 	}
 
-	_Platform_dispatchEffects(managers, result.b, subscriptions(model));
+	_Platform_enqueueEffects(managers, initPair.b, subscriptions(model));
 
 	return ports ? { ports: ports } : {};
 }
@@ -2061,6 +2044,51 @@ var _Platform_map = F2(function(tagger, bag)
 
 
 // PIPE BAGS INTO EFFECT MANAGERS
+//
+// Effects must be queued!
+//
+// Say your init contains a synchronous command, like Time.now or Time.here
+//
+//   - This will produce a batch of effects (FX_1)
+//   - The synchronous task triggers the subsequent `update` call
+//   - This will produce a batch of effects (FX_2)
+//
+// If we just start dispatching FX_2, subscriptions from FX_2 can be processed
+// before subscriptions from FX_1. No good! Earlier versions of this code had
+// this problem, leading to these reports:
+//
+//   https://github.com/elm/core/issues/980
+//   https://github.com/elm/core/pull/981
+//   https://github.com/elm/compiler/issues/1776
+//
+// The queue is necessary to avoid ordering issues for synchronous commands.
+
+
+// Why use true/false here? Why not just check the length of the queue?
+// The goal is to detect "are we currently dispatching effects?" If we
+// are, we need to bail and let the ongoing while loop handle things.
+//
+// Now say the queue has 1 element. When we dequeue the final element,
+// the queue will be empty, but we are still actively dispatching effects.
+// So you could get queue jumping in a really tricky category of cases.
+//
+var _Platform_effectsQueue = [];
+var _Platform_effectsActive = false;
+
+
+function _Platform_enqueueEffects(managers, cmdBag, subBag)
+{
+	_Platform_effectsQueue.push({ p: managers, q: cmdBag, r: subBag });
+
+	if (_Platform_effectsActive) return;
+
+	_Platform_effectsActive = true;
+	for (var fx; fx = _Platform_effectsQueue.shift(); )
+	{
+		_Platform_dispatchEffects(fx.p, fx.q, fx.r);
+	}
+	_Platform_effectsActive = false;
+}
 
 
 function _Platform_dispatchEffects(managers, cmdBag, subBag)
@@ -2098,8 +2126,8 @@ function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers)
 
 		case 3:
 			_Platform_gatherEffects(isCmd, bag.o, effectsDict, {
-				p: bag.n,
-				q: taggers
+				s: bag.n,
+				t: taggers
 			});
 			return;
 	}
@@ -2110,9 +2138,9 @@ function _Platform_toEffect(isCmd, home, taggers, value)
 {
 	function applyTaggers(x)
 	{
-		for (var temp = taggers; temp; temp = temp.q)
+		for (var temp = taggers; temp; temp = temp.t)
 		{
-			x = temp.p(x);
+			x = temp.s(x);
 		}
 		return x;
 	}
@@ -2159,7 +2187,7 @@ function _Platform_outgoingPort(name, converter)
 	_Platform_checkPortName(name);
 	_Platform_effectManagers[name] = {
 		e: _Platform_outgoingPortMap,
-		r: converter,
+		u: converter,
 		a: _Platform_setupOutgoingPort
 	};
 	return _Platform_leaf(name);
@@ -2172,7 +2200,7 @@ var _Platform_outgoingPortMap = F2(function(tagger, value) { return value; });
 function _Platform_setupOutgoingPort(name)
 {
 	var subs = [];
-	var converter = _Platform_effectManagers[name].r;
+	var converter = _Platform_effectManagers[name].u;
 
 	// CREATE MANAGER
 
@@ -2229,7 +2257,7 @@ function _Platform_incomingPort(name, converter)
 	_Platform_checkPortName(name);
 	_Platform_effectManagers[name] = {
 		f: _Platform_incomingPortMap,
-		r: converter,
+		u: converter,
 		a: _Platform_setupIncomingPort
 	};
 	return _Platform_leaf(name);
@@ -2248,7 +2276,7 @@ var _Platform_incomingPortMap = F2(function(tagger, finalTagger)
 function _Platform_setupIncomingPort(name, sendToApp)
 {
 	var subs = _List_Nil;
-	var converter = _Platform_effectManagers[name].r;
+	var converter = _Platform_effectManagers[name].u;
 
 	// CREATE MANAGER
 
@@ -2267,7 +2295,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 	{
 		var result = A2(_Json_run, converter, _Json_wrap(incomingValue));
 
-		elm$core$Result$isOk(result) || _Debug_crash(4, name, result.a);
+		$elm$core$Result$isOk(result) || _Debug_crash(4, name, result.a);
 
 		var value = result.a;
 		for (var temp = subs; temp.b; temp = temp.b) // WHILE_CONS
@@ -2288,7 +2316,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 //
 
 
-function _Platform_export_UNUSED(exports)
+function _Platform_export(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsProd(scope['Elm'], exports)
@@ -2309,7 +2337,7 @@ function _Platform_mergeExportsProd(obj, exports)
 }
 
 
-function _Platform_export(exports)
+function _Platform_export_UNUSED(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
@@ -2331,181 +2359,6 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 
 
 
-// SEND REQUEST
-
-var _Http_toTask = F3(function(router, toTask, request)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		function done(response) {
-			callback(toTask(request.expect.a(response)));
-		}
-
-		var xhr = new XMLHttpRequest();
-		xhr.addEventListener('error', function() { done(elm$http$Http$NetworkError_); });
-		xhr.addEventListener('timeout', function() { done(elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
-		elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
-
-		try {
-			xhr.open(request.method, request.url, true);
-		} catch (e) {
-			return done(elm$http$Http$BadUrl_(request.url));
-		}
-
-		_Http_configureRequest(xhr, request);
-
-		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
-		xhr.send(request.body.b);
-
-		return function() { xhr.c = true; xhr.abort(); };
-	});
-});
-
-
-// CONFIGURE
-
-function _Http_configureRequest(xhr, request)
-{
-	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
-	{
-		xhr.setRequestHeader(headers.a.a, headers.a.b);
-	}
-	xhr.timeout = request.timeout.a || 0;
-	xhr.responseType = request.expect.d;
-	xhr.withCredentials = request.allowCookiesFromOtherDomains;
-}
-
-
-// RESPONSES
-
-function _Http_toResponse(toBody, xhr)
-{
-	return A2(
-		200 <= xhr.status && xhr.status < 300 ? elm$http$Http$GoodStatus_ : elm$http$Http$BadStatus_,
-		_Http_toMetadata(xhr),
-		toBody(xhr.response)
-	);
-}
-
-
-// METADATA
-
-function _Http_toMetadata(xhr)
-{
-	return {
-		url: xhr.responseURL,
-		statusCode: xhr.status,
-		statusText: xhr.statusText,
-		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
-	};
-}
-
-
-// HEADERS
-
-function _Http_parseHeaders(rawHeaders)
-{
-	if (!rawHeaders)
-	{
-		return elm$core$Dict$empty;
-	}
-
-	var headers = elm$core$Dict$empty;
-	var headerPairs = rawHeaders.split('\r\n');
-	for (var i = headerPairs.length; i--; )
-	{
-		var headerPair = headerPairs[i];
-		var index = headerPair.indexOf(': ');
-		if (index > 0)
-		{
-			var key = headerPair.substring(0, index);
-			var value = headerPair.substring(index + 2);
-
-			headers = A3(elm$core$Dict$update, key, function(oldValue) {
-				return elm$core$Maybe$Just(elm$core$Maybe$isJust(oldValue)
-					? value + ', ' + oldValue.a
-					: value
-				);
-			}, headers);
-		}
-	}
-	return headers;
-}
-
-
-// EXPECT
-
-var _Http_expect = F3(function(type, toBody, toValue)
-{
-	return {
-		$: 0,
-		d: type,
-		b: toBody,
-		a: toValue
-	};
-});
-
-var _Http_mapExpect = F2(function(func, expect)
-{
-	return {
-		$: 0,
-		d: expect.d,
-		b: expect.b,
-		a: function(x) { return func(expect.a(x)); }
-	};
-});
-
-function _Http_toDataView(arrayBuffer)
-{
-	return new DataView(arrayBuffer);
-}
-
-
-// BODY and PARTS
-
-var _Http_emptyBody = { $: 0 };
-var _Http_pair = F2(function(a, b) { return { $: 0, a: a, b: b }; });
-
-function _Http_toFormData(parts)
-{
-	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
-	{
-		var part = parts.a;
-		formData.append(part.a, part.b);
-	}
-	return formData;
-}
-
-var _Http_bytesToBlob = F2(function(mime, bytes)
-{
-	return new Blob([bytes], { type: mime });
-});
-
-
-// PROGRESS
-
-function _Http_track(router, xhr, tracker)
-{
-	// TODO check out lengthComputable on loadstart event
-
-	xhr.upload.addEventListener('progress', function(event) {
-		if (xhr.c) { return; }
-		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Sending({
-			sent: event.loaded,
-			size: event.total
-		}))));
-	});
-	xhr.addEventListener('progress', function(event) {
-		if (xhr.c) { return; }
-		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Receiving({
-			received: event.loaded,
-			size: event.lengthComputable ? elm$core$Maybe$Just(event.total) : elm$core$Maybe$Nothing
-		}))));
-	});
-}
-
-
 
 // HELPERS
 
@@ -2524,10 +2377,10 @@ var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args
 {
 	// NOTE: this function needs _Platform_export available to work
 
-	/**_UNUSED/
+	/**/
 	var node = args['node'];
 	//*/
-	/**/
+	/**_UNUSED/
 	var node = args && args['node'] ? args['node'] : _Debug_crash(0);
 	//*/
 
@@ -2782,24 +2635,24 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 	return key == 'innerHTML' || key == 'formAction' ? 'data-' + key : key;
 }
 
-function _VirtualDom_noJavaScriptUri_UNUSED(value)
+function _VirtualDom_noJavaScriptUri(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,'')) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptUri(value)
+function _VirtualDom_noJavaScriptUri_UNUSED(value)
 {
 	return /^javascript:/i.test(value.replace(/\s/g,''))
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
 		: value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
+function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value) ? '' : value;
 }
 
-function _VirtualDom_noJavaScriptOrHtmlUri(value)
+function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
 {
 	return /^\s*(javascript:|data:text\/html)/i.test(value)
 		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
@@ -2820,7 +2673,7 @@ var _VirtualDom_mapAttribute = F2(function(func, attr)
 
 function _VirtualDom_mapHandler(func, handler)
 {
-	var tag = elm$virtual_dom$VirtualDom$toHandlerInt(handler);
+	var tag = $elm$virtual_dom$VirtualDom$toHandlerInt(handler);
 
 	// 0 = Normal
 	// 1 = MayStopPropagation
@@ -2831,13 +2684,13 @@ function _VirtualDom_mapHandler(func, handler)
 		$: handler.$,
 		a:
 			!tag
-				? A2(elm$json$Json$Decode$map, func, handler.a)
+				? A2($elm$json$Json$Decode$map, func, handler.a)
 				:
-			A3(elm$json$Json$Decode$map2,
+			A3($elm$json$Json$Decode$map2,
 				tag < 3
 					? _VirtualDom_mapEventTuple
 					: _VirtualDom_mapEventRecord,
-				elm$json$Json$Decode$succeed(func),
+				$elm$json$Json$Decode$succeed(func),
 				handler.a
 			)
 	};
@@ -2851,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		message: func(record.message),
-		stopPropagation: record.stopPropagation,
-		preventDefault: record.preventDefault
+		H: func(record.H),
+		bd: record.bd,
+		a8: record.a8
 	}
 });
 
@@ -3075,7 +2928,7 @@ function _VirtualDom_applyEvents(domNode, eventNode, events)
 		oldCallback = _VirtualDom_makeCallback(eventNode, newHandler);
 		domNode.addEventListener(key, oldCallback,
 			_VirtualDom_passiveSupported
-			&& { passive: elm$virtual_dom$VirtualDom$toHandlerInt(newHandler) < 2 }
+			&& { passive: $elm$virtual_dom$VirtualDom$toHandlerInt(newHandler) < 2 }
 		);
 		allCallbacks[key] = oldCallback;
 	}
@@ -3108,12 +2961,12 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		var handler = callback.q;
 		var result = _Json_runHelp(handler.a, event);
 
-		if (!elm$core$Result$isOk(result))
+		if (!$elm$core$Result$isOk(result))
 		{
 			return;
 		}
 
-		var tag = elm$virtual_dom$VirtualDom$toHandlerInt(handler);
+		var tag = $elm$virtual_dom$VirtualDom$toHandlerInt(handler);
 
 		// 0 = Normal
 		// 1 = MayStopPropagation
@@ -3121,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.message;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
+		var message = !tag ? value : tag < 3 ? value.a : value.H;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.bd;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.a8) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -4075,15 +3928,15 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cq,
+		impl.cQ,
+		impl.cN,
 		function(sendToApp, initialModel) {
-			var view = impl.view;
-			/**_UNUSED/
+			var view = impl.cT;
+			/**/
 			var domNode = args['node'];
 			//*/
-			/**/
+			/**_UNUSED/
 			var domNode = args && args['node'] ? args['node'] : _Debug_crash(0);
 			//*/
 			var currNode = _VirtualDom_virtualize(domNode);
@@ -4111,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
+		impl.cq,
+		impl.cQ,
+		impl.cN,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
-			var view = impl.view;
+			var divertHrefToApp = impl.bb && impl.bb(sendToApp)
+			var view = impl.cT;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4124,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.body);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.b6);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.title) && (_VirtualDom_doc.title = title = doc.title);
+				(title !== doc.cP) && (_VirtualDom_doc.title = title = doc.cP);
 			});
 		}
 	);
@@ -4185,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.onUrlChange;
-	var onUrlRequest = impl.onUrlRequest;
+	var onUrlChange = impl.cw;
+	var onUrlRequest = impl.cx;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		setup: function(sendToApp)
+		bb: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4203,37 +4056,37 @@ function _Browser_application(impl)
 					event.preventDefault();
 					var href = domNode.href;
 					var curr = _Browser_getUrl();
-					var next = elm$url$Url$fromString(href).a;
+					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.protocol === next.protocol
-							&& curr.host === next.host
-							&& curr.port_.a === next.port_.a
+							&& curr.cC === next.cC
+							&& curr.cn === next.cn
+							&& curr.cB.a === next.cB.a
 						)
-							? elm$browser$Browser$Internal(next)
-							: elm$browser$Browser$External(href)
+							? $elm$browser$Browser$Internal(next)
+							: $elm$browser$Browser$External(href)
 					));
 				}
 			});
 		},
-		init: function(flags)
+		cq: function(flags)
 		{
-			return A3(impl.init, flags, _Browser_getUrl(), key);
+			return A3(impl.cq, flags, _Browser_getUrl(), key);
 		},
-		view: impl.view,
-		update: impl.update,
-		subscriptions: impl.subscriptions
+		cT: impl.cT,
+		cQ: impl.cQ,
+		cN: impl.cN
 	});
 }
 
 function _Browser_getUrl()
 {
-	return elm$url$Url$fromString(_VirtualDom_doc.location.href).a || _Debug_crash(1);
+	return $elm$url$Url$fromString(_VirtualDom_doc.location.href).a || _Debug_crash(1);
 }
 
 var _Browser_go = F2(function(key, n)
 {
-	return A2(elm$core$Task$perform, elm$core$Basics$never, _Scheduler_binding(function() {
+	return A2($elm$core$Task$perform, $elm$core$Basics$never, _Scheduler_binding(function() {
 		n && history.go(n);
 		key();
 	}));
@@ -4241,7 +4094,7 @@ var _Browser_go = F2(function(key, n)
 
 var _Browser_pushUrl = F2(function(key, url)
 {
-	return A2(elm$core$Task$perform, elm$core$Basics$never, _Scheduler_binding(function() {
+	return A2($elm$core$Task$perform, $elm$core$Basics$never, _Scheduler_binding(function() {
 		history.pushState({}, '', url);
 		key();
 	}));
@@ -4249,7 +4102,7 @@ var _Browser_pushUrl = F2(function(key, url)
 
 var _Browser_replaceUrl = F2(function(key, url)
 {
-	return A2(elm$core$Task$perform, elm$core$Basics$never, _Scheduler_binding(function() {
+	return A2($elm$core$Task$perform, $elm$core$Basics$never, _Scheduler_binding(function() {
 		history.replaceState({}, '', url);
 		key();
 	}));
@@ -4277,7 +4130,7 @@ var _Browser_on = F3(function(node, eventName, sendToSelf)
 var _Browser_decodeEvent = F2(function(decoder, event)
 {
 	var result = _Json_runHelp(decoder, event);
-	return elm$core$Result$isOk(result) ? elm$core$Maybe$Just(result.a) : elm$core$Maybe$Nothing;
+	return $elm$core$Result$isOk(result) ? $elm$core$Maybe$Just(result.a) : $elm$core$Maybe$Nothing;
 });
 
 
@@ -4288,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { hidden: 'hidden', change: 'visibilitychange' }
+		? { cm: 'hidden', b7: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { hidden: 'mozHidden', change: 'mozvisibilitychange' }
+		? { cm: 'mozHidden', b7: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { hidden: 'msHidden', change: 'msvisibilitychange' }
+		? { cm: 'msHidden', b7: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
-		: { hidden: 'hidden', change: 'visibilitychange' };
+		? { cm: 'webkitHidden', b7: 'webkitvisibilitychange' }
+		: { cm: 'hidden', b7: 'visibilitychange' };
 }
 
 
@@ -4342,7 +4195,7 @@ function _Browser_withNode(id, doStuff)
 			var node = document.getElementById(id);
 			callback(node
 				? _Scheduler_succeed(doStuff(node))
-				: _Scheduler_fail(elm$browser$Browser$Dom$NotFound(id))
+				: _Scheduler_fail($elm$browser$Browser$Dom$NotFound(id))
 			);
 		});
 	});
@@ -4379,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		scene: _Browser_getScene(),
-		viewport: {
-			x: _Browser_window.pageXOffset,
-			y: _Browser_window.pageYOffset,
-			width: _Browser_doc.documentElement.clientWidth,
-			height: _Browser_doc.documentElement.clientHeight
+		bP: _Browser_getScene(),
+		bZ: {
+			b$: _Browser_window.pageXOffset,
+			b0: _Browser_window.pageYOffset,
+			b_: _Browser_doc.documentElement.clientWidth,
+			by: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4394,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		b_: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		by: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4418,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			scene: {
-				width: node.scrollWidth,
-				height: node.scrollHeight
+			bP: {
+				b_: node.scrollWidth,
+				by: node.scrollHeight
 			},
-			viewport: {
-				x: node.scrollLeft,
-				y: node.scrollTop,
-				width: node.clientWidth,
-				height: node.clientHeight
+			bZ: {
+				b$: node.scrollLeft,
+				b0: node.scrollTop,
+				b_: node.clientWidth,
+				by: node.clientHeight
 			}
 		};
 	});
@@ -4456,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			scene: _Browser_getScene(),
-			viewport: {
-				x: x,
-				y: y,
-				width: _Browser_doc.documentElement.clientWidth,
-				height: _Browser_doc.documentElement.clientHeight
+			bP: _Browser_getScene(),
+			bZ: {
+				b$: x,
+				b0: y,
+				b_: _Browser_doc.documentElement.clientWidth,
+				by: _Browser_doc.documentElement.clientHeight
 			},
-			element: {
-				x: x + rect.left,
-				y: y + rect.top,
-				width: rect.width,
-				height: rect.height
+			ce: {
+				b$: x + rect.left,
+				b0: y + rect.top,
+				b_: rect.width,
+				by: rect.height
 			}
 		};
 	});
@@ -4480,7 +4333,7 @@ function _Browser_getElement(id)
 
 function _Browser_reload(skipCache)
 {
-	return A2(elm$core$Task$perform, elm$core$Basics$never, _Scheduler_binding(function(callback)
+	return A2($elm$core$Task$perform, $elm$core$Basics$never, _Scheduler_binding(function(callback)
 	{
 		_VirtualDom_doc.location.reload(skipCache);
 	}));
@@ -4488,7 +4341,7 @@ function _Browser_reload(skipCache)
 
 function _Browser_load(url)
 {
-	return A2(elm$core$Task$perform, elm$core$Basics$never, _Scheduler_binding(function(callback)
+	return A2($elm$core$Task$perform, $elm$core$Basics$never, _Scheduler_binding(function(callback)
 	{
 		try
 		{
@@ -4503,6 +4356,198 @@ function _Browser_load(url)
 	}));
 }
 
+
+
+// SEND REQUEST
+
+var _Http_toTask = F3(function(router, toTask, request)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		function done(response) {
+			callback(toTask(request.cg.a(response)));
+		}
+
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
+		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.cg.b, xhr)); });
+		$elm$core$Maybe$isJust(request.bV) && _Http_track(router, xhr, request.bV.a);
+
+		try {
+			xhr.open(request.cs, request.cS, true);
+		} catch (e) {
+			return done($elm$http$Http$BadUrl_(request.cS));
+		}
+
+		_Http_configureRequest(xhr, request);
+
+		request.b6.a && xhr.setRequestHeader('Content-Type', request.b6.a);
+		xhr.send(request.b6.b);
+
+		return function() { xhr.c = true; xhr.abort(); };
+	});
+});
+
+
+// CONFIGURE
+
+function _Http_configureRequest(xhr, request)
+{
+	for (var headers = request.bx; headers.b; headers = headers.b) // WHILE_CONS
+	{
+		xhr.setRequestHeader(headers.a.a, headers.a.b);
+	}
+	xhr.timeout = request.cO.a || 0;
+	xhr.responseType = request.cg.d;
+	xhr.withCredentials = request.b3;
+}
+
+
+// RESPONSES
+
+function _Http_toResponse(toBody, xhr)
+{
+	return A2(
+		200 <= xhr.status && xhr.status < 300 ? $elm$http$Http$GoodStatus_ : $elm$http$Http$BadStatus_,
+		_Http_toMetadata(xhr),
+		toBody(xhr.response)
+	);
+}
+
+
+// METADATA
+
+function _Http_toMetadata(xhr)
+{
+	return {
+		cS: xhr.responseURL,
+		cL: xhr.status,
+		cM: xhr.statusText,
+		bx: _Http_parseHeaders(xhr.getAllResponseHeaders())
+	};
+}
+
+
+// HEADERS
+
+function _Http_parseHeaders(rawHeaders)
+{
+	if (!rawHeaders)
+	{
+		return $elm$core$Dict$empty;
+	}
+
+	var headers = $elm$core$Dict$empty;
+	var headerPairs = rawHeaders.split('\r\n');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf(': ');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3($elm$core$Dict$update, key, function(oldValue) {
+				return $elm$core$Maybe$Just($elm$core$Maybe$isJust(oldValue)
+					? value + ', ' + oldValue.a
+					: value
+				);
+			}, headers);
+		}
+	}
+	return headers;
+}
+
+
+// EXPECT
+
+var _Http_expect = F3(function(type, toBody, toValue)
+{
+	return {
+		$: 0,
+		d: type,
+		b: toBody,
+		a: toValue
+	};
+});
+
+var _Http_mapExpect = F2(function(func, expect)
+{
+	return {
+		$: 0,
+		d: expect.d,
+		b: expect.b,
+		a: function(x) { return func(expect.a(x)); }
+	};
+});
+
+function _Http_toDataView(arrayBuffer)
+{
+	return new DataView(arrayBuffer);
+}
+
+
+// BODY and PARTS
+
+var _Http_emptyBody = { $: 0 };
+var _Http_pair = F2(function(a, b) { return { $: 0, a: a, b: b }; });
+
+function _Http_toFormData(parts)
+{
+	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
+	{
+		var part = parts.a;
+		formData.append(part.a, part.b);
+	}
+	return formData;
+}
+
+var _Http_bytesToBlob = F2(function(mime, bytes)
+{
+	return new Blob([bytes], { type: mime });
+});
+
+
+// PROGRESS
+
+function _Http_track(router, xhr, tracker)
+{
+	// TODO check out lengthComputable on loadstart event
+
+	xhr.upload.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
+			cJ: event.loaded,
+			bQ: event.total
+		}))));
+	});
+	xhr.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
+			cE: event.loaded,
+			bQ: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+		}))));
+	});
+}
+
+function _Url_percentEncode(string)
+{
+	return encodeURIComponent(string);
+}
+
+function _Url_percentDecode(string)
+{
+	try
+	{
+		return $elm$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch (e)
+	{
+		return $elm$core$Maybe$Nothing;
+	}
+}
 
 
 var _Bitwise_and = F2(function(a, b)
@@ -4539,57 +4584,25 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
-var author$project$Msg$PokemonFetchResponse = function (a) {
-	return {$: 'PokemonFetchResponse', a: a};
+var $author$project$Msg$UrlChange = function (a) {
+	return {$: 0, a: a};
 };
-var author$project$Msg$PokemonTypeFetchResponse = function (a) {
-	return {$: 'PokemonTypeFetchResponse', a: a};
+var $author$project$Msg$UrlRequest = function (a) {
+	return {$: 1, a: a};
 };
-var author$project$Msg$TeamPokemonTypeFetchResponse = function (a) {
-	return {$: 'TeamPokemonTypeFetchResponse', a: a};
-};
-var krisajenkins$remotedata$RemoteData$Failure = function (a) {
-	return {$: 'Failure', a: a};
-};
-var krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
-var krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
-var krisajenkins$remotedata$RemoteData$Success = function (a) {
-	return {$: 'Success', a: a};
-};
-var krisajenkins$remotedata$RemoteData$succeed = krisajenkins$remotedata$RemoteData$Success;
-var author$project$Page$Pokemon$buildPokemonData = F2(
-	function (basePokemon, pokemonDetailResponse) {
-		switch (pokemonDetailResponse.$) {
-			case 'Success':
-				var pokemonDetail = pokemonDetailResponse.a;
-				return krisajenkins$remotedata$RemoteData$succeed(
-					{evolutionChain: pokemonDetail.evolutionChain, id: basePokemon.id, name: basePokemon.name, types: basePokemon.types, varieties: pokemonDetail.varieties});
-			case 'Failure':
-				var error = pokemonDetailResponse.a;
-				return krisajenkins$remotedata$RemoteData$Failure(error);
-			case 'NotAsked':
-				return krisajenkins$remotedata$RemoteData$NotAsked;
-			default:
-				return krisajenkins$remotedata$RemoteData$Loading;
-		}
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
 	});
-var elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
-var elm$core$Array$branchFactor = 32;
-var elm$core$Array$Array_elm_builtin = F4(
-	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
-	});
-var elm$core$Basics$EQ = {$: 'EQ'};
-var elm$core$Basics$GT = {$: 'GT'};
-var elm$core$Basics$LT = {$: 'LT'};
-var elm$core$Dict$foldr = F3(
+var $elm$core$Basics$EQ = 1;
+var $elm$core$Basics$GT = 2;
+var $elm$core$Basics$LT = 0;
+var $elm$core$List$cons = _List_cons;
+var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
 		while (true) {
-			if (t.$ === 'RBEmpty_elm_builtin') {
+			if (t.$ === -2) {
 				return acc;
 			} else {
 				var key = t.b;
@@ -4601,7 +4614,7 @@ var elm$core$Dict$foldr = F3(
 					func,
 					key,
 					value,
-					A3(elm$core$Dict$foldr, func, acc, right)),
+					A3($elm$core$Dict$foldr, func, acc, right)),
 					$temp$t = left;
 				func = $temp$func;
 				acc = $temp$acc;
@@ -4610,77 +4623,108 @@ var elm$core$Dict$foldr = F3(
 			}
 		}
 	});
-var elm$core$List$cons = _List_cons;
-var elm$core$Dict$toList = function (dict) {
+var $elm$core$Dict$toList = function (dict) {
 	return A3(
-		elm$core$Dict$foldr,
+		$elm$core$Dict$foldr,
 		F3(
 			function (key, value, list) {
 				return A2(
-					elm$core$List$cons,
+					$elm$core$List$cons,
 					_Utils_Tuple2(key, value),
 					list);
 			}),
 		_List_Nil,
 		dict);
 };
-var elm$core$Dict$keys = function (dict) {
+var $elm$core$Dict$keys = function (dict) {
 	return A3(
-		elm$core$Dict$foldr,
+		$elm$core$Dict$foldr,
 		F3(
 			function (key, value, keyList) {
-				return A2(elm$core$List$cons, key, keyList);
+				return A2($elm$core$List$cons, key, keyList);
 			}),
 		_List_Nil,
 		dict);
 };
-var elm$core$Set$toList = function (_n0) {
-	var dict = _n0.a;
-	return elm$core$Dict$keys(dict);
+var $elm$core$Set$toList = function (_v0) {
+	var dict = _v0;
+	return $elm$core$Dict$keys(dict);
 };
-var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
-var elm$core$Array$foldr = F3(
-	function (func, baseCase, _n0) {
-		var tree = _n0.c;
-		var tail = _n0.d;
+var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
+var $elm$core$Array$foldr = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
 		var helper = F2(
 			function (node, acc) {
-				if (node.$ === 'SubTree') {
+				if (!node.$) {
 					var subTree = node.a;
-					return A3(elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
 				} else {
 					var values = node.a;
-					return A3(elm$core$Elm$JsArray$foldr, func, acc, values);
+					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
 				}
 			});
 		return A3(
-			elm$core$Elm$JsArray$foldr,
+			$elm$core$Elm$JsArray$foldr,
 			helper,
-			A3(elm$core$Elm$JsArray$foldr, func, baseCase, tail),
+			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
 			tree);
 	});
-var elm$core$Array$toList = function (array) {
-	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
+var $elm$core$Array$toList = function (array) {
+	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
 };
-var elm$core$Basics$ceiling = _Basics_ceiling;
-var elm$core$Basics$fdiv = _Basics_fdiv;
-var elm$core$Basics$logBase = F2(
-	function (base, number) {
-		return _Basics_log(number) / _Basics_log(base);
+var $elm$core$Result$Err = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$json$Json$Decode$Failure = F2(
+	function (a, b) {
+		return {$: 3, a: a, b: b};
 	});
-var elm$core$Basics$toFloat = _Basics_toFloat;
-var elm$core$Array$shiftStep = elm$core$Basics$ceiling(
-	A2(elm$core$Basics$logBase, 2, elm$core$Array$branchFactor));
-var elm$core$Elm$JsArray$empty = _JsArray_empty;
-var elm$core$Array$empty = A4(elm$core$Array$Array_elm_builtin, 0, elm$core$Array$shiftStep, elm$core$Elm$JsArray$empty, elm$core$Elm$JsArray$empty);
-var elm$core$Array$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
+var $elm$json$Json$Decode$Field = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$json$Json$Decode$Index = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
+var $elm$core$Result$Ok = function (a) {
+	return {$: 0, a: a};
 };
-var elm$core$Array$SubTree = function (a) {
-	return {$: 'SubTree', a: a};
+var $elm$json$Json$Decode$OneOf = function (a) {
+	return {$: 2, a: a};
 };
-var elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
-var elm$core$List$foldl = F3(
+var $elm$core$Basics$False = 1;
+var $elm$core$Basics$add = _Basics_add;
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$core$Maybe$Nothing = {$: 1};
+var $elm$core$String$all = _String_all;
+var $elm$core$Basics$and = _Basics_and;
+var $elm$core$Basics$append = _Utils_append;
+var $elm$json$Json$Encode$encode = _Json_encode;
+var $elm$core$String$fromInt = _String_fromNumber;
+var $elm$core$String$join = F2(
+	function (sep, chunks) {
+		return A2(
+			_String_join,
+			sep,
+			_List_toArray(chunks));
+	});
+var $elm$core$String$split = F2(
+	function (sep, string) {
+		return _List_fromArray(
+			A2(_String_split, sep, string));
+	});
+var $elm$json$Json$Decode$indent = function (str) {
+	return A2(
+		$elm$core$String$join,
+		'\n    ',
+		A2($elm$core$String$split, '\n', str));
+};
+var $elm$core$List$foldl = F3(
 	function (func, acc, list) {
 		foldl:
 		while (true) {
@@ -4699,206 +4743,27 @@ var elm$core$List$foldl = F3(
 			}
 		}
 	});
-var elm$core$List$reverse = function (list) {
-	return A3(elm$core$List$foldl, elm$core$List$cons, _List_Nil, list);
-};
-var elm$core$Array$compressNodes = F2(
-	function (nodes, acc) {
-		compressNodes:
-		while (true) {
-			var _n0 = A2(elm$core$Elm$JsArray$initializeFromList, elm$core$Array$branchFactor, nodes);
-			var node = _n0.a;
-			var remainingNodes = _n0.b;
-			var newAcc = A2(
-				elm$core$List$cons,
-				elm$core$Array$SubTree(node),
-				acc);
-			if (!remainingNodes.b) {
-				return elm$core$List$reverse(newAcc);
-			} else {
-				var $temp$nodes = remainingNodes,
-					$temp$acc = newAcc;
-				nodes = $temp$nodes;
-				acc = $temp$acc;
-				continue compressNodes;
-			}
-		}
-	});
-var elm$core$Basics$eq = _Utils_equal;
-var elm$core$Tuple$first = function (_n0) {
-	var x = _n0.a;
-	return x;
-};
-var elm$core$Array$treeFromBuilder = F2(
-	function (nodeList, nodeListSize) {
-		treeFromBuilder:
-		while (true) {
-			var newNodeSize = elm$core$Basics$ceiling(nodeListSize / elm$core$Array$branchFactor);
-			if (newNodeSize === 1) {
-				return A2(elm$core$Elm$JsArray$initializeFromList, elm$core$Array$branchFactor, nodeList).a;
-			} else {
-				var $temp$nodeList = A2(elm$core$Array$compressNodes, nodeList, _List_Nil),
-					$temp$nodeListSize = newNodeSize;
-				nodeList = $temp$nodeList;
-				nodeListSize = $temp$nodeListSize;
-				continue treeFromBuilder;
-			}
-		}
-	});
-var elm$core$Basics$add = _Basics_add;
-var elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
-var elm$core$Basics$floor = _Basics_floor;
-var elm$core$Basics$gt = _Utils_gt;
-var elm$core$Basics$max = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) > 0) ? x : y;
-	});
-var elm$core$Basics$mul = _Basics_mul;
-var elm$core$Basics$sub = _Basics_sub;
-var elm$core$Elm$JsArray$length = _JsArray_length;
-var elm$core$Array$builderToArray = F2(
-	function (reverseNodeList, builder) {
-		if (!builder.nodeListSize) {
-			return A4(
-				elm$core$Array$Array_elm_builtin,
-				elm$core$Elm$JsArray$length(builder.tail),
-				elm$core$Array$shiftStep,
-				elm$core$Elm$JsArray$empty,
-				builder.tail);
-		} else {
-			var treeLen = builder.nodeListSize * elm$core$Array$branchFactor;
-			var depth = elm$core$Basics$floor(
-				A2(elm$core$Basics$logBase, elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? elm$core$List$reverse(builder.nodeList) : builder.nodeList;
-			var tree = A2(elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
-			return A4(
-				elm$core$Array$Array_elm_builtin,
-				elm$core$Elm$JsArray$length(builder.tail) + treeLen,
-				A2(elm$core$Basics$max, 5, depth * elm$core$Array$shiftStep),
-				tree,
-				builder.tail);
-		}
-	});
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$idiv = _Basics_idiv;
-var elm$core$Basics$lt = _Utils_lt;
-var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
-var elm$core$Array$initializeHelp = F5(
-	function (fn, fromIndex, len, nodeList, tail) {
-		initializeHelp:
-		while (true) {
-			if (fromIndex < 0) {
-				return A2(
-					elm$core$Array$builderToArray,
-					false,
-					{nodeList: nodeList, nodeListSize: (len / elm$core$Array$branchFactor) | 0, tail: tail});
-			} else {
-				var leaf = elm$core$Array$Leaf(
-					A3(elm$core$Elm$JsArray$initialize, elm$core$Array$branchFactor, fromIndex, fn));
-				var $temp$fn = fn,
-					$temp$fromIndex = fromIndex - elm$core$Array$branchFactor,
-					$temp$len = len,
-					$temp$nodeList = A2(elm$core$List$cons, leaf, nodeList),
-					$temp$tail = tail;
-				fn = $temp$fn;
-				fromIndex = $temp$fromIndex;
-				len = $temp$len;
-				nodeList = $temp$nodeList;
-				tail = $temp$tail;
-				continue initializeHelp;
-			}
-		}
-	});
-var elm$core$Basics$le = _Utils_le;
-var elm$core$Basics$remainderBy = _Basics_remainderBy;
-var elm$core$Array$initialize = F2(
-	function (len, fn) {
-		if (len <= 0) {
-			return elm$core$Array$empty;
-		} else {
-			var tailLen = len % elm$core$Array$branchFactor;
-			var tail = A3(elm$core$Elm$JsArray$initialize, tailLen, len - tailLen, fn);
-			var initialFromIndex = (len - tailLen) - elm$core$Array$branchFactor;
-			return A5(elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
-		}
-	});
-var elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
-var elm$core$Result$Err = function (a) {
-	return {$: 'Err', a: a};
-};
-var elm$core$Result$Ok = function (a) {
-	return {$: 'Ok', a: a};
-};
-var elm$core$Basics$True = {$: 'True'};
-var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var elm$json$Json$Decode$Failure = F2(
-	function (a, b) {
-		return {$: 'Failure', a: a, b: b};
-	});
-var elm$json$Json$Decode$Field = F2(
-	function (a, b) {
-		return {$: 'Field', a: a, b: b};
-	});
-var elm$json$Json$Decode$Index = F2(
-	function (a, b) {
-		return {$: 'Index', a: a, b: b};
-	});
-var elm$json$Json$Decode$OneOf = function (a) {
-	return {$: 'OneOf', a: a};
-};
-var elm$core$Basics$and = _Basics_and;
-var elm$core$Basics$append = _Utils_append;
-var elm$core$Basics$or = _Basics_or;
-var elm$core$Char$toCode = _Char_toCode;
-var elm$core$Char$isLower = function (_char) {
-	var code = elm$core$Char$toCode(_char);
-	return (97 <= code) && (code <= 122);
-};
-var elm$core$Char$isUpper = function (_char) {
-	var code = elm$core$Char$toCode(_char);
-	return (code <= 90) && (65 <= code);
-};
-var elm$core$Char$isAlpha = function (_char) {
-	return elm$core$Char$isLower(_char) || elm$core$Char$isUpper(_char);
-};
-var elm$core$Char$isDigit = function (_char) {
-	var code = elm$core$Char$toCode(_char);
-	return (code <= 57) && (48 <= code);
-};
-var elm$core$Char$isAlphaNum = function (_char) {
-	return elm$core$Char$isLower(_char) || (elm$core$Char$isUpper(_char) || elm$core$Char$isDigit(_char));
-};
-var elm$core$List$length = function (xs) {
+var $elm$core$List$length = function (xs) {
 	return A3(
-		elm$core$List$foldl,
+		$elm$core$List$foldl,
 		F2(
-			function (_n0, i) {
+			function (_v0, i) {
 				return i + 1;
 			}),
 		0,
 		xs);
 };
-var elm$core$List$map2 = _List_map2;
-var elm$core$List$rangeHelp = F3(
+var $elm$core$List$map2 = _List_map2;
+var $elm$core$Basics$le = _Utils_le;
+var $elm$core$Basics$sub = _Basics_sub;
+var $elm$core$List$rangeHelp = F3(
 	function (lo, hi, list) {
 		rangeHelp:
 		while (true) {
 			if (_Utils_cmp(lo, hi) < 1) {
 				var $temp$lo = lo,
 					$temp$hi = hi - 1,
-					$temp$list = A2(elm$core$List$cons, hi, list);
+					$temp$list = A2($elm$core$List$cons, hi, list);
 				lo = $temp$lo;
 				hi = $temp$hi;
 				list = $temp$list;
@@ -4908,86 +4773,88 @@ var elm$core$List$rangeHelp = F3(
 			}
 		}
 	});
-var elm$core$List$range = F2(
+var $elm$core$List$range = F2(
 	function (lo, hi) {
-		return A3(elm$core$List$rangeHelp, lo, hi, _List_Nil);
+		return A3($elm$core$List$rangeHelp, lo, hi, _List_Nil);
 	});
-var elm$core$List$indexedMap = F2(
+var $elm$core$List$indexedMap = F2(
 	function (f, xs) {
 		return A3(
-			elm$core$List$map2,
+			$elm$core$List$map2,
 			f,
 			A2(
-				elm$core$List$range,
+				$elm$core$List$range,
 				0,
-				elm$core$List$length(xs) - 1),
+				$elm$core$List$length(xs) - 1),
 			xs);
 	});
-var elm$core$String$all = _String_all;
-var elm$core$String$fromInt = _String_fromNumber;
-var elm$core$String$join = F2(
-	function (sep, chunks) {
-		return A2(
-			_String_join,
-			sep,
-			_List_toArray(chunks));
-	});
-var elm$core$String$uncons = _String_uncons;
-var elm$core$String$split = F2(
-	function (sep, string) {
-		return _List_fromArray(
-			A2(_String_split, sep, string));
-	});
-var elm$json$Json$Decode$indent = function (str) {
-	return A2(
-		elm$core$String$join,
-		'\n    ',
-		A2(elm$core$String$split, '\n', str));
+var $elm$core$Char$toCode = _Char_toCode;
+var $elm$core$Char$isLower = function (_char) {
+	var code = $elm$core$Char$toCode(_char);
+	return (97 <= code) && (code <= 122);
 };
-var elm$json$Json$Encode$encode = _Json_encode;
-var elm$json$Json$Decode$errorOneOf = F2(
+var $elm$core$Char$isUpper = function (_char) {
+	var code = $elm$core$Char$toCode(_char);
+	return (code <= 90) && (65 <= code);
+};
+var $elm$core$Basics$or = _Basics_or;
+var $elm$core$Char$isAlpha = function (_char) {
+	return $elm$core$Char$isLower(_char) || $elm$core$Char$isUpper(_char);
+};
+var $elm$core$Char$isDigit = function (_char) {
+	var code = $elm$core$Char$toCode(_char);
+	return (code <= 57) && (48 <= code);
+};
+var $elm$core$Char$isAlphaNum = function (_char) {
+	return $elm$core$Char$isLower(_char) || ($elm$core$Char$isUpper(_char) || $elm$core$Char$isDigit(_char));
+};
+var $elm$core$List$reverse = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
+};
+var $elm$core$String$uncons = _String_uncons;
+var $elm$json$Json$Decode$errorOneOf = F2(
 	function (i, error) {
-		return '\n\n(' + (elm$core$String$fromInt(i + 1) + (') ' + elm$json$Json$Decode$indent(
-			elm$json$Json$Decode$errorToString(error))));
+		return '\n\n(' + ($elm$core$String$fromInt(i + 1) + (') ' + $elm$json$Json$Decode$indent(
+			$elm$json$Json$Decode$errorToString(error))));
 	});
-var elm$json$Json$Decode$errorToString = function (error) {
-	return A2(elm$json$Json$Decode$errorToStringHelp, error, _List_Nil);
+var $elm$json$Json$Decode$errorToString = function (error) {
+	return A2($elm$json$Json$Decode$errorToStringHelp, error, _List_Nil);
 };
-var elm$json$Json$Decode$errorToStringHelp = F2(
+var $elm$json$Json$Decode$errorToStringHelp = F2(
 	function (error, context) {
 		errorToStringHelp:
 		while (true) {
 			switch (error.$) {
-				case 'Field':
+				case 0:
 					var f = error.a;
 					var err = error.b;
 					var isSimple = function () {
-						var _n1 = elm$core$String$uncons(f);
-						if (_n1.$ === 'Nothing') {
+						var _v1 = $elm$core$String$uncons(f);
+						if (_v1.$ === 1) {
 							return false;
 						} else {
-							var _n2 = _n1.a;
-							var _char = _n2.a;
-							var rest = _n2.b;
-							return elm$core$Char$isAlpha(_char) && A2(elm$core$String$all, elm$core$Char$isAlphaNum, rest);
+							var _v2 = _v1.a;
+							var _char = _v2.a;
+							var rest = _v2.b;
+							return $elm$core$Char$isAlpha(_char) && A2($elm$core$String$all, $elm$core$Char$isAlphaNum, rest);
 						}
 					}();
 					var fieldName = isSimple ? ('.' + f) : ('[\'' + (f + '\']'));
 					var $temp$error = err,
-						$temp$context = A2(elm$core$List$cons, fieldName, context);
+						$temp$context = A2($elm$core$List$cons, fieldName, context);
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 'Index':
+				case 1:
 					var i = error.a;
 					var err = error.b;
-					var indexName = '[' + (elm$core$String$fromInt(i) + ']');
+					var indexName = '[' + ($elm$core$String$fromInt(i) + ']');
 					var $temp$error = err,
-						$temp$context = A2(elm$core$List$cons, indexName, context);
+						$temp$context = A2($elm$core$List$cons, indexName, context);
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 'OneOf':
+				case 2:
 					var errors = error.a;
 					if (!errors.b) {
 						return 'Ran into a Json.Decode.oneOf with no possibilities' + function () {
@@ -4995,9 +4862,9 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 								return '!';
 							} else {
 								return ' at json' + A2(
-									elm$core$String$join,
+									$elm$core$String$join,
 									'',
-									elm$core$List$reverse(context));
+									$elm$core$List$reverse(context));
 							}
 						}();
 					} else {
@@ -5014,20 +4881,20 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 									return 'Json.Decode.oneOf';
 								} else {
 									return 'The Json.Decode.oneOf at json' + A2(
-										elm$core$String$join,
+										$elm$core$String$join,
 										'',
-										elm$core$List$reverse(context));
+										$elm$core$List$reverse(context));
 								}
 							}();
-							var introduction = starter + (' failed in the following ' + (elm$core$String$fromInt(
-								elm$core$List$length(errors)) + ' ways:'));
+							var introduction = starter + (' failed in the following ' + ($elm$core$String$fromInt(
+								$elm$core$List$length(errors)) + ' ways:'));
 							return A2(
-								elm$core$String$join,
+								$elm$core$String$join,
 								'\n\n',
 								A2(
-									elm$core$List$cons,
+									$elm$core$List$cons,
 									introduction,
-									A2(elm$core$List$indexedMap, elm$json$Json$Decode$errorOneOf, errors)));
+									A2($elm$core$List$indexedMap, $elm$json$Json$Decode$errorOneOf, errors)));
 						}
 					}
 				default:
@@ -5038,27 +4905,337 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 							return 'Problem with the given value:\n\n';
 						} else {
 							return 'Problem with the value at json' + (A2(
-								elm$core$String$join,
+								$elm$core$String$join,
 								'',
-								elm$core$List$reverse(context)) + ':\n\n    ');
+								$elm$core$List$reverse(context)) + ':\n\n    ');
 						}
 					}();
-					return introduction + (elm$json$Json$Decode$indent(
-						A2(elm$json$Json$Encode$encode, 4, json)) + ('\n\n' + msg));
+					return introduction + ($elm$json$Json$Decode$indent(
+						A2($elm$json$Json$Encode$encode, 4, json)) + ('\n\n' + msg));
 			}
 		}
 	});
-var elm$json$Json$Decode$map2 = _Json_map2;
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
-var elm$json$Json$Decode$field = _Json_decodeField;
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
-	function (key, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$field, key, valDecoder),
-			decoder);
+var $elm$core$Array$branchFactor = 32;
+var $elm$core$Array$Array_elm_builtin = F4(
+	function (a, b, c, d) {
+		return {$: 0, a: a, b: b, c: c, d: d};
 	});
-var elm$core$List$foldrHelper = F4(
+var $elm$core$Elm$JsArray$empty = _JsArray_empty;
+var $elm$core$Basics$ceiling = _Basics_ceiling;
+var $elm$core$Basics$fdiv = _Basics_fdiv;
+var $elm$core$Basics$logBase = F2(
+	function (base, number) {
+		return _Basics_log(number) / _Basics_log(base);
+	});
+var $elm$core$Basics$toFloat = _Basics_toFloat;
+var $elm$core$Array$shiftStep = $elm$core$Basics$ceiling(
+	A2($elm$core$Basics$logBase, 2, $elm$core$Array$branchFactor));
+var $elm$core$Array$empty = A4($elm$core$Array$Array_elm_builtin, 0, $elm$core$Array$shiftStep, $elm$core$Elm$JsArray$empty, $elm$core$Elm$JsArray$empty);
+var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
+var $elm$core$Array$Leaf = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
+var $elm$core$Basics$eq = _Utils_equal;
+var $elm$core$Basics$floor = _Basics_floor;
+var $elm$core$Elm$JsArray$length = _JsArray_length;
+var $elm$core$Basics$gt = _Utils_gt;
+var $elm$core$Basics$max = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) > 0) ? x : y;
+	});
+var $elm$core$Basics$mul = _Basics_mul;
+var $elm$core$Array$SubTree = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
+var $elm$core$Array$compressNodes = F2(
+	function (nodes, acc) {
+		compressNodes:
+		while (true) {
+			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodes);
+			var node = _v0.a;
+			var remainingNodes = _v0.b;
+			var newAcc = A2(
+				$elm$core$List$cons,
+				$elm$core$Array$SubTree(node),
+				acc);
+			if (!remainingNodes.b) {
+				return $elm$core$List$reverse(newAcc);
+			} else {
+				var $temp$nodes = remainingNodes,
+					$temp$acc = newAcc;
+				nodes = $temp$nodes;
+				acc = $temp$acc;
+				continue compressNodes;
+			}
+		}
+	});
+var $elm$core$Tuple$first = function (_v0) {
+	var x = _v0.a;
+	return x;
+};
+var $elm$core$Array$treeFromBuilder = F2(
+	function (nodeList, nodeListSize) {
+		treeFromBuilder:
+		while (true) {
+			var newNodeSize = $elm$core$Basics$ceiling(nodeListSize / $elm$core$Array$branchFactor);
+			if (newNodeSize === 1) {
+				return A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, nodeList).a;
+			} else {
+				var $temp$nodeList = A2($elm$core$Array$compressNodes, nodeList, _List_Nil),
+					$temp$nodeListSize = newNodeSize;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue treeFromBuilder;
+			}
+		}
+	});
+var $elm$core$Array$builderToArray = F2(
+	function (reverseNodeList, builder) {
+		if (!builder.g) {
+			return A4(
+				$elm$core$Array$Array_elm_builtin,
+				$elm$core$Elm$JsArray$length(builder.i),
+				$elm$core$Array$shiftStep,
+				$elm$core$Elm$JsArray$empty,
+				builder.i);
+		} else {
+			var treeLen = builder.g * $elm$core$Array$branchFactor;
+			var depth = $elm$core$Basics$floor(
+				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.j) : builder.j;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.g);
+			return A4(
+				$elm$core$Array$Array_elm_builtin,
+				$elm$core$Elm$JsArray$length(builder.i) + treeLen,
+				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
+				tree,
+				builder.i);
+		}
+	});
+var $elm$core$Basics$idiv = _Basics_idiv;
+var $elm$core$Basics$lt = _Utils_lt;
+var $elm$core$Array$initializeHelp = F5(
+	function (fn, fromIndex, len, nodeList, tail) {
+		initializeHelp:
+		while (true) {
+			if (fromIndex < 0) {
+				return A2(
+					$elm$core$Array$builderToArray,
+					false,
+					{j: nodeList, g: (len / $elm$core$Array$branchFactor) | 0, i: tail});
+			} else {
+				var leaf = $elm$core$Array$Leaf(
+					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
+				var $temp$fn = fn,
+					$temp$fromIndex = fromIndex - $elm$core$Array$branchFactor,
+					$temp$len = len,
+					$temp$nodeList = A2($elm$core$List$cons, leaf, nodeList),
+					$temp$tail = tail;
+				fn = $temp$fn;
+				fromIndex = $temp$fromIndex;
+				len = $temp$len;
+				nodeList = $temp$nodeList;
+				tail = $temp$tail;
+				continue initializeHelp;
+			}
+		}
+	});
+var $elm$core$Basics$remainderBy = _Basics_remainderBy;
+var $elm$core$Array$initialize = F2(
+	function (len, fn) {
+		if (len <= 0) {
+			return $elm$core$Array$empty;
+		} else {
+			var tailLen = len % $elm$core$Array$branchFactor;
+			var tail = A3($elm$core$Elm$JsArray$initialize, tailLen, len - tailLen, fn);
+			var initialFromIndex = (len - tailLen) - $elm$core$Array$branchFactor;
+			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
+		}
+	});
+var $elm$core$Basics$True = 0;
+var $elm$core$Result$isOk = function (result) {
+	if (!result.$) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$json$Json$Decode$map = _Json_map1;
+var $elm$json$Json$Decode$map2 = _Json_map2;
+var $elm$json$Json$Decode$succeed = _Json_succeed;
+var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 2:
+			return 2;
+		default:
+			return 3;
+	}
+};
+var $elm$browser$Browser$External = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$browser$Browser$Internal = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $elm$browser$Browser$Dom$NotFound = $elm$core$Basics$identity;
+var $elm$url$Url$Http = 0;
+var $elm$url$Url$Https = 1;
+var $elm$url$Url$Url = F6(
+	function (protocol, host, port_, path, query, fragment) {
+		return {ci: fragment, cn: host, cz: path, cB: port_, cC: protocol, cD: query};
+	});
+var $elm$core$String$contains = _String_contains;
+var $elm$core$String$length = _String_length;
+var $elm$core$String$slice = _String_slice;
+var $elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			$elm$core$String$slice,
+			n,
+			$elm$core$String$length(string),
+			string);
+	});
+var $elm$core$String$indexes = _String_indexes;
+var $elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var $elm$core$String$left = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3($elm$core$String$slice, 0, n, string);
+	});
+var $elm$core$String$toInt = _String_toInt;
+var $elm$url$Url$chompBeforePath = F5(
+	function (protocol, path, params, frag, str) {
+		if ($elm$core$String$isEmpty(str) || A2($elm$core$String$contains, '@', str)) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var _v0 = A2($elm$core$String$indexes, ':', str);
+			if (!_v0.b) {
+				return $elm$core$Maybe$Just(
+					A6($elm$url$Url$Url, protocol, str, $elm$core$Maybe$Nothing, path, params, frag));
+			} else {
+				if (!_v0.b.b) {
+					var i = _v0.a;
+					var _v1 = $elm$core$String$toInt(
+						A2($elm$core$String$dropLeft, i + 1, str));
+					if (_v1.$ === 1) {
+						return $elm$core$Maybe$Nothing;
+					} else {
+						var port_ = _v1;
+						return $elm$core$Maybe$Just(
+							A6(
+								$elm$url$Url$Url,
+								protocol,
+								A2($elm$core$String$left, i, str),
+								port_,
+								path,
+								params,
+								frag));
+					}
+				} else {
+					return $elm$core$Maybe$Nothing;
+				}
+			}
+		}
+	});
+var $elm$url$Url$chompBeforeQuery = F4(
+	function (protocol, params, frag, str) {
+		if ($elm$core$String$isEmpty(str)) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var _v0 = A2($elm$core$String$indexes, '/', str);
+			if (!_v0.b) {
+				return A5($elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
+			} else {
+				var i = _v0.a;
+				return A5(
+					$elm$url$Url$chompBeforePath,
+					protocol,
+					A2($elm$core$String$dropLeft, i, str),
+					params,
+					frag,
+					A2($elm$core$String$left, i, str));
+			}
+		}
+	});
+var $elm$url$Url$chompBeforeFragment = F3(
+	function (protocol, frag, str) {
+		if ($elm$core$String$isEmpty(str)) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var _v0 = A2($elm$core$String$indexes, '?', str);
+			if (!_v0.b) {
+				return A4($elm$url$Url$chompBeforeQuery, protocol, $elm$core$Maybe$Nothing, frag, str);
+			} else {
+				var i = _v0.a;
+				return A4(
+					$elm$url$Url$chompBeforeQuery,
+					protocol,
+					$elm$core$Maybe$Just(
+						A2($elm$core$String$dropLeft, i + 1, str)),
+					frag,
+					A2($elm$core$String$left, i, str));
+			}
+		}
+	});
+var $elm$url$Url$chompAfterProtocol = F2(
+	function (protocol, str) {
+		if ($elm$core$String$isEmpty(str)) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var _v0 = A2($elm$core$String$indexes, '#', str);
+			if (!_v0.b) {
+				return A3($elm$url$Url$chompBeforeFragment, protocol, $elm$core$Maybe$Nothing, str);
+			} else {
+				var i = _v0.a;
+				return A3(
+					$elm$url$Url$chompBeforeFragment,
+					protocol,
+					$elm$core$Maybe$Just(
+						A2($elm$core$String$dropLeft, i + 1, str)),
+					A2($elm$core$String$left, i, str));
+			}
+		}
+	});
+var $elm$core$String$startsWith = _String_startsWith;
+var $elm$url$Url$fromString = function (str) {
+	return A2($elm$core$String$startsWith, 'http://', str) ? A2(
+		$elm$url$Url$chompAfterProtocol,
+		0,
+		A2($elm$core$String$dropLeft, 7, str)) : (A2($elm$core$String$startsWith, 'https://', str) ? A2(
+		$elm$url$Url$chompAfterProtocol,
+		1,
+		A2($elm$core$String$dropLeft, 8, str)) : $elm$core$Maybe$Nothing);
+};
+var $elm$core$Basics$never = function (_v0) {
+	never:
+	while (true) {
+		var nvr = _v0;
+		var $temp$_v0 = nvr;
+		_v0 = $temp$_v0;
+		continue never;
+	}
+};
+var $elm$core$Task$Perform = $elm$core$Basics$identity;
+var $elm$core$Task$succeed = _Scheduler_succeed;
+var $elm$core$Task$init = $elm$core$Task$succeed(0);
+var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
 			return acc;
@@ -5090,10 +5267,10 @@ var elm$core$List$foldrHelper = F4(
 						var d = r3.a;
 						var r4 = r3.b;
 						var res = (ctr > 500) ? A3(
-							elm$core$List$foldl,
+							$elm$core$List$foldl,
 							fn,
 							acc,
-							elm$core$List$reverse(r4)) : A4(elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
 						return A2(
 							fn,
 							a,
@@ -5109,404 +5286,157 @@ var elm$core$List$foldrHelper = F4(
 			}
 		}
 	});
-var elm$core$List$foldr = F3(
+var $elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
-		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
+		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
-	});
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
-	function (path, valDecoder, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A2(elm$json$Json$Decode$at, path, valDecoder),
-			decoder);
-	});
-var author$project$Model$BasePokemon = F4(
-	function (name, id, types, speciesUrl) {
-		return {id: id, name: name, speciesUrl: speciesUrl, types: types};
-	});
-var author$project$Model$Base = F2(
-	function (name, id) {
-		return {id: id, name: name};
-	});
-var elm$core$String$toInt = _String_toInt;
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
-var elm$url$Url$Parser$Parser = function (a) {
-	return {$: 'Parser', a: a};
-};
-var elm$url$Url$Parser$State = F5(
-	function (visited, unvisited, params, frag, value) {
-		return {frag: frag, params: params, unvisited: unvisited, value: value, visited: visited};
-	});
-var elm$url$Url$Parser$custom = F2(
-	function (tipe, stringToSomething) {
-		return elm$url$Url$Parser$Parser(
-			function (_n0) {
-				var visited = _n0.visited;
-				var unvisited = _n0.unvisited;
-				var params = _n0.params;
-				var frag = _n0.frag;
-				var value = _n0.value;
-				if (!unvisited.b) {
-					return _List_Nil;
-				} else {
-					var next = unvisited.a;
-					var rest = unvisited.b;
-					var _n2 = stringToSomething(next);
-					if (_n2.$ === 'Just') {
-						var nextValue = _n2.a;
-						return _List_fromArray(
-							[
-								A5(
-								elm$url$Url$Parser$State,
-								A2(elm$core$List$cons, next, visited),
-								rest,
-								params,
-								frag,
-								value(nextValue))
-							]);
-					} else {
-						return _List_Nil;
-					}
-				}
-			});
-	});
-var elm$url$Url$Parser$int = A2(elm$url$Url$Parser$custom, 'NUMBER', elm$core$String$toInt);
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
-};
-var elm$core$List$map = F2(
+var $elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
-			elm$core$List$foldr,
+			$elm$core$List$foldr,
 			F2(
 				function (x, acc) {
 					return A2(
-						elm$core$List$cons,
+						$elm$core$List$cons,
 						f(x),
 						acc);
 				}),
 			_List_Nil,
 			xs);
 	});
-var elm$core$List$concatMap = F2(
-	function (f, list) {
-		return elm$core$List$concat(
-			A2(elm$core$List$map, f, list));
+var $elm$core$Task$andThen = _Scheduler_andThen;
+var $elm$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			$elm$core$Task$andThen,
+			function (a) {
+				return $elm$core$Task$succeed(
+					func(a));
+			},
+			taskA);
 	});
-var elm$url$Url$Parser$oneOf = function (parsers) {
-	return elm$url$Url$Parser$Parser(
-		function (state) {
-			return A2(
-				elm$core$List$concatMap,
-				function (_n0) {
-					var parser = _n0.a;
-					return parser(state);
-				},
-				parsers);
-		});
-};
-var elm$url$Url$Parser$s = function (str) {
-	return elm$url$Url$Parser$Parser(
-		function (_n0) {
-			var visited = _n0.visited;
-			var unvisited = _n0.unvisited;
-			var params = _n0.params;
-			var frag = _n0.frag;
-			var value = _n0.value;
-			if (!unvisited.b) {
-				return _List_Nil;
-			} else {
-				var next = unvisited.a;
-				var rest = unvisited.b;
-				return _Utils_eq(next, str) ? _List_fromArray(
-					[
-						A5(
-						elm$url$Url$Parser$State,
-						A2(elm$core$List$cons, next, visited),
-						rest,
-						params,
-						frag,
-						value)
-					]) : _List_Nil;
-			}
-		});
-};
-var elm$url$Url$Parser$slash = F2(
-	function (_n0, _n1) {
-		var parseBefore = _n0.a;
-		var parseAfter = _n1.a;
-		return elm$url$Url$Parser$Parser(
-			function (state) {
+var $elm$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			$elm$core$Task$andThen,
+			function (a) {
 				return A2(
-					elm$core$List$concatMap,
-					parseAfter,
-					parseBefore(state));
-			});
+					$elm$core$Task$andThen,
+					function (b) {
+						return $elm$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
 	});
-var author$project$Parse$parser = elm$url$Url$Parser$oneOf(
-	_List_fromArray(
-		[
+var $elm$core$Task$sequence = function (tasks) {
+	return A3(
+		$elm$core$List$foldr,
+		$elm$core$Task$map2($elm$core$List$cons),
+		$elm$core$Task$succeed(_List_Nil),
+		tasks);
+};
+var $elm$core$Platform$sendToApp = _Platform_sendToApp;
+var $elm$core$Task$spawnCmd = F2(
+	function (router, _v0) {
+		var task = _v0;
+		return _Scheduler_spawn(
 			A2(
-			elm$url$Url$Parser$slash,
-			elm$url$Url$Parser$s('api'),
-			A2(
-				elm$url$Url$Parser$slash,
-				elm$url$Url$Parser$s('v2'),
+				$elm$core$Task$andThen,
+				$elm$core$Platform$sendToApp(router),
+				task));
+	});
+var $elm$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			$elm$core$Task$map,
+			function (_v0) {
+				return 0;
+			},
+			$elm$core$Task$sequence(
 				A2(
-					elm$url$Url$Parser$slash,
-					elm$url$Url$Parser$s('pokemon-species'),
-					elm$url$Url$Parser$int))),
-			A2(
-			elm$url$Url$Parser$slash,
-			elm$url$Url$Parser$s('api'),
-			A2(
-				elm$url$Url$Parser$slash,
-				elm$url$Url$Parser$s('v2'),
-				A2(
-					elm$url$Url$Parser$slash,
-					elm$url$Url$Parser$s('type'),
-					elm$url$Url$Parser$int))),
-			A2(
-			elm$url$Url$Parser$slash,
-			elm$url$Url$Parser$s('api'),
-			A2(
-				elm$url$Url$Parser$slash,
-				elm$url$Url$Parser$s('v2'),
-				A2(
-					elm$url$Url$Parser$slash,
-					elm$url$Url$Parser$s('pokemon'),
-					elm$url$Url$Parser$int)))
-		]));
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
+					$elm$core$List$map,
+					$elm$core$Task$spawnCmd(router),
+					commands)));
 	});
-var elm$url$Url$Https = {$: 'Https'};
-var elm$core$String$length = _String_length;
-var elm$core$String$slice = _String_slice;
-var elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			elm$core$String$slice,
-			n,
-			elm$core$String$length(string),
-			string);
+var $elm$core$Task$onSelfMsg = F3(
+	function (_v0, _v1, _v2) {
+		return $elm$core$Task$succeed(0);
 	});
-var elm$core$String$startsWith = _String_startsWith;
-var elm$url$Url$Http = {$: 'Http'};
-var elm$core$String$indexes = _String_indexes;
-var elm$core$String$isEmpty = function (string) {
-	return string === '';
+var $elm$core$Task$cmdMap = F2(
+	function (tagger, _v0) {
+		var task = _v0;
+		return A2($elm$core$Task$map, tagger, task);
+	});
+_Platform_effectManagers['Task'] = _Platform_createManager($elm$core$Task$init, $elm$core$Task$onEffects, $elm$core$Task$onSelfMsg, $elm$core$Task$cmdMap);
+var $elm$core$Task$command = _Platform_leaf('Task');
+var $elm$core$Task$perform = F2(
+	function (toMessage, task) {
+		return $elm$core$Task$command(
+			A2($elm$core$Task$map, toMessage, task));
+	});
+var $elm$browser$Browser$application = _Browser_application;
+var $krisajenkins$remotedata$RemoteData$Loading = {$: 1};
+var $author$project$Msg$PokedexFetchResponse = function (a) {
+	return {$: 2, a: a};
 };
-var elm$core$String$left = F2(
-	function (n, string) {
-		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
-	});
-var elm$core$String$contains = _String_contains;
-var elm$url$Url$Url = F6(
-	function (protocol, host, port_, path, query, fragment) {
-		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
-	});
-var elm$url$Url$chompBeforePath = F5(
-	function (protocol, path, params, frag, str) {
-		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, ':', str);
-			if (!_n0.b) {
-				return elm$core$Maybe$Just(
-					A6(elm$url$Url$Url, protocol, str, elm$core$Maybe$Nothing, path, params, frag));
-			} else {
-				if (!_n0.b.b) {
-					var i = _n0.a;
-					var _n1 = elm$core$String$toInt(
-						A2(elm$core$String$dropLeft, i + 1, str));
-					if (_n1.$ === 'Nothing') {
-						return elm$core$Maybe$Nothing;
-					} else {
-						var port_ = _n1;
-						return elm$core$Maybe$Just(
-							A6(
-								elm$url$Url$Url,
-								protocol,
-								A2(elm$core$String$left, i, str),
-								port_,
-								path,
-								params,
-								frag));
-					}
-				} else {
-					return elm$core$Maybe$Nothing;
-				}
-			}
-		}
-	});
-var elm$url$Url$chompBeforeQuery = F4(
-	function (protocol, params, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '/', str);
-			if (!_n0.b) {
-				return A5(elm$url$Url$chompBeforePath, protocol, '/', params, frag, str);
-			} else {
-				var i = _n0.a;
-				return A5(
-					elm$url$Url$chompBeforePath,
-					protocol,
-					A2(elm$core$String$dropLeft, i, str),
-					params,
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompBeforeFragment = F3(
-	function (protocol, frag, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '?', str);
-			if (!_n0.b) {
-				return A4(elm$url$Url$chompBeforeQuery, protocol, elm$core$Maybe$Nothing, frag, str);
-			} else {
-				var i = _n0.a;
-				return A4(
-					elm$url$Url$chompBeforeQuery,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					frag,
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$chompAfterProtocol = F2(
-	function (protocol, str) {
-		if (elm$core$String$isEmpty(str)) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var _n0 = A2(elm$core$String$indexes, '#', str);
-			if (!_n0.b) {
-				return A3(elm$url$Url$chompBeforeFragment, protocol, elm$core$Maybe$Nothing, str);
-			} else {
-				var i = _n0.a;
-				return A3(
-					elm$url$Url$chompBeforeFragment,
-					protocol,
-					elm$core$Maybe$Just(
-						A2(elm$core$String$dropLeft, i + 1, str)),
-					A2(elm$core$String$left, i, str));
-			}
-		}
-	});
-var elm$url$Url$fromString = function (str) {
-	return A2(elm$core$String$startsWith, 'http://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Http,
-		A2(elm$core$String$dropLeft, 7, str)) : (A2(elm$core$String$startsWith, 'https://', str) ? A2(
-		elm$url$Url$chompAfterProtocol,
-		elm$url$Url$Https,
-		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
+var $author$project$Msg$PokemonTypesFetchResponse = function (a) {
+	return {$: 5, a: a};
 };
-var author$project$Parse$urlFromString = function (urlString) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		{fragment: elm$core$Maybe$Nothing, host: 'pokeapi.co', path: '/api/v2/pokemon-species/132/', port_: elm$core$Maybe$Nothing, protocol: elm$url$Url$Https, query: elm$core$Maybe$Nothing},
-		elm$url$Url$fromString(urlString));
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 3, a: a, b: b};
+	});
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 0, a: a};
 };
-var elm$url$Url$Parser$getFirstMatch = function (states) {
-	getFirstMatch:
-	while (true) {
-		if (!states.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var state = states.a;
-			var rest = states.b;
-			var _n1 = state.unvisited;
-			if (!_n1.b) {
-				return elm$core$Maybe$Just(state.value);
-			} else {
-				if ((_n1.a === '') && (!_n1.b.b)) {
-					return elm$core$Maybe$Just(state.value);
-				} else {
-					var $temp$states = rest;
-					states = $temp$states;
-					continue getFirstMatch;
-				}
-			}
-		}
-	}
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 4, a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 2};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 1, a: a};
 };
-var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
-	if (!segments.b) {
-		return _List_Nil;
+var $elm$http$Http$Sending = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 1};
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (!maybe.$) {
+		return true;
 	} else {
-		if ((segments.a === '') && (!segments.b.b)) {
-			return _List_Nil;
-		} else {
-			var segment = segments.a;
-			var rest = segments.b;
-			return A2(
-				elm$core$List$cons,
-				segment,
-				elm$url$Url$Parser$removeFinalEmpty(rest));
-		}
+		return false;
 	}
 };
-var elm$url$Url$Parser$preparePath = function (path) {
-	var _n0 = A2(elm$core$String$split, '/', path);
-	if (_n0.b && (_n0.a === '')) {
-		var segments = _n0.b;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	} else {
-		var segments = _n0;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	}
-};
-var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
-var elm$core$Basics$compare = _Utils_compare;
-var elm$core$Dict$get = F2(
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
 		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return elm$core$Maybe$Nothing;
+			if (dict.$ === -2) {
+				return $elm$core$Maybe$Nothing;
 			} else {
 				var key = dict.b;
 				var value = dict.c;
 				var left = dict.d;
 				var right = dict.e;
-				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
-				switch (_n1.$) {
-					case 'LT':
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1) {
+					case 0:
 						var $temp$targetKey = targetKey,
 							$temp$dict = left;
 						targetKey = $temp$targetKey;
 						dict = $temp$dict;
 						continue get;
-					case 'EQ':
-						return elm$core$Maybe$Just(value);
+					case 1:
+						return $elm$core$Maybe$Just(value);
 					default:
 						var $temp$targetKey = targetKey,
 							$temp$dict = right;
@@ -5517,118 +5447,118 @@ var elm$core$Dict$get = F2(
 			}
 		}
 	});
-var elm$core$Dict$Black = {$: 'Black'};
-var elm$core$Dict$RBNode_elm_builtin = F5(
+var $elm$core$Dict$Black = 1;
+var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
-		return {$: 'RBNode_elm_builtin', a: a, b: b, c: c, d: d, e: e};
+		return {$: -1, a: a, b: b, c: c, d: d, e: e};
 	});
-var elm$core$Dict$Red = {$: 'Red'};
-var elm$core$Dict$balance = F5(
+var $elm$core$Dict$Red = 0;
+var $elm$core$Dict$balance = F5(
 	function (color, key, value, left, right) {
-		if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Red')) {
-			var _n1 = right.a;
+		if ((right.$ === -1) && (!right.a)) {
+			var _v1 = right.a;
 			var rK = right.b;
 			var rV = right.c;
 			var rLeft = right.d;
 			var rRight = right.e;
-			if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
-				var _n3 = left.a;
+			if ((left.$ === -1) && (!left.a)) {
+				var _v3 = left.a;
 				var lK = left.b;
 				var lV = left.c;
 				var lLeft = left.d;
 				var lRight = left.e;
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Red,
+					$elm$core$Dict$RBNode_elm_builtin,
+					0,
 					key,
 					value,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, 1, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$RBNode_elm_builtin,
 					color,
 					rK,
 					rV,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, left, rLeft),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, left, rLeft),
 					rRight);
 			}
 		} else {
-			if ((((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) && (left.d.$ === 'RBNode_elm_builtin')) && (left.d.a.$ === 'Red')) {
-				var _n5 = left.a;
+			if ((((left.$ === -1) && (!left.a)) && (left.d.$ === -1)) && (!left.d.a)) {
+				var _v5 = left.a;
 				var lK = left.b;
 				var lV = left.c;
-				var _n6 = left.d;
-				var _n7 = _n6.a;
-				var llK = _n6.b;
-				var llV = _n6.c;
-				var llLeft = _n6.d;
-				var llRight = _n6.e;
+				var _v6 = left.d;
+				var _v7 = _v6.a;
+				var llK = _v6.b;
+				var llV = _v6.c;
+				var llLeft = _v6.d;
+				var llRight = _v6.e;
 				var lRight = left.e;
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Red,
+					$elm$core$Dict$RBNode_elm_builtin,
+					0,
 					lK,
 					lV,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, llK, llV, llLeft, llRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, key, value, lRight, right));
+					A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 1, key, value, lRight, right));
 			} else {
-				return A5(elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
+				return A5($elm$core$Dict$RBNode_elm_builtin, color, key, value, left, right);
 			}
 		}
 	});
-var elm$core$Dict$insertHelp = F3(
+var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
+		if (dict.$ === -2) {
+			return A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
 		} else {
 			var nColor = dict.a;
 			var nKey = dict.b;
 			var nValue = dict.c;
 			var nLeft = dict.d;
 			var nRight = dict.e;
-			var _n1 = A2(elm$core$Basics$compare, key, nKey);
-			switch (_n1.$) {
-				case 'LT':
+			var _v1 = A2($elm$core$Basics$compare, key, nKey);
+			switch (_v1) {
+				case 0:
 					return A5(
-						elm$core$Dict$balance,
+						$elm$core$Dict$balance,
 						nColor,
 						nKey,
 						nValue,
-						A3(elm$core$Dict$insertHelp, key, value, nLeft),
+						A3($elm$core$Dict$insertHelp, key, value, nLeft),
 						nRight);
-				case 'EQ':
-					return A5(elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
+				case 1:
+					return A5($elm$core$Dict$RBNode_elm_builtin, nColor, nKey, value, nLeft, nRight);
 				default:
 					return A5(
-						elm$core$Dict$balance,
+						$elm$core$Dict$balance,
 						nColor,
 						nKey,
 						nValue,
 						nLeft,
-						A3(elm$core$Dict$insertHelp, key, value, nRight));
+						A3($elm$core$Dict$insertHelp, key, value, nRight));
 			}
 		}
 	});
-var elm$core$Dict$insert = F3(
+var $elm$core$Dict$insert = F3(
 	function (key, value, dict) {
-		var _n0 = A3(elm$core$Dict$insertHelp, key, value, dict);
-		if ((_n0.$ === 'RBNode_elm_builtin') && (_n0.a.$ === 'Red')) {
-			var _n1 = _n0.a;
-			var k = _n0.b;
-			var v = _n0.c;
-			var l = _n0.d;
-			var r = _n0.e;
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, k, v, l, r);
+		var _v0 = A3($elm$core$Dict$insertHelp, key, value, dict);
+		if ((_v0.$ === -1) && (!_v0.a)) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
 		} else {
-			var x = _n0;
+			var x = _v0;
 			return x;
 		}
 	});
-var elm$core$Dict$getMin = function (dict) {
+var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
-		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+		if ((dict.$ === -1) && (dict.d.$ === -1)) {
 			var left = dict.d;
 			var $temp$dict = left;
 			dict = $temp$dict;
@@ -5638,196 +5568,196 @@ var elm$core$Dict$getMin = function (dict) {
 		}
 	}
 };
-var elm$core$Dict$moveRedLeft = function (dict) {
-	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
-		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
+var $elm$core$Dict$moveRedLeft = function (dict) {
+	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
+		if ((dict.e.d.$ === -1) && (!dict.e.d.a)) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
-			var _n1 = dict.d;
-			var lClr = _n1.a;
-			var lK = _n1.b;
-			var lV = _n1.c;
-			var lLeft = _n1.d;
-			var lRight = _n1.e;
-			var _n2 = dict.e;
-			var rClr = _n2.a;
-			var rK = _n2.b;
-			var rV = _n2.c;
-			var rLeft = _n2.d;
-			var _n3 = rLeft.a;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var lLeft = _v1.d;
+			var lRight = _v1.e;
+			var _v2 = dict.e;
+			var rClr = _v2.a;
+			var rK = _v2.b;
+			var rV = _v2.c;
+			var rLeft = _v2.d;
+			var _v3 = rLeft.a;
 			var rlK = rLeft.b;
 			var rlV = rLeft.c;
 			var rlL = rLeft.d;
 			var rlR = rLeft.e;
-			var rRight = _n2.e;
+			var rRight = _v2.e;
 			return A5(
-				elm$core$Dict$RBNode_elm_builtin,
-				elm$core$Dict$Red,
+				$elm$core$Dict$RBNode_elm_builtin,
+				0,
 				rlK,
 				rlV,
 				A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
 					rlL),
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, rK, rV, rlR, rRight));
+				A5($elm$core$Dict$RBNode_elm_builtin, 1, rK, rV, rlR, rRight));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
-			var _n4 = dict.d;
-			var lClr = _n4.a;
-			var lK = _n4.b;
-			var lV = _n4.c;
-			var lLeft = _n4.d;
-			var lRight = _n4.e;
-			var _n5 = dict.e;
-			var rClr = _n5.a;
-			var rK = _n5.b;
-			var rV = _n5.c;
-			var rLeft = _n5.d;
-			var rRight = _n5.e;
-			if (clr.$ === 'Black') {
+			var _v4 = dict.d;
+			var lClr = _v4.a;
+			var lK = _v4.b;
+			var lV = _v4.c;
+			var lLeft = _v4.d;
+			var lRight = _v4.e;
+			var _v5 = dict.e;
+			var rClr = _v5.a;
+			var rK = _v5.b;
+			var rV = _v5.c;
+			var rLeft = _v5.d;
+			var rRight = _v5.e;
+			if (clr === 1) {
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
 		return dict;
 	}
 };
-var elm$core$Dict$moveRedRight = function (dict) {
-	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
-		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
+var $elm$core$Dict$moveRedRight = function (dict) {
+	if (((dict.$ === -1) && (dict.d.$ === -1)) && (dict.e.$ === -1)) {
+		if ((dict.d.d.$ === -1) && (!dict.d.d.a)) {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
-			var _n1 = dict.d;
-			var lClr = _n1.a;
-			var lK = _n1.b;
-			var lV = _n1.c;
-			var _n2 = _n1.d;
-			var _n3 = _n2.a;
-			var llK = _n2.b;
-			var llV = _n2.c;
-			var llLeft = _n2.d;
-			var llRight = _n2.e;
-			var lRight = _n1.e;
-			var _n4 = dict.e;
-			var rClr = _n4.a;
-			var rK = _n4.b;
-			var rV = _n4.c;
-			var rLeft = _n4.d;
-			var rRight = _n4.e;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var _v2 = _v1.d;
+			var _v3 = _v2.a;
+			var llK = _v2.b;
+			var llV = _v2.c;
+			var llLeft = _v2.d;
+			var llRight = _v2.e;
+			var lRight = _v1.e;
+			var _v4 = dict.e;
+			var rClr = _v4.a;
+			var rK = _v4.b;
+			var rV = _v4.c;
+			var rLeft = _v4.d;
+			var rRight = _v4.e;
 			return A5(
-				elm$core$Dict$RBNode_elm_builtin,
-				elm$core$Dict$Red,
+				$elm$core$Dict$RBNode_elm_builtin,
+				0,
 				lK,
 				lV,
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, llK, llV, llLeft, llRight),
+				A5($elm$core$Dict$RBNode_elm_builtin, 1, llK, llV, llLeft, llRight),
 				A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
 					lRight,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight)));
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight)));
 		} else {
 			var clr = dict.a;
 			var k = dict.b;
 			var v = dict.c;
-			var _n5 = dict.d;
-			var lClr = _n5.a;
-			var lK = _n5.b;
-			var lV = _n5.c;
-			var lLeft = _n5.d;
-			var lRight = _n5.e;
-			var _n6 = dict.e;
-			var rClr = _n6.a;
-			var rK = _n6.b;
-			var rV = _n6.c;
-			var rLeft = _n6.d;
-			var rRight = _n6.e;
-			if (clr.$ === 'Black') {
+			var _v5 = dict.d;
+			var lClr = _v5.a;
+			var lK = _v5.b;
+			var lV = _v5.c;
+			var lLeft = _v5.d;
+			var lRight = _v5.e;
+			var _v6 = dict.e;
+			var rClr = _v6.a;
+			var rK = _v6.b;
+			var rV = _v6.c;
+			var rLeft = _v6.d;
+			var rRight = _v6.e;
+			if (clr === 1) {
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			} else {
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
-					elm$core$Dict$Black,
+					$elm$core$Dict$RBNode_elm_builtin,
+					1,
 					k,
 					v,
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
-					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, 0, rK, rV, rLeft, rRight));
 			}
 		}
 	} else {
 		return dict;
 	}
 };
-var elm$core$Dict$removeHelpPrepEQGT = F7(
+var $elm$core$Dict$removeHelpPrepEQGT = F7(
 	function (targetKey, dict, color, key, value, left, right) {
-		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
-			var _n1 = left.a;
+		if ((left.$ === -1) && (!left.a)) {
+			var _v1 = left.a;
 			var lK = left.b;
 			var lV = left.c;
 			var lLeft = left.d;
 			var lRight = left.e;
 			return A5(
-				elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$RBNode_elm_builtin,
 				color,
 				lK,
 				lV,
 				lLeft,
-				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, lRight, right));
+				A5($elm$core$Dict$RBNode_elm_builtin, 0, key, value, lRight, right));
 		} else {
-			_n2$2:
+			_v2$2:
 			while (true) {
-				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
-					if (right.d.$ === 'RBNode_elm_builtin') {
-						if (right.d.a.$ === 'Black') {
-							var _n3 = right.a;
-							var _n4 = right.d;
-							var _n5 = _n4.a;
-							return elm$core$Dict$moveRedRight(dict);
+				if ((right.$ === -1) && (right.a === 1)) {
+					if (right.d.$ === -1) {
+						if (right.d.a === 1) {
+							var _v3 = right.a;
+							var _v4 = right.d;
+							var _v5 = _v4.a;
+							return $elm$core$Dict$moveRedRight(dict);
 						} else {
-							break _n2$2;
+							break _v2$2;
 						}
 					} else {
-						var _n6 = right.a;
-						var _n7 = right.d;
-						return elm$core$Dict$moveRedRight(dict);
+						var _v6 = right.a;
+						var _v7 = right.d;
+						return $elm$core$Dict$moveRedRight(dict);
 					}
 				} else {
-					break _n2$2;
+					break _v2$2;
 				}
 			}
 			return dict;
 		}
 	});
-var elm$core$Dict$removeMin = function (dict) {
-	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+var $elm$core$Dict$removeMin = function (dict) {
+	if ((dict.$ === -1) && (dict.d.$ === -1)) {
 		var color = dict.a;
 		var key = dict.b;
 		var value = dict.c;
@@ -5835,52 +5765,52 @@ var elm$core$Dict$removeMin = function (dict) {
 		var lColor = left.a;
 		var lLeft = left.d;
 		var right = dict.e;
-		if (lColor.$ === 'Black') {
-			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
-				var _n3 = lLeft.a;
+		if (lColor === 1) {
+			if ((lLeft.$ === -1) && (!lLeft.a)) {
+				var _v3 = lLeft.a;
 				return A5(
-					elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$RBNode_elm_builtin,
 					color,
 					key,
 					value,
-					elm$core$Dict$removeMin(left),
+					$elm$core$Dict$removeMin(left),
 					right);
 			} else {
-				var _n4 = elm$core$Dict$moveRedLeft(dict);
-				if (_n4.$ === 'RBNode_elm_builtin') {
-					var nColor = _n4.a;
-					var nKey = _n4.b;
-					var nValue = _n4.c;
-					var nLeft = _n4.d;
-					var nRight = _n4.e;
+				var _v4 = $elm$core$Dict$moveRedLeft(dict);
+				if (_v4.$ === -1) {
+					var nColor = _v4.a;
+					var nKey = _v4.b;
+					var nValue = _v4.c;
+					var nLeft = _v4.d;
+					var nRight = _v4.e;
 					return A5(
-						elm$core$Dict$balance,
+						$elm$core$Dict$balance,
 						nColor,
 						nKey,
 						nValue,
-						elm$core$Dict$removeMin(nLeft),
+						$elm$core$Dict$removeMin(nLeft),
 						nRight);
 				} else {
-					return elm$core$Dict$RBEmpty_elm_builtin;
+					return $elm$core$Dict$RBEmpty_elm_builtin;
 				}
 			}
 		} else {
 			return A5(
-				elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$RBNode_elm_builtin,
 				color,
 				key,
 				value,
-				elm$core$Dict$removeMin(left),
+				$elm$core$Dict$removeMin(left),
 				right);
 		}
 	} else {
-		return elm$core$Dict$RBEmpty_elm_builtin;
+		return $elm$core$Dict$RBEmpty_elm_builtin;
 	}
 };
-var elm$core$Dict$removeHelp = F2(
+var $elm$core$Dict$removeHelp = F2(
 	function (targetKey, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return elm$core$Dict$RBEmpty_elm_builtin;
+		if (dict.$ === -2) {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
 		} else {
 			var color = dict.a;
 			var key = dict.b;
@@ -5888,818 +5818,227 @@ var elm$core$Dict$removeHelp = F2(
 			var left = dict.d;
 			var right = dict.e;
 			if (_Utils_cmp(targetKey, key) < 0) {
-				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
-					var _n4 = left.a;
+				if ((left.$ === -1) && (left.a === 1)) {
+					var _v4 = left.a;
 					var lLeft = left.d;
-					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
-						var _n6 = lLeft.a;
+					if ((lLeft.$ === -1) && (!lLeft.a)) {
+						var _v6 = lLeft.a;
 						return A5(
-							elm$core$Dict$RBNode_elm_builtin,
+							$elm$core$Dict$RBNode_elm_builtin,
 							color,
 							key,
 							value,
-							A2(elm$core$Dict$removeHelp, targetKey, left),
+							A2($elm$core$Dict$removeHelp, targetKey, left),
 							right);
 					} else {
-						var _n7 = elm$core$Dict$moveRedLeft(dict);
-						if (_n7.$ === 'RBNode_elm_builtin') {
-							var nColor = _n7.a;
-							var nKey = _n7.b;
-							var nValue = _n7.c;
-							var nLeft = _n7.d;
-							var nRight = _n7.e;
+						var _v7 = $elm$core$Dict$moveRedLeft(dict);
+						if (_v7.$ === -1) {
+							var nColor = _v7.a;
+							var nKey = _v7.b;
+							var nValue = _v7.c;
+							var nLeft = _v7.d;
+							var nRight = _v7.e;
 							return A5(
-								elm$core$Dict$balance,
+								$elm$core$Dict$balance,
 								nColor,
 								nKey,
 								nValue,
-								A2(elm$core$Dict$removeHelp, targetKey, nLeft),
+								A2($elm$core$Dict$removeHelp, targetKey, nLeft),
 								nRight);
 						} else {
-							return elm$core$Dict$RBEmpty_elm_builtin;
+							return $elm$core$Dict$RBEmpty_elm_builtin;
 						}
 					}
 				} else {
 					return A5(
-						elm$core$Dict$RBNode_elm_builtin,
+						$elm$core$Dict$RBNode_elm_builtin,
 						color,
 						key,
 						value,
-						A2(elm$core$Dict$removeHelp, targetKey, left),
+						A2($elm$core$Dict$removeHelp, targetKey, left),
 						right);
 				}
 			} else {
 				return A2(
-					elm$core$Dict$removeHelpEQGT,
+					$elm$core$Dict$removeHelpEQGT,
 					targetKey,
-					A7(elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
+					A7($elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
 			}
 		}
 	});
-var elm$core$Dict$removeHelpEQGT = F2(
+var $elm$core$Dict$removeHelpEQGT = F2(
 	function (targetKey, dict) {
-		if (dict.$ === 'RBNode_elm_builtin') {
+		if (dict.$ === -1) {
 			var color = dict.a;
 			var key = dict.b;
 			var value = dict.c;
 			var left = dict.d;
 			var right = dict.e;
 			if (_Utils_eq(targetKey, key)) {
-				var _n1 = elm$core$Dict$getMin(right);
-				if (_n1.$ === 'RBNode_elm_builtin') {
-					var minKey = _n1.b;
-					var minValue = _n1.c;
+				var _v1 = $elm$core$Dict$getMin(right);
+				if (_v1.$ === -1) {
+					var minKey = _v1.b;
+					var minValue = _v1.c;
 					return A5(
-						elm$core$Dict$balance,
+						$elm$core$Dict$balance,
 						color,
 						minKey,
 						minValue,
 						left,
-						elm$core$Dict$removeMin(right));
+						$elm$core$Dict$removeMin(right));
 				} else {
-					return elm$core$Dict$RBEmpty_elm_builtin;
+					return $elm$core$Dict$RBEmpty_elm_builtin;
 				}
 			} else {
 				return A5(
-					elm$core$Dict$balance,
+					$elm$core$Dict$balance,
 					color,
 					key,
 					value,
 					left,
-					A2(elm$core$Dict$removeHelp, targetKey, right));
+					A2($elm$core$Dict$removeHelp, targetKey, right));
 			}
 		} else {
-			return elm$core$Dict$RBEmpty_elm_builtin;
+			return $elm$core$Dict$RBEmpty_elm_builtin;
 		}
 	});
-var elm$core$Dict$remove = F2(
+var $elm$core$Dict$remove = F2(
 	function (key, dict) {
-		var _n0 = A2(elm$core$Dict$removeHelp, key, dict);
-		if ((_n0.$ === 'RBNode_elm_builtin') && (_n0.a.$ === 'Red')) {
-			var _n1 = _n0.a;
-			var k = _n0.b;
-			var v = _n0.c;
-			var l = _n0.d;
-			var r = _n0.e;
-			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, k, v, l, r);
+		var _v0 = A2($elm$core$Dict$removeHelp, key, dict);
+		if ((_v0.$ === -1) && (!_v0.a)) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, 1, k, v, l, r);
 		} else {
-			var x = _n0;
+			var x = _v0;
 			return x;
 		}
 	});
-var elm$core$Dict$update = F3(
+var $elm$core$Dict$update = F3(
 	function (targetKey, alter, dictionary) {
-		var _n0 = alter(
-			A2(elm$core$Dict$get, targetKey, dictionary));
-		if (_n0.$ === 'Just') {
-			var value = _n0.a;
-			return A3(elm$core$Dict$insert, targetKey, value, dictionary);
+		var _v0 = alter(
+			A2($elm$core$Dict$get, targetKey, dictionary));
+		if (!_v0.$) {
+			var value = _v0.a;
+			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
 		} else {
-			return A2(elm$core$Dict$remove, targetKey, dictionary);
+			return A2($elm$core$Dict$remove, targetKey, dictionary);
 		}
 	});
-var elm$url$Url$percentDecode = _Url_percentDecode;
-var elm$url$Url$Parser$addToParametersHelp = F2(
-	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
-			return elm$core$Maybe$Just(
-				_List_fromArray(
-					[value]));
-		} else {
-			var list = maybeList.a;
-			return elm$core$Maybe$Just(
-				A2(elm$core$List$cons, value, list));
-		}
-	});
-var elm$url$Url$Parser$addParam = F2(
-	function (segment, dict) {
-		var _n0 = A2(elm$core$String$split, '=', segment);
-		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
-			var rawKey = _n0.a;
-			var _n1 = _n0.b;
-			var rawValue = _n1.a;
-			var _n2 = elm$url$Url$percentDecode(rawKey);
-			if (_n2.$ === 'Nothing') {
-				return dict;
-			} else {
-				var key = _n2.a;
-				var _n3 = elm$url$Url$percentDecode(rawValue);
-				if (_n3.$ === 'Nothing') {
-					return dict;
-				} else {
-					var value = _n3.a;
-					return A3(
-						elm$core$Dict$update,
-						key,
-						elm$url$Url$Parser$addToParametersHelp(value),
-						dict);
-				}
-			}
-		} else {
-			return dict;
-		}
-	});
-var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 'Nothing') {
-		return elm$core$Dict$empty;
-	} else {
-		var qry = maybeQuery.a;
-		return A3(
-			elm$core$List$foldr,
-			elm$url$Url$Parser$addParam,
-			elm$core$Dict$empty,
-			A2(elm$core$String$split, '&', qry));
-	}
-};
-var elm$url$Url$Parser$parse = F2(
-	function (_n0, url) {
-		var parser = _n0.a;
-		return elm$url$Url$Parser$getFirstMatch(
-			parser(
-				A5(
-					elm$url$Url$Parser$State,
-					_List_Nil,
-					elm$url$Url$Parser$preparePath(url.path),
-					elm$url$Url$Parser$prepareQuery(url.query),
-					url.fragment,
-					elm$core$Basics$identity)));
-	});
-var author$project$Parse$idFromPokeApiUrlString = function (urlString) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		132,
-		A2(
-			elm$url$Url$Parser$parse,
-			author$project$Parse$parser,
-			author$project$Parse$urlFromString(urlString)));
-};
-var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var author$project$Page$Pokemon$pokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['type', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['type', 'name']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var elm$json$Json$Decode$list = _Json_decodeList;
-var author$project$Page$Pokemon$pokemonDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['species', 'url']),
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'types',
-		elm$json$Json$Decode$list(author$project$Page$Pokemon$pokemonTypeDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Model$BasePokemon)))));
-var elm$core$Maybe$isJust = function (maybe) {
-	if (maybe.$ === 'Just') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var elm$core$Platform$sendToApp = _Platform_sendToApp;
-var elm$core$Platform$sendToSelf = _Platform_sendToSelf;
-var elm$core$Result$map = F2(
-	function (func, ra) {
-		if (ra.$ === 'Ok') {
-			var a = ra.a;
-			return elm$core$Result$Ok(
-				func(a));
-		} else {
-			var e = ra.a;
-			return elm$core$Result$Err(e);
-		}
-	});
-var elm$http$Http$BadStatus_ = F2(
-	function (a, b) {
-		return {$: 'BadStatus_', a: a, b: b};
-	});
-var elm$http$Http$BadUrl_ = function (a) {
-	return {$: 'BadUrl_', a: a};
-};
-var elm$http$Http$GoodStatus_ = F2(
-	function (a, b) {
-		return {$: 'GoodStatus_', a: a, b: b};
-	});
-var elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
-var elm$http$Http$Receiving = function (a) {
-	return {$: 'Receiving', a: a};
-};
-var elm$http$Http$Sending = function (a) {
-	return {$: 'Sending', a: a};
-};
-var elm$http$Http$Timeout_ = {$: 'Timeout_'};
-var elm$http$Http$emptyBody = _Http_emptyBody;
-var elm$core$Task$fail = _Scheduler_fail;
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$http$Http$resultToTask = function (result) {
-	if (result.$ === 'Ok') {
-		var a = result.a;
-		return elm$core$Task$succeed(a);
-	} else {
-		var x = result.a;
-		return elm$core$Task$fail(x);
-	}
-};
-var elm$http$Http$riskyTask = function (r) {
-	return A3(
-		_Http_toTask,
-		_Utils_Tuple0,
-		elm$http$Http$resultToTask,
-		{allowCookiesFromOtherDomains: true, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
-};
-var elm$http$Http$task = function (r) {
-	return A3(
-		_Http_toTask,
-		_Utils_Tuple0,
-		elm$http$Http$resultToTask,
-		{allowCookiesFromOtherDomains: false, body: r.body, expect: r.resolver, headers: r.headers, method: r.method, timeout: r.timeout, tracker: elm$core$Maybe$Nothing, url: r.url});
-};
-var ohanhi$remotedata_http$RemoteData$Http$createTask = function (_n0) {
-	var risky = _n0.risky;
-	return risky ? elm$http$Http$riskyTask : elm$http$Http$task;
-};
-var elm$http$Http$BadBody = function (a) {
-	return {$: 'BadBody', a: a};
-};
-var elm$json$Json$Decode$decodeString = _Json_runOnString;
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var elm$http$Http$BadStatus = function (a) {
-	return {$: 'BadStatus', a: a};
-};
-var elm$http$Http$BadUrl = function (a) {
-	return {$: 'BadUrl', a: a};
-};
-var elm$http$Http$NetworkError = {$: 'NetworkError'};
-var elm$http$Http$Timeout = {$: 'Timeout'};
-var elm$http$Http$stringResolver = A2(_Http_expect, '', elm$core$Basics$identity);
-var ohanhi$remotedata_http$RemoteData$Http$taskResolver = function (fromGoodStatus) {
-	var fail = A2(elm$core$Basics$composeL, elm$core$Result$Ok, krisajenkins$remotedata$RemoteData$Failure);
-	return elm$http$Http$stringResolver(
-		function (response) {
-			switch (response.$) {
-				case 'BadUrl_':
-					var url = response.a;
-					return fail(
-						elm$http$Http$BadUrl(url));
-				case 'Timeout_':
-					return fail(elm$http$Http$Timeout);
-				case 'NetworkError_':
-					return fail(elm$http$Http$NetworkError);
-				case 'BadStatus_':
-					var metadata = response.a;
-					var body = response.b;
-					return fail(
-						elm$http$Http$BadStatus(metadata.statusCode));
-				default:
-					var metadata = response.a;
-					var body = response.b;
-					return fromGoodStatus(body);
-			}
-		});
-};
-var ohanhi$remotedata_http$RemoteData$Http$jsonResolver = function (decoder) {
-	return ohanhi$remotedata_http$RemoteData$Http$taskResolver(
-		function (body) {
-			var _n0 = A2(elm$json$Json$Decode$decodeString, decoder, body);
-			if (_n0.$ === 'Ok') {
-				var value = _n0.a;
-				return elm$core$Result$Ok(
-					krisajenkins$remotedata$RemoteData$Success(value));
-			} else {
-				var err = _n0.a;
-				return elm$core$Result$Ok(
-					krisajenkins$remotedata$RemoteData$Failure(
-						elm$http$Http$BadBody(
-							elm$json$Json$Decode$errorToString(err))));
-			}
-		});
-};
-var ohanhi$remotedata_http$RemoteData$Http$requestTask = F5(
-	function (method, config, url, decoder, body) {
-		return A2(
-			ohanhi$remotedata_http$RemoteData$Http$createTask,
-			config,
-			{
-				body: body,
-				headers: config.headers,
-				method: method,
-				resolver: ohanhi$remotedata_http$RemoteData$Http$jsonResolver(decoder),
-				timeout: config.timeout,
-				url: url
-			});
-	});
-var ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig = F3(
-	function (config, url, decoder) {
-		return A5(ohanhi$remotedata_http$RemoteData$Http$requestTask, 'GET', config, url, decoder, elm$http$Http$emptyBody);
-	});
-var elm$http$Http$Header = F2(
-	function (a, b) {
-		return {$: 'Header', a: a, b: b};
-	});
-var elm$http$Http$header = elm$http$Http$Header;
-var ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2(elm$http$Http$header, 'Accept', 'application/json');
-var ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
-	headers: _List_fromArray(
-		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
-	risky: false,
-	timeout: elm$core$Maybe$Nothing,
-	tracker: elm$core$Maybe$Nothing
-};
-var ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig = {
-	headers: _List_fromArray(
-		[ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
-	risky: false,
-	timeout: elm$core$Maybe$Nothing
-};
-var ohanhi$remotedata_http$RemoteData$Http$noCache = A2(elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
-var ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig = _Utils_update(
-	ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig,
-	{
-		headers: A2(elm$core$List$cons, ohanhi$remotedata_http$RemoteData$Http$noCache, ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
-	});
-var ohanhi$remotedata_http$RemoteData$Http$getTask = ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig(ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig);
-var author$project$Page$Pokemon$getPokemon = function (nameOrId) {
-	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon/' + nameOrId, author$project$Page$Pokemon$pokemonDecoder);
-};
-var author$project$Page$Pokemon$buildSpeciesEvolution = F2(
-	function (species, evolutionChainResponse) {
-		switch (evolutionChainResponse.$) {
-			case 'Success':
-				var evolutionChain = evolutionChainResponse.a;
-				return krisajenkins$remotedata$RemoteData$succeed(
-					{evolutionChain: evolutionChain, varieties: species.varieties});
-			case 'Failure':
-				var error = evolutionChainResponse.a;
-				return krisajenkins$remotedata$RemoteData$Failure(error);
-			case 'NotAsked':
-				return krisajenkins$remotedata$RemoteData$NotAsked;
-			default:
-				return krisajenkins$remotedata$RemoteData$Loading;
-		}
-	});
-var author$project$Model$EvolutionChain = F3(
-	function (name, id, evolutionChain) {
-		return {evolutionChain: evolutionChain, id: id, name: name};
-	});
-var author$project$Model$Evolutions = function (a) {
-	return {$: 'Evolutions', a: a};
-};
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var elm$json$Json$Decode$lazy = function (thunk) {
-	return A2(
-		elm$json$Json$Decode$andThen,
-		thunk,
-		elm$json$Json$Decode$succeed(_Utils_Tuple0));
-};
-function author$project$Page$Pokemon$cyclic$evolutionDecoder() {
-	return A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'evolves_to',
-		A2(
-			elm$json$Json$Decode$map,
-			author$project$Model$Evolutions,
-			elm$json$Json$Decode$list(
-				elm$json$Json$Decode$lazy(
-					function (_n0) {
-						return author$project$Page$Pokemon$cyclic$evolutionDecoder();
-					}))),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['species', 'url']),
-			A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-				_List_fromArray(
-					['species', 'name']),
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Model$EvolutionChain))));
-}
-try {
-	var author$project$Page$Pokemon$evolutionDecoder = author$project$Page$Pokemon$cyclic$evolutionDecoder();
-	author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
-		return author$project$Page$Pokemon$evolutionDecoder;
-	};
-} catch ($) {
-throw 'Some top-level definitions from `Page.Pokemon` are causing infinite recursion:\n\n  ┌─────┐\n  │    evolutionDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.0/halting-problem to learn how to fix it!';}
-var author$project$Page$Pokemon$evolutionsDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['chain', 'evolves_to']),
-	A2(
-		elm$json$Json$Decode$map,
-		author$project$Model$Evolutions,
-		elm$json$Json$Decode$list(
-			elm$json$Json$Decode$lazy(
-				function (_n0) {
-					return author$project$Page$Pokemon$evolutionDecoder;
-				}))),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['chain', 'species', 'url']),
-		A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-			_List_fromArray(
-				['chain', 'species', 'name']),
-			elm$json$Json$Decode$string,
-			elm$json$Json$Decode$succeed(author$project$Model$EvolutionChain))));
-var author$project$Page$Pokemon$getEvolutions = function (evolutionChainUrl) {
-	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, evolutionChainUrl, author$project$Page$Pokemon$evolutionsDecoder);
-};
-var author$project$Model$Species = F2(
-	function (evolutionChainUrl, varieties) {
-		return {evolutionChainUrl: evolutionChainUrl, varieties: varieties};
-	});
-var author$project$Page$Pokemon$varietyDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['pokemon', 'name']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$Pokemon$speciesDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'varieties',
-	elm$json$Json$Decode$list(author$project$Page$Pokemon$varietyDecoder),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['evolution_chain', 'url']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Species)));
-var author$project$Page$Pokemon$getSpecies = function (speciesUrl) {
-	return A2(ohanhi$remotedata_http$RemoteData$Http$getTask, speciesUrl, author$project$Page$Pokemon$speciesDecoder);
-};
-var elm$core$Task$andThen = _Scheduler_andThen;
-var elm$core$Task$map2 = F3(
-	function (func, taskA, taskB) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return A2(
-					elm$core$Task$andThen,
-					function (b) {
-						return elm$core$Task$succeed(
-							A2(func, a, b));
-					},
-					taskB);
-			},
-			taskA);
-	});
-var author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
-	return A2(
-		elm$core$Task$andThen,
-		function (speciesResponse) {
-			switch (speciesResponse.$) {
-				case 'Success':
-					var species = speciesResponse.a;
-					return A3(
-						elm$core$Task$map2,
-						author$project$Page$Pokemon$buildSpeciesEvolution,
-						elm$core$Task$succeed(species),
-						author$project$Page$Pokemon$getEvolutions(species.evolutionChainUrl));
-				case 'Failure':
-					var error = speciesResponse.a;
-					return elm$core$Task$succeed(
-						krisajenkins$remotedata$RemoteData$Failure(error));
-				case 'NotAsked':
-					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$NotAsked);
-				default:
-					return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$Loading);
-			}
-		},
-		author$project$Page$Pokemon$getSpecies(nameOrId));
-};
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
-var elm$core$Task$map = F2(
-	function (func, taskA) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return elm$core$Task$succeed(
-					func(a));
-			},
-			taskA);
-	});
-var elm$core$Task$sequence = function (tasks) {
-	return A3(
-		elm$core$List$foldr,
-		elm$core$Task$map2(elm$core$List$cons),
-		elm$core$Task$succeed(_List_Nil),
-		tasks);
-};
-var elm$core$Task$spawnCmd = F2(
-	function (router, _n0) {
-		var task = _n0.a;
-		return _Scheduler_spawn(
-			A2(
-				elm$core$Task$andThen,
-				elm$core$Platform$sendToApp(router),
-				task));
-	});
-var elm$core$Task$onEffects = F3(
-	function (router, commands, state) {
-		return A2(
-			elm$core$Task$map,
-			function (_n0) {
-				return _Utils_Tuple0;
-			},
-			elm$core$Task$sequence(
-				A2(
-					elm$core$List$map,
-					elm$core$Task$spawnCmd(router),
-					commands)));
-	});
-var elm$core$Task$onSelfMsg = F3(
-	function (_n0, _n1, _n2) {
-		return elm$core$Task$succeed(_Utils_Tuple0);
-	});
-var elm$core$Task$cmdMap = F2(
-	function (tagger, _n0) {
-		var task = _n0.a;
-		return elm$core$Task$Perform(
-			A2(elm$core$Task$map, tagger, task));
-	});
-_Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
-var elm$core$Task$command = _Platform_leaf('Task');
-var elm$core$Task$onError = _Scheduler_onError;
-var elm$core$Task$attempt = F2(
-	function (resultToMessage, task) {
-		return elm$core$Task$command(
-			elm$core$Task$Perform(
-				A2(
-					elm$core$Task$onError,
-					A2(
-						elm$core$Basics$composeL,
-						A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
-						elm$core$Result$Err),
-					A2(
-						elm$core$Task$andThen,
-						A2(
-							elm$core$Basics$composeL,
-							A2(elm$core$Basics$composeL, elm$core$Task$succeed, resultToMessage),
-							elm$core$Result$Ok),
-						task))));
-	});
-var author$project$Page$Pokemon$fetch = function (nameOrId) {
-	return A2(
-		elm$core$Task$attempt,
-		function (result) {
-			if (result.$ === 'Ok') {
-				var response = result.a;
-				return response;
-			} else {
-				return krisajenkins$remotedata$RemoteData$NotAsked;
-			}
-		},
-		A2(
-			elm$core$Task$andThen,
-			function (basePokemonResponse) {
-				switch (basePokemonResponse.$) {
-					case 'Success':
-						var basePokemon = basePokemonResponse.a;
-						return A3(
-							elm$core$Task$map2,
-							author$project$Page$Pokemon$buildPokemonData,
-							elm$core$Task$succeed(basePokemon),
-							author$project$Page$Pokemon$getPokemonDetails(basePokemon.speciesUrl));
-					case 'Failure':
-						var error = basePokemonResponse.a;
-						return elm$core$Task$succeed(
-							krisajenkins$remotedata$RemoteData$Failure(error));
-					case 'NotAsked':
-						return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$NotAsked);
-					default:
-						return elm$core$Task$succeed(krisajenkins$remotedata$RemoteData$Loading);
-				}
-			},
-			author$project$Page$Pokemon$getPokemon(nameOrId)));
-};
-var author$project$Model$PokemonType = F4(
-	function (name, id, pokemon, damageRelations) {
-		return {damageRelations: damageRelations, id: id, name: name, pokemon: pokemon};
-	});
-var author$project$Model$DamageRelations = F6(
-	function (doubleDamageFrom, doubleDamageTo, halfDamageFrom, halfDamageTo, noDamageFrom, noDamageTo) {
-		return {doubleDamageFrom: doubleDamageFrom, doubleDamageTo: doubleDamageTo, halfDamageFrom: halfDamageFrom, halfDamageTo: halfDamageTo, noDamageFrom: noDamageFrom, noDamageTo: noDamageTo};
-	});
-var author$project$Page$PokemonType$basePokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'url',
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'name',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$PokemonType$damageRelationDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'no_damage_to',
-	elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'no_damage_from',
-		elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'half_damage_to',
-			elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'half_damage_from',
-				elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'double_damage_to',
-					elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'double_damage_from',
-						elm$json$Json$Decode$list(author$project$Page$PokemonType$basePokemonTypeDecoder),
-						elm$json$Json$Decode$succeed(author$project$Model$DamageRelations)))))));
-var author$project$Page$PokemonType$pokemonDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-	_List_fromArray(
-		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
-		_List_fromArray(
-			['pokemon', 'name']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$PokemonType$pokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'damage_relations',
-	author$project$Page$PokemonType$damageRelationDecoder,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'pokemon',
-		elm$json$Json$Decode$list(author$project$Page$PokemonType$pokemonDecoder),
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Model$PokemonType)))));
-var elm$core$Result$mapError = F2(
-	function (f, result) {
-		if (result.$ === 'Ok') {
-			var v = result.a;
-			return elm$core$Result$Ok(v);
-		} else {
-			var e = result.a;
-			return elm$core$Result$Err(
-				f(e));
-		}
-	});
-var elm$core$Basics$composeR = F3(
+var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
 			f(x));
 	});
-var elm$http$Http$expectStringResponse = F2(
+var $elm$http$Http$expectStringResponse = F2(
 	function (toMsg, toResult) {
 		return A3(
 			_Http_expect,
 			'',
-			elm$core$Basics$identity,
-			A2(elm$core$Basics$composeR, toResult, toMsg));
+			$elm$core$Basics$identity,
+			A2($elm$core$Basics$composeR, toResult, toMsg));
 	});
-var elm$http$Http$resolve = F2(
+var $elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (!result.$) {
+			var v = result.a;
+			return $elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return $elm$core$Result$Err(
+				f(e));
+		}
+	});
+var $elm$http$Http$BadBody = function (a) {
+	return {$: 4, a: a};
+};
+var $elm$http$Http$BadStatus = function (a) {
+	return {$: 3, a: a};
+};
+var $elm$http$Http$BadUrl = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$http$Http$NetworkError = {$: 2};
+var $elm$http$Http$Timeout = {$: 1};
+var $elm$http$Http$resolve = F2(
 	function (toResult, response) {
 		switch (response.$) {
-			case 'BadUrl_':
+			case 0:
 				var url = response.a;
-				return elm$core$Result$Err(
-					elm$http$Http$BadUrl(url));
-			case 'Timeout_':
-				return elm$core$Result$Err(elm$http$Http$Timeout);
-			case 'NetworkError_':
-				return elm$core$Result$Err(elm$http$Http$NetworkError);
-			case 'BadStatus_':
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadUrl(url));
+			case 1:
+				return $elm$core$Result$Err($elm$http$Http$Timeout);
+			case 2:
+				return $elm$core$Result$Err($elm$http$Http$NetworkError);
+			case 3:
 				var metadata = response.a;
-				return elm$core$Result$Err(
-					elm$http$Http$BadStatus(metadata.statusCode));
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadStatus(metadata.cL));
 			default:
 				var body = response.b;
 				return A2(
-					elm$core$Result$mapError,
-					elm$http$Http$BadBody,
+					$elm$core$Result$mapError,
+					$elm$http$Http$BadBody,
 					toResult(body));
 		}
 	});
-var elm$http$Http$expectJson = F2(
+var $elm$http$Http$expectJson = F2(
 	function (toMsg, decoder) {
 		return A2(
-			elm$http$Http$expectStringResponse,
+			$elm$http$Http$expectStringResponse,
 			toMsg,
-			elm$http$Http$resolve(
+			$elm$http$Http$resolve(
 				function (string) {
 					return A2(
-						elm$core$Result$mapError,
-						elm$json$Json$Decode$errorToString,
-						A2(elm$json$Json$Decode$decodeString, decoder, string));
+						$elm$core$Result$mapError,
+						$elm$json$Json$Decode$errorToString,
+						A2($elm$json$Json$Decode$decodeString, decoder, string));
 				}));
 	});
-var elm$http$Http$Request = function (a) {
-	return {$: 'Request', a: a};
+var $krisajenkins$remotedata$RemoteData$Failure = function (a) {
+	return {$: 2, a: a};
 };
-var elm$http$Http$State = F2(
+var $krisajenkins$remotedata$RemoteData$Success = function (a) {
+	return {$: 3, a: a};
+};
+var $krisajenkins$remotedata$RemoteData$fromResult = function (result) {
+	if (result.$ === 1) {
+		var e = result.a;
+		return $krisajenkins$remotedata$RemoteData$Failure(e);
+	} else {
+		var x = result.a;
+		return $krisajenkins$remotedata$RemoteData$Success(x);
+	}
+};
+var $elm$http$Http$emptyBody = _Http_emptyBody;
+var $elm$http$Http$Request = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {reqs: reqs, subs: subs};
+		return {bM: reqs, bS: subs};
 	});
-var elm$http$Http$init = elm$core$Task$succeed(
-	A2(elm$http$Http$State, elm$core$Dict$empty, _List_Nil));
-var elm$core$Process$kill = _Scheduler_kill;
-var elm$core$Process$spawn = _Scheduler_spawn;
-var elm$http$Http$updateReqs = F3(
+var $elm$http$Http$init = $elm$core$Task$succeed(
+	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
+var $elm$core$Process$kill = _Scheduler_kill;
+var $elm$core$Process$spawn = _Scheduler_spawn;
+var $elm$http$Http$updateReqs = F3(
 	function (router, cmds, reqs) {
 		updateReqs:
 		while (true) {
 			if (!cmds.b) {
-				return elm$core$Task$succeed(reqs);
+				return $elm$core$Task$succeed(reqs);
 			} else {
 				var cmd = cmds.a;
 				var otherCmds = cmds.b;
-				if (cmd.$ === 'Cancel') {
+				if (!cmd.$) {
 					var tracker = cmd.a;
-					var _n2 = A2(elm$core$Dict$get, tracker, reqs);
-					if (_n2.$ === 'Nothing') {
+					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
+					if (_v2.$ === 1) {
 						var $temp$router = router,
 							$temp$cmds = otherCmds,
 							$temp$reqs = reqs;
@@ -6708,476 +6047,1197 @@ var elm$http$Http$updateReqs = F3(
 						reqs = $temp$reqs;
 						continue updateReqs;
 					} else {
-						var pid = _n2.a;
+						var pid = _v2.a;
 						return A2(
-							elm$core$Task$andThen,
-							function (_n3) {
+							$elm$core$Task$andThen,
+							function (_v3) {
 								return A3(
-									elm$http$Http$updateReqs,
+									$elm$http$Http$updateReqs,
 									router,
 									otherCmds,
-									A2(elm$core$Dict$remove, tracker, reqs));
+									A2($elm$core$Dict$remove, tracker, reqs));
 							},
-							elm$core$Process$kill(pid));
+							$elm$core$Process$kill(pid));
 					}
 				} else {
 					var req = cmd.a;
 					return A2(
-						elm$core$Task$andThen,
+						$elm$core$Task$andThen,
 						function (pid) {
-							var _n4 = req.tracker;
-							if (_n4.$ === 'Nothing') {
-								return A3(elm$http$Http$updateReqs, router, otherCmds, reqs);
+							var _v4 = req.bV;
+							if (_v4.$ === 1) {
+								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
-								var tracker = _n4.a;
+								var tracker = _v4.a;
 								return A3(
-									elm$http$Http$updateReqs,
+									$elm$http$Http$updateReqs,
 									router,
 									otherCmds,
-									A3(elm$core$Dict$insert, tracker, pid, reqs));
+									A3($elm$core$Dict$insert, tracker, pid, reqs));
 							}
 						},
-						elm$core$Process$spawn(
+						$elm$core$Process$spawn(
 							A3(
 								_Http_toTask,
 								router,
-								elm$core$Platform$sendToApp(router),
+								$elm$core$Platform$sendToApp(router),
 								req)));
 				}
 			}
 		}
 	});
-var elm$http$Http$onEffects = F4(
+var $elm$http$Http$onEffects = F4(
 	function (router, cmds, subs, state) {
 		return A2(
-			elm$core$Task$andThen,
+			$elm$core$Task$andThen,
 			function (reqs) {
-				return elm$core$Task$succeed(
-					A2(elm$http$Http$State, reqs, subs));
+				return $elm$core$Task$succeed(
+					A2($elm$http$Http$State, reqs, subs));
 			},
-			A3(elm$http$Http$updateReqs, router, cmds, state.reqs));
+			A3($elm$http$Http$updateReqs, router, cmds, state.bM));
 	});
-var elm$core$List$maybeCons = F3(
+var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
-		var _n0 = f(mx);
-		if (_n0.$ === 'Just') {
-			var x = _n0.a;
-			return A2(elm$core$List$cons, x, xs);
+		var _v0 = f(mx);
+		if (!_v0.$) {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
 		} else {
 			return xs;
 		}
 	});
-var elm$core$List$filterMap = F2(
+var $elm$core$List$filterMap = F2(
 	function (f, xs) {
 		return A3(
-			elm$core$List$foldr,
-			elm$core$List$maybeCons(f),
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
 			_List_Nil,
 			xs);
 	});
-var elm$http$Http$maybeSend = F4(
-	function (router, desiredTracker, progress, _n0) {
-		var actualTracker = _n0.a;
-		var toMsg = _n0.b;
-		return _Utils_eq(desiredTracker, actualTracker) ? elm$core$Maybe$Just(
+var $elm$http$Http$maybeSend = F4(
+	function (router, desiredTracker, progress, _v0) {
+		var actualTracker = _v0.a;
+		var toMsg = _v0.b;
+		return _Utils_eq(desiredTracker, actualTracker) ? $elm$core$Maybe$Just(
 			A2(
-				elm$core$Platform$sendToApp,
+				$elm$core$Platform$sendToApp,
 				router,
-				toMsg(progress))) : elm$core$Maybe$Nothing;
+				toMsg(progress))) : $elm$core$Maybe$Nothing;
 	});
-var elm$http$Http$onSelfMsg = F3(
-	function (router, _n0, state) {
-		var tracker = _n0.a;
-		var progress = _n0.b;
+var $elm$http$Http$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var tracker = _v0.a;
+		var progress = _v0.b;
 		return A2(
-			elm$core$Task$andThen,
-			function (_n1) {
-				return elm$core$Task$succeed(state);
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
 			},
-			elm$core$Task$sequence(
+			$elm$core$Task$sequence(
 				A2(
-					elm$core$List$filterMap,
-					A3(elm$http$Http$maybeSend, router, tracker, progress),
-					state.subs)));
+					$elm$core$List$filterMap,
+					A3($elm$http$Http$maybeSend, router, tracker, progress),
+					state.bS)));
 	});
-var elm$http$Http$Cancel = function (a) {
-	return {$: 'Cancel', a: a};
+var $elm$http$Http$Cancel = function (a) {
+	return {$: 0, a: a};
 };
-var elm$http$Http$cmdMap = F2(
+var $elm$http$Http$cmdMap = F2(
 	function (func, cmd) {
-		if (cmd.$ === 'Cancel') {
+		if (!cmd.$) {
 			var tracker = cmd.a;
-			return elm$http$Http$Cancel(tracker);
+			return $elm$http$Http$Cancel(tracker);
 		} else {
 			var r = cmd.a;
-			return elm$http$Http$Request(
+			return $elm$http$Http$Request(
 				{
-					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
-					body: r.body,
-					expect: A2(_Http_mapExpect, func, r.expect),
-					headers: r.headers,
-					method: r.method,
-					timeout: r.timeout,
-					tracker: r.tracker,
-					url: r.url
+					b3: r.b3,
+					b6: r.b6,
+					cg: A2(_Http_mapExpect, func, r.cg),
+					bx: r.bx,
+					cs: r.cs,
+					cO: r.cO,
+					bV: r.bV,
+					cS: r.cS
 				});
 		}
 	});
-var elm$http$Http$MySub = F2(
+var $elm$http$Http$MySub = F2(
 	function (a, b) {
-		return {$: 'MySub', a: a, b: b};
+		return {$: 0, a: a, b: b};
 	});
-var elm$http$Http$subMap = F2(
-	function (func, _n0) {
-		var tracker = _n0.a;
-		var toMsg = _n0.b;
+var $elm$http$Http$subMap = F2(
+	function (func, _v0) {
+		var tracker = _v0.a;
+		var toMsg = _v0.b;
 		return A2(
-			elm$http$Http$MySub,
+			$elm$http$Http$MySub,
 			tracker,
-			A2(elm$core$Basics$composeR, toMsg, func));
+			A2($elm$core$Basics$composeR, toMsg, func));
 	});
-_Platform_effectManagers['Http'] = _Platform_createManager(elm$http$Http$init, elm$http$Http$onEffects, elm$http$Http$onSelfMsg, elm$http$Http$cmdMap, elm$http$Http$subMap);
-var elm$http$Http$command = _Platform_leaf('Http');
-var elm$http$Http$subscription = _Platform_leaf('Http');
-var elm$http$Http$request = function (r) {
-	return elm$http$Http$command(
-		elm$http$Http$Request(
-			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+_Platform_effectManagers['Http'] = _Platform_createManager($elm$http$Http$init, $elm$http$Http$onEffects, $elm$http$Http$onSelfMsg, $elm$http$Http$cmdMap, $elm$http$Http$subMap);
+var $elm$http$Http$command = _Platform_leaf('Http');
+var $elm$http$Http$subscription = _Platform_leaf('Http');
+var $elm$http$Http$request = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{b3: false, b6: r.b6, cg: r.cg, bx: r.bx, cs: r.cs, cO: r.cO, bV: r.bV, cS: r.cS}));
 };
-var elm$http$Http$get = function (r) {
-	return elm$http$Http$request(
-		{body: elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
+var $elm$http$Http$get = function (r) {
+	return $elm$http$Http$request(
+		{b6: $elm$http$Http$emptyBody, cg: r.cg, bx: _List_Nil, cs: 'GET', cO: $elm$core$Maybe$Nothing, bV: $elm$core$Maybe$Nothing, cS: r.cS});
 };
-var krisajenkins$remotedata$RemoteData$fromResult = function (result) {
-	if (result.$ === 'Err') {
-		var e = result.a;
-		return krisajenkins$remotedata$RemoteData$Failure(e);
-	} else {
-		var x = result.a;
-		return krisajenkins$remotedata$RemoteData$Success(x);
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Model$Base = F2(
+	function (name, id) {
+		return {ax: id, aB: name};
+	});
+var $elm$url$Url$Parser$State = F5(
+	function (visited, unvisited, params, frag, value) {
+		return {O: frag, R: params, L: unvisited, A: value, W: visited};
+	});
+var $elm$url$Url$Parser$getFirstMatch = function (states) {
+	getFirstMatch:
+	while (true) {
+		if (!states.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var state = states.a;
+			var rest = states.b;
+			var _v1 = state.L;
+			if (!_v1.b) {
+				return $elm$core$Maybe$Just(state.A);
+			} else {
+				if ((_v1.a === '') && (!_v1.b.b)) {
+					return $elm$core$Maybe$Just(state.A);
+				} else {
+					var $temp$states = rest;
+					states = $temp$states;
+					continue getFirstMatch;
+				}
+			}
+		}
 	}
 };
-var author$project$Page$PokemonType$fetch = function (idOrName) {
-	return elm$http$Http$get(
-		{
-			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonType$pokemonTypeDecoder),
-			url: 'https://pokeapi.co/api/v2/type/' + idOrName
+var $elm$url$Url$Parser$removeFinalEmpty = function (segments) {
+	if (!segments.b) {
+		return _List_Nil;
+	} else {
+		if ((segments.a === '') && (!segments.b.b)) {
+			return _List_Nil;
+		} else {
+			var segment = segments.a;
+			var rest = segments.b;
+			return A2(
+				$elm$core$List$cons,
+				segment,
+				$elm$url$Url$Parser$removeFinalEmpty(rest));
+		}
+	}
+};
+var $elm$url$Url$Parser$preparePath = function (path) {
+	var _v0 = A2($elm$core$String$split, '/', path);
+	if (_v0.b && (_v0.a === '')) {
+		var segments = _v0.b;
+		return $elm$url$Url$Parser$removeFinalEmpty(segments);
+	} else {
+		var segments = _v0;
+		return $elm$url$Url$Parser$removeFinalEmpty(segments);
+	}
+};
+var $elm$url$Url$Parser$addToParametersHelp = F2(
+	function (value, maybeList) {
+		if (maybeList.$ === 1) {
+			return $elm$core$Maybe$Just(
+				_List_fromArray(
+					[value]));
+		} else {
+			var list = maybeList.a;
+			return $elm$core$Maybe$Just(
+				A2($elm$core$List$cons, value, list));
+		}
+	});
+var $elm$url$Url$percentDecode = _Url_percentDecode;
+var $elm$url$Url$Parser$addParam = F2(
+	function (segment, dict) {
+		var _v0 = A2($elm$core$String$split, '=', segment);
+		if ((_v0.b && _v0.b.b) && (!_v0.b.b.b)) {
+			var rawKey = _v0.a;
+			var _v1 = _v0.b;
+			var rawValue = _v1.a;
+			var _v2 = $elm$url$Url$percentDecode(rawKey);
+			if (_v2.$ === 1) {
+				return dict;
+			} else {
+				var key = _v2.a;
+				var _v3 = $elm$url$Url$percentDecode(rawValue);
+				if (_v3.$ === 1) {
+					return dict;
+				} else {
+					var value = _v3.a;
+					return A3(
+						$elm$core$Dict$update,
+						key,
+						$elm$url$Url$Parser$addToParametersHelp(value),
+						dict);
+				}
+			}
+		} else {
+			return dict;
+		}
+	});
+var $elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
+	if (maybeQuery.$ === 1) {
+		return $elm$core$Dict$empty;
+	} else {
+		var qry = maybeQuery.a;
+		return A3(
+			$elm$core$List$foldr,
+			$elm$url$Url$Parser$addParam,
+			$elm$core$Dict$empty,
+			A2($elm$core$String$split, '&', qry));
+	}
+};
+var $elm$url$Url$Parser$parse = F2(
+	function (_v0, url) {
+		var parser = _v0;
+		return $elm$url$Url$Parser$getFirstMatch(
+			parser(
+				A5(
+					$elm$url$Url$Parser$State,
+					_List_Nil,
+					$elm$url$Url$Parser$preparePath(url.cz),
+					$elm$url$Url$Parser$prepareQuery(url.cD),
+					url.ci,
+					$elm$core$Basics$identity)));
+	});
+var $elm$url$Url$Parser$Parser = $elm$core$Basics$identity;
+var $elm$url$Url$Parser$custom = F2(
+	function (tipe, stringToSomething) {
+		return function (_v0) {
+			var visited = _v0.W;
+			var unvisited = _v0.L;
+			var params = _v0.R;
+			var frag = _v0.O;
+			var value = _v0.A;
+			if (!unvisited.b) {
+				return _List_Nil;
+			} else {
+				var next = unvisited.a;
+				var rest = unvisited.b;
+				var _v2 = stringToSomething(next);
+				if (!_v2.$) {
+					var nextValue = _v2.a;
+					return _List_fromArray(
+						[
+							A5(
+							$elm$url$Url$Parser$State,
+							A2($elm$core$List$cons, next, visited),
+							rest,
+							params,
+							frag,
+							value(nextValue))
+						]);
+				} else {
+					return _List_Nil;
+				}
+			}
+		};
+	});
+var $elm$url$Url$Parser$int = A2($elm$url$Url$Parser$custom, 'NUMBER', $elm$core$String$toInt);
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $elm$url$Url$Parser$oneOf = function (parsers) {
+	return function (state) {
+		return A2(
+			$elm$core$List$concatMap,
+			function (_v0) {
+				var parser = _v0;
+				return parser(state);
+			},
+			parsers);
+	};
+};
+var $elm$url$Url$Parser$s = function (str) {
+	return function (_v0) {
+		var visited = _v0.W;
+		var unvisited = _v0.L;
+		var params = _v0.R;
+		var frag = _v0.O;
+		var value = _v0.A;
+		if (!unvisited.b) {
+			return _List_Nil;
+		} else {
+			var next = unvisited.a;
+			var rest = unvisited.b;
+			return _Utils_eq(next, str) ? _List_fromArray(
+				[
+					A5(
+					$elm$url$Url$Parser$State,
+					A2($elm$core$List$cons, next, visited),
+					rest,
+					params,
+					frag,
+					value)
+				]) : _List_Nil;
+		}
+	};
+};
+var $elm$url$Url$Parser$slash = F2(
+	function (_v0, _v1) {
+		var parseBefore = _v0;
+		var parseAfter = _v1;
+		return function (state) {
+			return A2(
+				$elm$core$List$concatMap,
+				parseAfter,
+				parseBefore(state));
+		};
+	});
+var $author$project$Parse$parser = $elm$url$Url$Parser$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			$elm$url$Url$Parser$slash,
+			$elm$url$Url$Parser$s('api'),
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s('v2'),
+				A2(
+					$elm$url$Url$Parser$slash,
+					$elm$url$Url$Parser$s('pokemon-species'),
+					$elm$url$Url$Parser$int))),
+			A2(
+			$elm$url$Url$Parser$slash,
+			$elm$url$Url$Parser$s('api'),
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s('v2'),
+				A2(
+					$elm$url$Url$Parser$slash,
+					$elm$url$Url$Parser$s('type'),
+					$elm$url$Url$Parser$int))),
+			A2(
+			$elm$url$Url$Parser$slash,
+			$elm$url$Url$Parser$s('api'),
+			A2(
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s('v2'),
+				A2(
+					$elm$url$Url$Parser$slash,
+					$elm$url$Url$Parser$s('pokemon'),
+					$elm$url$Url$Parser$int)))
+		]));
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Parse$urlFromString = function (urlString) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		{ci: $elm$core$Maybe$Nothing, cn: 'pokeapi.co', cz: '/api/v2/pokemon-species/132/', cB: $elm$core$Maybe$Nothing, cC: 1, cD: $elm$core$Maybe$Nothing},
+		$elm$url$Url$fromString(urlString));
+};
+var $author$project$Parse$idFromPokeApiUrlString = function (urlString) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		132,
+		A2(
+			$elm$url$Url$Parser$parse,
+			$author$project$Parse$parser,
+			$author$project$Parse$urlFromString(urlString)));
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Page$Pokedex$pokemonDecoder = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Model$Base,
+	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
+	A2(
+		$elm$json$Json$Decode$field,
+		'url',
+		A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string)));
+var $author$project$Page$Pokedex$pokedexDecoder = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['results']),
+	$elm$json$Json$Decode$list($author$project$Page$Pokedex$pokemonDecoder));
+var $author$project$Page$Pokedex$fetch = $elm$http$Http$get(
+	{
+		cg: A2($elm$http$Http$expectJson, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Page$Pokedex$pokedexDecoder),
+		cS: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
+	});
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2($elm$json$Json$Decode$field, key, valDecoder),
+			decoder);
+	});
+var $author$project$Page$PokemonTypes$typeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$PokemonTypes$typesDecoder = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['results']),
+	$elm$json$Json$Decode$list($author$project$Page$PokemonTypes$typeDecoder));
+var $author$project$Page$PokemonTypes$fetch = $elm$http$Http$get(
+	{
+		cg: A2($elm$http$Http$expectJson, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Page$PokemonTypes$typesDecoder),
+		cS: 'https://pokeapi.co/api/v2/type'
+	});
+var $author$project$Msg$PokemonFetchResponse = function (a) {
+	return {$: 3, a: a};
+};
+var $author$project$Msg$PokemonTypeFetchResponse = function (a) {
+	return {$: 4, a: a};
+};
+var $author$project$Msg$TeamPokemonTypeFetchResponse = function (a) {
+	return {$: 9, a: a};
+};
+var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 0};
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Task$onError = _Scheduler_onError;
+var $elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return $elm$core$Task$command(
+			A2(
+				$elm$core$Task$onError,
+				A2(
+					$elm$core$Basics$composeL,
+					A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+					$elm$core$Result$Err),
+				A2(
+					$elm$core$Task$andThen,
+					A2(
+						$elm$core$Basics$composeL,
+						A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+						$elm$core$Result$Ok),
+					task)));
+	});
+var $krisajenkins$remotedata$RemoteData$succeed = $krisajenkins$remotedata$RemoteData$Success;
+var $author$project$Page$Pokemon$buildPokemonData = F2(
+	function (basePokemon, pokemonDetailResponse) {
+		switch (pokemonDetailResponse.$) {
+			case 3:
+				var pokemonDetail = pokemonDetailResponse.a;
+				return $krisajenkins$remotedata$RemoteData$succeed(
+					{a$: pokemonDetail.a$, ax: basePokemon.ax, aB: basePokemon.aB, bY: basePokemon.bY, bf: pokemonDetail.bf});
+			case 2:
+				var error = pokemonDetailResponse.a;
+				return $krisajenkins$remotedata$RemoteData$Failure(error);
+			case 0:
+				return $krisajenkins$remotedata$RemoteData$NotAsked;
+			default:
+				return $krisajenkins$remotedata$RemoteData$Loading;
+		}
+	});
+var $elm$core$Task$fail = _Scheduler_fail;
+var $elm$http$Http$resultToTask = function (result) {
+	if (!result.$) {
+		var a = result.a;
+		return $elm$core$Task$succeed(a);
+	} else {
+		var x = result.a;
+		return $elm$core$Task$fail(x);
+	}
+};
+var $elm$http$Http$riskyTask = function (r) {
+	return A3(
+		_Http_toTask,
+		0,
+		$elm$http$Http$resultToTask,
+		{b3: true, b6: r.b6, cg: r.bO, bx: r.bx, cs: r.cs, cO: r.cO, bV: $elm$core$Maybe$Nothing, cS: r.cS});
+};
+var $elm$http$Http$task = function (r) {
+	return A3(
+		_Http_toTask,
+		0,
+		$elm$http$Http$resultToTask,
+		{b3: false, b6: r.b6, cg: r.bO, bx: r.bx, cs: r.cs, cO: r.cO, bV: $elm$core$Maybe$Nothing, cS: r.cS});
+};
+var $ohanhi$remotedata_http$RemoteData$Http$createTask = function (_v0) {
+	var risky = _v0.aj;
+	return risky ? $elm$http$Http$riskyTask : $elm$http$Http$task;
+};
+var $elm$http$Http$stringResolver = A2(_Http_expect, '', $elm$core$Basics$identity);
+var $ohanhi$remotedata_http$RemoteData$Http$taskResolver = function (fromGoodStatus) {
+	var fail = A2($elm$core$Basics$composeL, $elm$core$Result$Ok, $krisajenkins$remotedata$RemoteData$Failure);
+	return $elm$http$Http$stringResolver(
+		function (response) {
+			switch (response.$) {
+				case 0:
+					var url = response.a;
+					return fail(
+						$elm$http$Http$BadUrl(url));
+				case 1:
+					return fail($elm$http$Http$Timeout);
+				case 2:
+					return fail($elm$http$Http$NetworkError);
+				case 3:
+					var metadata = response.a;
+					var body = response.b;
+					return fail(
+						$elm$http$Http$BadStatus(metadata.cL));
+				default:
+					var metadata = response.a;
+					var body = response.b;
+					return fromGoodStatus(body);
+			}
 		});
 };
-var author$project$Page$Team$basePokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'url',
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
+var $ohanhi$remotedata_http$RemoteData$Http$jsonResolver = function (decoder) {
+	return $ohanhi$remotedata_http$RemoteData$Http$taskResolver(
+		function (body) {
+			var _v0 = A2($elm$json$Json$Decode$decodeString, decoder, body);
+			if (!_v0.$) {
+				var value = _v0.a;
+				return $elm$core$Result$Ok(
+					$krisajenkins$remotedata$RemoteData$Success(value));
+			} else {
+				var err = _v0.a;
+				return $elm$core$Result$Ok(
+					$krisajenkins$remotedata$RemoteData$Failure(
+						$elm$http$Http$BadBody(
+							$elm$json$Json$Decode$errorToString(err))));
+			}
+		});
+};
+var $ohanhi$remotedata_http$RemoteData$Http$requestTask = F5(
+	function (method, config, url, decoder, body) {
+		return A2(
+			$ohanhi$remotedata_http$RemoteData$Http$createTask,
+			config,
+			{
+				b6: body,
+				bx: config.bx,
+				cs: method,
+				bO: $ohanhi$remotedata_http$RemoteData$Http$jsonResolver(decoder),
+				cO: config.cO,
+				cS: url
+			});
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig = F3(
+	function (config, url, decoder) {
+		return A5($ohanhi$remotedata_http$RemoteData$Http$requestTask, 'GET', config, url, decoder, $elm$http$Http$emptyBody);
+	});
+var $elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$http$Http$header = $elm$http$Http$Header;
+var $ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2($elm$http$Http$header, 'Accept', 'application/json');
+var $ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
+	bx: _List_fromArray(
+		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	aj: false,
+	cO: $elm$core$Maybe$Nothing,
+	bV: $elm$core$Maybe$Nothing
+};
+var $ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig = {
+	bx: _List_fromArray(
+		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	aj: false,
+	cO: $elm$core$Maybe$Nothing
+};
+var $ohanhi$remotedata_http$RemoteData$Http$noCache = A2($elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
+var $ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig = _Utils_update(
+	$ohanhi$remotedata_http$RemoteData$Http$defaultTaskConfig,
+	{
+		bx: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.bx)
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$getTask = $ohanhi$remotedata_http$RemoteData$Http$getTaskWithConfig($ohanhi$remotedata_http$RemoteData$Http$noCacheTaskConfig);
+var $author$project$Model$BasePokemon = F4(
+	function (name, id, types, speciesUrl) {
+		return {ax: id, aB: name, cK: speciesUrl, bY: types};
+	});
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2($elm$json$Json$Decode$at, path, valDecoder),
+			decoder);
+	});
+var $author$project$Page$Pokemon$pokemonTypeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['type', 'url']),
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
 	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'name',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$Team$damageRelationDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'no_damage_to',
-	elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['type', 'name']),
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$Pokemon$pokemonDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['species', 'url']),
+	$elm$json$Json$Decode$string,
 	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'no_damage_from',
-		elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'types',
+		$elm$json$Json$Decode$list($author$project$Page$Pokemon$pokemonTypeDecoder),
 		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'half_damage_to',
-			elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			$elm$json$Json$Decode$int,
 			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'half_damage_from',
-				elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'double_damage_to',
-					elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'double_damage_from',
-						elm$json$Json$Decode$list(author$project$Page$Team$basePokemonTypeDecoder),
-						elm$json$Json$Decode$succeed(author$project$Model$DamageRelations)))))));
-var author$project$Page$Team$pokemonDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'name',
+				$elm$json$Json$Decode$string,
+				$elm$json$Json$Decode$succeed($author$project$Model$BasePokemon)))));
+var $author$project$Page$Pokemon$getPokemon = function (nameOrId) {
+	return A2($ohanhi$remotedata_http$RemoteData$Http$getTask, 'https://pokeapi.co/api/v2/pokemon/' + nameOrId, $author$project$Page$Pokemon$pokemonDecoder);
+};
+var $author$project$Page$Pokemon$buildSpeciesEvolution = F2(
+	function (species, evolutionChainResponse) {
+		switch (evolutionChainResponse.$) {
+			case 3:
+				var evolutionChain = evolutionChainResponse.a;
+				return $krisajenkins$remotedata$RemoteData$succeed(
+					{a$: evolutionChain, bf: species.bf});
+			case 2:
+				var error = evolutionChainResponse.a;
+				return $krisajenkins$remotedata$RemoteData$Failure(error);
+			case 0:
+				return $krisajenkins$remotedata$RemoteData$NotAsked;
+			default:
+				return $krisajenkins$remotedata$RemoteData$Loading;
+		}
+	});
+var $author$project$Model$EvolutionChain = F3(
+	function (name, id, evolutionChain) {
+		return {a$: evolutionChain, ax: id, aB: name};
+	});
+var $author$project$Model$Evolutions = $elm$core$Basics$identity;
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(0));
+};
+function $author$project$Page$Pokemon$cyclic$evolutionDecoder() {
+	return A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'evolves_to',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$core$Basics$identity,
+			$elm$json$Json$Decode$list(
+				$elm$json$Json$Decode$lazy(
+					function (_v0) {
+						return $author$project$Page$Pokemon$cyclic$evolutionDecoder();
+					}))),
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['species', 'url']),
+			A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+				_List_fromArray(
+					['species', 'name']),
+				$elm$json$Json$Decode$string,
+				$elm$json$Json$Decode$succeed($author$project$Model$EvolutionChain))));
+}
+var $author$project$Page$Pokemon$evolutionDecoder = $author$project$Page$Pokemon$cyclic$evolutionDecoder();
+$author$project$Page$Pokemon$cyclic$evolutionDecoder = function () {
+	return $author$project$Page$Pokemon$evolutionDecoder;
+};
+var $author$project$Page$Pokemon$evolutionsDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['chain', 'evolves_to']),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$identity,
+		$elm$json$Json$Decode$list(
+			$elm$json$Json$Decode$lazy(
+				function (_v0) {
+					return $author$project$Page$Pokemon$evolutionDecoder;
+				}))),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['chain', 'species', 'url']),
+		A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['chain', 'species', 'name']),
+			$elm$json$Json$Decode$string,
+			$elm$json$Json$Decode$succeed($author$project$Model$EvolutionChain))));
+var $author$project$Page$Pokemon$getEvolutions = function (evolutionChainUrl) {
+	return A2($ohanhi$remotedata_http$RemoteData$Http$getTask, evolutionChainUrl, $author$project$Page$Pokemon$evolutionsDecoder);
+};
+var $author$project$Model$Species = F2(
+	function (evolutionChainUrl, varieties) {
+		return {cf: evolutionChainUrl, bf: varieties};
+	});
+var $author$project$Page$Pokemon$varietyDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 	_List_fromArray(
 		['pokemon', 'url']),
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
 	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
 		_List_fromArray(
 			['pokemon', 'name']),
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$Team$pokemonTypeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'damage_relations',
-	author$project$Page$Team$damageRelationDecoder,
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$Pokemon$speciesDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'varieties',
+	$elm$json$Json$Decode$list($author$project$Page$Pokemon$varietyDecoder),
 	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'pokemon',
-		elm$json$Json$Decode$list(author$project$Page$Team$pokemonDecoder),
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['evolution_chain', 'url']),
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Species)));
+var $author$project$Page$Pokemon$getSpecies = function (speciesUrl) {
+	return A2($ohanhi$remotedata_http$RemoteData$Http$getTask, speciesUrl, $author$project$Page$Pokemon$speciesDecoder);
+};
+var $author$project$Page$Pokemon$getPokemonDetails = function (nameOrId) {
+	return A2(
+		$elm$core$Task$andThen,
+		function (speciesResponse) {
+			switch (speciesResponse.$) {
+				case 3:
+					var species = speciesResponse.a;
+					return A3(
+						$elm$core$Task$map2,
+						$author$project$Page$Pokemon$buildSpeciesEvolution,
+						$elm$core$Task$succeed(species),
+						$author$project$Page$Pokemon$getEvolutions(species.cf));
+				case 2:
+					var error = speciesResponse.a;
+					return $elm$core$Task$succeed(
+						$krisajenkins$remotedata$RemoteData$Failure(error));
+				case 0:
+					return $elm$core$Task$succeed($krisajenkins$remotedata$RemoteData$NotAsked);
+				default:
+					return $elm$core$Task$succeed($krisajenkins$remotedata$RemoteData$Loading);
+			}
+		},
+		$author$project$Page$Pokemon$getSpecies(nameOrId));
+};
+var $author$project$Page$Pokemon$fetch = function (nameOrId) {
+	return A2(
+		$elm$core$Task$attempt,
+		function (result) {
+			if (!result.$) {
+				var response = result.a;
+				return response;
+			} else {
+				return $krisajenkins$remotedata$RemoteData$NotAsked;
+			}
+		},
+		A2(
+			$elm$core$Task$andThen,
+			function (basePokemonResponse) {
+				switch (basePokemonResponse.$) {
+					case 3:
+						var basePokemon = basePokemonResponse.a;
+						return A3(
+							$elm$core$Task$map2,
+							$author$project$Page$Pokemon$buildPokemonData,
+							$elm$core$Task$succeed(basePokemon),
+							$author$project$Page$Pokemon$getPokemonDetails(basePokemon.cK));
+					case 2:
+						var error = basePokemonResponse.a;
+						return $elm$core$Task$succeed(
+							$krisajenkins$remotedata$RemoteData$Failure(error));
+					case 0:
+						return $elm$core$Task$succeed($krisajenkins$remotedata$RemoteData$NotAsked);
+					default:
+						return $elm$core$Task$succeed($krisajenkins$remotedata$RemoteData$Loading);
+				}
+			},
+			$author$project$Page$Pokemon$getPokemon(nameOrId)));
+};
+var $author$project$Model$PokemonType = F4(
+	function (name, id, pokemon, damageRelations) {
+		return {b8: damageRelations, ax: id, aB: name, aT: pokemon};
+	});
+var $author$project$Model$DamageRelations = F6(
+	function (doubleDamageFrom, doubleDamageTo, halfDamageFrom, halfDamageTo, noDamageFrom, noDamageTo) {
+		return {cb: doubleDamageFrom, cc: doubleDamageTo, ck: halfDamageFrom, cl: halfDamageTo, cu: noDamageFrom, cv: noDamageTo};
+	});
+var $author$project$Page$PokemonType$basePokemonTypeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$PokemonType$damageRelationDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'no_damage_to',
+	$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'no_damage_from',
+		$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
 		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$int,
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'half_damage_to',
+			$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
 			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'half_damage_from',
+				$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
+				A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'double_damage_to',
+					$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
+					A3(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'double_damage_from',
+						$elm$json$Json$Decode$list($author$project$Page$PokemonType$basePokemonTypeDecoder),
+						$elm$json$Json$Decode$succeed($author$project$Model$DamageRelations)))))));
+var $author$project$Page$PokemonType$pokemonDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['pokemon', 'url']),
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['pokemon', 'name']),
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$PokemonType$pokemonTypeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'damage_relations',
+	$author$project$Page$PokemonType$damageRelationDecoder,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'pokemon',
+		$elm$json$Json$Decode$list($author$project$Page$PokemonType$pokemonDecoder),
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			$elm$json$Json$Decode$int,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 				'name',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Model$PokemonType)))));
-var author$project$Page$Team$fetchPokemonType = function (id) {
-	return elm$http$Http$get(
+				$elm$json$Json$Decode$string,
+				$elm$json$Json$Decode$succeed($author$project$Model$PokemonType)))));
+var $author$project$Page$PokemonType$fetch = function (idOrName) {
+	return $elm$http$Http$get(
 		{
-			expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Team$pokemonTypeDecoder),
-			url: 'https://pokeapi.co/api/v2/type/' + elm$core$String$fromInt(id)
+			cg: A2($elm$http$Http$expectJson, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Page$PokemonType$pokemonTypeDecoder),
+			cS: 'https://pokeapi.co/api/v2/type/' + idOrName
 		});
 };
-var author$project$Page$Team$fetchPokemonTypes = function (ids) {
+var $author$project$Page$Team$basePokemonTypeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'url',
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$Team$damageRelationDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'no_damage_to',
+	$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'no_damage_from',
+		$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'half_damage_to',
+			$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'half_damage_from',
+				$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+				A3(
+					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'double_damage_to',
+					$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+					A3(
+						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'double_damage_from',
+						$elm$json$Json$Decode$list($author$project$Page$Team$basePokemonTypeDecoder),
+						$elm$json$Json$Decode$succeed($author$project$Model$DamageRelations)))))));
+var $author$project$Page$Team$pokemonDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['pokemon', 'url']),
+	A2($elm$json$Json$Decode$map, $author$project$Parse$idFromPokeApiUrlString, $elm$json$Json$Decode$string),
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['pokemon', 'name']),
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Model$Base)));
+var $author$project$Page$Team$pokemonTypeDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'damage_relations',
+	$author$project$Page$Team$damageRelationDecoder,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'pokemon',
+		$elm$json$Json$Decode$list($author$project$Page$Team$pokemonDecoder),
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			$elm$json$Json$Decode$int,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'name',
+				$elm$json$Json$Decode$string,
+				$elm$json$Json$Decode$succeed($author$project$Model$PokemonType)))));
+var $author$project$Page$Team$fetchPokemonType = function (id) {
+	return $elm$http$Http$get(
+		{
+			cg: A2($elm$http$Http$expectJson, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Page$Team$pokemonTypeDecoder),
+			cS: 'https://pokeapi.co/api/v2/type/' + $elm$core$String$fromInt(id)
+		});
+};
+var $author$project$Page$Team$fetchPokemonTypes = function (ids) {
 	return A2(
-		elm$core$List$map,
+		$elm$core$List$map,
 		function (pokemonTypeId) {
-			return author$project$Page$Team$fetchPokemonType(pokemonTypeId);
+			return $author$project$Page$Team$fetchPokemonType(pokemonTypeId);
 		},
-		elm$core$Set$toList(ids));
+		$elm$core$Set$toList(ids));
 };
-var elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
-var elm$core$Set$insert = F2(
-	function (key, _n0) {
-		var dict = _n0.a;
-		return elm$core$Set$Set_elm_builtin(
-			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+var $elm$core$Set$Set_elm_builtin = $elm$core$Basics$identity;
+var $elm$core$Set$empty = $elm$core$Dict$empty;
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0;
+		return A3($elm$core$Dict$insert, key, 0, dict);
 	});
-var elm$core$Set$fromList = function (list) {
-	return A3(elm$core$List$foldl, elm$core$Set$insert, elm$core$Set$empty, list);
+var $elm$core$Set$fromList = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
-var author$project$Page$Team$pokemonTypeIds = function (members) {
-	return elm$core$Set$fromList(
+var $author$project$Page$Team$pokemonTypeIds = function (members) {
+	return $elm$core$Set$fromList(
 		A2(
-			elm$core$List$map,
+			$elm$core$List$map,
 			function (pokemonType) {
-				return pokemonType.id;
+				return pokemonType.ax;
 			},
-			elm$core$List$concat(
+			$elm$core$List$concat(
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (member) {
-						return member.types;
+						return member.bY;
 					},
 					members))));
 };
-var elm$core$Platform$Cmd$batch = _Platform_batch;
-var author$project$Page$Team$fetch = function (team) {
-	return elm$core$Platform$Cmd$batch(
-		author$project$Page$Team$fetchPokemonTypes(
-			author$project$Page$Team$pokemonTypeIds(team.members)));
+var $author$project$Page$Team$fetch = function (team) {
+	return $elm$core$Platform$Cmd$batch(
+		$author$project$Page$Team$fetchPokemonTypes(
+			$author$project$Page$Team$pokemonTypeIds(team.aA)));
 };
-var elm$core$Platform$Cmd$map = _Platform_map;
-var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Main$fetchRouteData = F2(
+var $elm$core$Platform$Cmd$map = _Platform_map;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$fetchRouteData = F2(
 	function (model, route) {
 		switch (route.$) {
-			case 'Pokemon':
+			case 2:
 				var nameOrId = route.a;
 				return A2(
-					elm$core$Platform$Cmd$map,
-					author$project$Msg$PokemonFetchResponse,
-					author$project$Page$Pokemon$fetch(nameOrId));
-			case 'PokemonType':
+					$elm$core$Platform$Cmd$map,
+					$author$project$Msg$PokemonFetchResponse,
+					$author$project$Page$Pokemon$fetch(nameOrId));
+			case 4:
 				var nameOrId = route.a;
 				return A2(
-					elm$core$Platform$Cmd$map,
-					author$project$Msg$PokemonTypeFetchResponse,
-					author$project$Page$PokemonType$fetch(nameOrId));
-			case 'Team':
+					$elm$core$Platform$Cmd$map,
+					$author$project$Msg$PokemonTypeFetchResponse,
+					$author$project$Page$PokemonType$fetch(nameOrId));
+			case 5:
 				return A2(
-					elm$core$Platform$Cmd$map,
-					author$project$Msg$TeamPokemonTypeFetchResponse,
-					author$project$Page$Team$fetch(model.team));
+					$elm$core$Platform$Cmd$map,
+					$author$project$Msg$TeamPokemonTypeFetchResponse,
+					$author$project$Page$Team$fetch(model.v));
 			default:
-				return elm$core$Platform$Cmd$none;
+				return $elm$core$Platform$Cmd$none;
 		}
 	});
-var author$project$Msg$PokedexFetchResponse = function (a) {
-	return {$: 'PokedexFetchResponse', a: a};
+var $author$project$Route$NotFound = {$: 0};
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
 };
-var author$project$Msg$PokemonTypesFetchResponse = function (a) {
-	return {$: 'PokemonTypesFetchResponse', a: a};
+var $author$project$Route$Pokedex = {$: 1};
+var $author$project$Route$Pokemon = function (a) {
+	return {$: 2, a: a};
 };
-var author$project$Page$Pokedex$pokemonDecoder = A3(
-	elm$json$Json$Decode$map2,
-	author$project$Model$Base,
-	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
-	A2(
-		elm$json$Json$Decode$field,
-		'url',
-		A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string)));
-var author$project$Page$Pokedex$pokedexDecoder = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['results']),
-	elm$json$Json$Decode$list(author$project$Page$Pokedex$pokemonDecoder));
-var author$project$Page$Pokedex$fetch = elm$http$Http$get(
-	{
-		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$Pokedex$pokedexDecoder),
-		url: 'https://pokeapi.co/api/v2/pokemon-species?limit=809'
-	});
-var author$project$Page$Pokemon$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$PokemonType$init = krisajenkins$remotedata$RemoteData$NotAsked;
-var author$project$Page$PokemonTypes$typeDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'url',
-	A2(elm$json$Json$Decode$map, author$project$Parse$idFromPokeApiUrlString, elm$json$Json$Decode$string),
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'name',
-		elm$json$Json$Decode$string,
-		elm$json$Json$Decode$succeed(author$project$Model$Base)));
-var author$project$Page$PokemonTypes$typesDecoder = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['results']),
-	elm$json$Json$Decode$list(author$project$Page$PokemonTypes$typeDecoder));
-var author$project$Page$PokemonTypes$fetch = elm$http$Http$get(
-	{
-		expect: A2(elm$http$Http$expectJson, krisajenkins$remotedata$RemoteData$fromResult, author$project$Page$PokemonTypes$typesDecoder),
-		url: 'https://pokeapi.co/api/v2/type'
-	});
-var author$project$Page$Team$init = {members: _List_Nil, pokemonTypes: _List_Nil};
-var author$project$Route$NotFound = {$: 'NotFound'};
-var author$project$Route$Pokedex = {$: 'Pokedex'};
-var author$project$Route$Pokemon = function (a) {
-	return {$: 'Pokemon', a: a};
+var $author$project$Route$PokemonType = function (a) {
+	return {$: 4, a: a};
 };
-var author$project$Route$PokemonType = function (a) {
-	return {$: 'PokemonType', a: a};
-};
-var author$project$Route$PokemonTypes = {$: 'PokemonTypes'};
-var author$project$Route$Team = {$: 'Team'};
-var elm$url$Url$Parser$mapState = F2(
-	function (func, _n0) {
-		var visited = _n0.visited;
-		var unvisited = _n0.unvisited;
-		var params = _n0.params;
-		var frag = _n0.frag;
-		var value = _n0.value;
+var $author$project$Route$PokemonTypes = {$: 3};
+var $author$project$Route$Team = {$: 5};
+var $elm$url$Url$Parser$mapState = F2(
+	function (func, _v0) {
+		var visited = _v0.W;
+		var unvisited = _v0.L;
+		var params = _v0.R;
+		var frag = _v0.O;
+		var value = _v0.A;
 		return A5(
-			elm$url$Url$Parser$State,
+			$elm$url$Url$Parser$State,
 			visited,
 			unvisited,
 			params,
 			frag,
 			func(value));
 	});
-var elm$url$Url$Parser$map = F2(
-	function (subValue, _n0) {
-		var parseArg = _n0.a;
-		return elm$url$Url$Parser$Parser(
-			function (_n1) {
-				var visited = _n1.visited;
-				var unvisited = _n1.unvisited;
-				var params = _n1.params;
-				var frag = _n1.frag;
-				var value = _n1.value;
-				return A2(
-					elm$core$List$map,
-					elm$url$Url$Parser$mapState(value),
-					parseArg(
-						A5(elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
-			});
+var $elm$url$Url$Parser$map = F2(
+	function (subValue, _v0) {
+		var parseArg = _v0;
+		return function (_v1) {
+			var visited = _v1.W;
+			var unvisited = _v1.L;
+			var params = _v1.R;
+			var frag = _v1.O;
+			var value = _v1.A;
+			return A2(
+				$elm$core$List$map,
+				$elm$url$Url$Parser$mapState(value),
+				parseArg(
+					A5($elm$url$Url$Parser$State, visited, unvisited, params, frag, subValue)));
+		};
 	});
-var elm$url$Url$Parser$string = A2(elm$url$Url$Parser$custom, 'STRING', elm$core$Maybe$Just);
-var elm$url$Url$Parser$top = elm$url$Url$Parser$Parser(
-	function (state) {
-		return _List_fromArray(
-			[state]);
-	});
-var author$project$Route$parser = elm$url$Url$Parser$oneOf(
+var $elm$url$Url$Parser$string = A2($elm$url$Url$Parser$custom, 'STRING', $elm$core$Maybe$Just);
+var $elm$url$Url$Parser$top = function (state) {
+	return _List_fromArray(
+		[state]);
+};
+var $author$project$Route$parser = $elm$url$Url$Parser$oneOf(
 	_List_fromArray(
 		[
-			A2(elm$url$Url$Parser$map, author$project$Route$Pokedex, elm$url$Url$Parser$top),
+			A2($elm$url$Url$Parser$map, $author$project$Route$Pokedex, $elm$url$Url$Parser$top),
 			A2(
-			elm$url$Url$Parser$map,
-			author$project$Route$Pokemon,
+			$elm$url$Url$Parser$map,
+			$author$project$Route$Pokemon,
 			A2(
-				elm$url$Url$Parser$slash,
-				elm$url$Url$Parser$s('pokemon'),
-				elm$url$Url$Parser$string)),
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s('pokemon'),
+				$elm$url$Url$Parser$string)),
 			A2(
-			elm$url$Url$Parser$map,
-			author$project$Route$PokemonTypes,
-			elm$url$Url$Parser$s('types')),
+			$elm$url$Url$Parser$map,
+			$author$project$Route$PokemonTypes,
+			$elm$url$Url$Parser$s('types')),
 			A2(
-			elm$url$Url$Parser$map,
-			author$project$Route$PokemonType,
+			$elm$url$Url$Parser$map,
+			$author$project$Route$PokemonType,
 			A2(
-				elm$url$Url$Parser$slash,
-				elm$url$Url$Parser$s('types'),
-				elm$url$Url$Parser$string)),
+				$elm$url$Url$Parser$slash,
+				$elm$url$Url$Parser$s('types'),
+				$elm$url$Url$Parser$string)),
 			A2(
-			elm$url$Url$Parser$map,
-			author$project$Route$Team,
-			elm$url$Url$Parser$s('team'))
+			$elm$url$Url$Parser$map,
+			$author$project$Route$Team,
+			$elm$url$Url$Parser$s('team'))
 		]));
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var author$project$Route$fromUrl = function (url) {
+var $author$project$Route$fromUrl = function (url) {
 	var fragmentList = A2(
-		elm$core$String$split,
+		$elm$core$String$split,
 		'?',
-		A2(elm$core$Maybe$withDefault, '', url.fragment));
+		A2($elm$core$Maybe$withDefault, '', url.ci));
 	var path = A2(
-		elm$core$Maybe$withDefault,
+		$elm$core$Maybe$withDefault,
 		'',
-		elm$core$List$head(fragmentList));
-	var query = elm$core$List$head(
-		elm$core$List$reverse(fragmentList));
+		$elm$core$List$head(fragmentList));
+	var query = $elm$core$List$head(
+		$elm$core$List$reverse(fragmentList));
 	return A2(
-		elm$core$Maybe$withDefault,
-		author$project$Route$NotFound,
+		$elm$core$Maybe$withDefault,
+		$author$project$Route$NotFound,
 		A2(
-			elm$url$Url$Parser$parse,
-			author$project$Route$parser,
+			$elm$url$Url$Parser$parse,
+			$author$project$Route$parser,
 			_Utils_update(
 				url,
-				{fragment: elm$core$Maybe$Nothing, path: path, query: query})));
+				{ci: $elm$core$Maybe$Nothing, cz: path, cD: query})));
 };
-var author$project$Main$init = F3(
+var $author$project$Page$Pokemon$init = $krisajenkins$remotedata$RemoteData$NotAsked;
+var $author$project$Page$PokemonType$init = $krisajenkins$remotedata$RemoteData$NotAsked;
+var $author$project$Page$Team$init = {aA: _List_Nil, J: _List_Nil};
+var $author$project$Main$init = F3(
 	function (flags, url, navKey) {
-		var route = author$project$Route$fromUrl(url);
-		var model = {key: navKey, pokedex: krisajenkins$remotedata$RemoteData$Loading, pokemon: author$project$Page$Pokemon$init, pokemonType: author$project$Page$PokemonType$init, pokemonTypes: krisajenkins$remotedata$RemoteData$Loading, route: route, search: '', team: author$project$Page$Team$init};
-		var cmd = elm$core$Platform$Cmd$batch(
+		var route = $author$project$Route$fromUrl(url);
+		var model = {bD: navKey, a7: $krisajenkins$remotedata$RemoteData$Loading, aT: $author$project$Page$Pokemon$init, aU: $author$project$Page$PokemonType$init, J: $krisajenkins$remotedata$RemoteData$Loading, a9: route, ba: '', v: $author$project$Page$Team$init};
+		var cmd = $elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
-					A2(author$project$Main$fetchRouteData, model, route),
-					A2(elm$core$Platform$Cmd$map, author$project$Msg$PokedexFetchResponse, author$project$Page$Pokedex$fetch),
-					A2(elm$core$Platform$Cmd$map, author$project$Msg$PokemonTypesFetchResponse, author$project$Page$PokemonTypes$fetch)
+					A2($author$project$Main$fetchRouteData, model, route),
+					A2($elm$core$Platform$Cmd$map, $author$project$Msg$PokedexFetchResponse, $author$project$Page$Pokedex$fetch),
+					A2($elm$core$Platform$Cmd$map, $author$project$Msg$PokemonTypesFetchResponse, $author$project$Page$PokemonTypes$fetch)
 				]));
 		return _Utils_Tuple2(model, cmd);
 	});
-var author$project$Main$addPokemonToTeam = F2(
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$Main$addPokemonToTeam = F2(
 	function (team, pokemon) {
 		return _Utils_update(
 			team,
 			{
-				members: A2(
-					elm$core$List$append,
-					team.members,
+				aA: A2(
+					$elm$core$List$append,
+					team.aA,
 					_List_fromArray(
 						[pokemon]))
 			});
 	});
-var elm$core$List$any = F2(
+var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
 		while (true) {
@@ -7198,25 +7258,25 @@ var elm$core$List$any = F2(
 			}
 		}
 	});
-var elm$core$List$member = F2(
+var $elm$core$List$member = F2(
 	function (x, xs) {
 		return A2(
-			elm$core$List$any,
+			$elm$core$List$any,
 			function (a) {
 				return _Utils_eq(a, x);
 			},
 			xs);
 	});
-var author$project$Main$addPokemonTypeToTeam = F2(
+var $author$project$Main$addPokemonTypeToTeam = F2(
 	function (team, pokemonTypeWebData) {
-		if (pokemonTypeWebData.$ === 'Success') {
+		if (pokemonTypeWebData.$ === 3) {
 			var pokemonType = pokemonTypeWebData.a;
-			return A2(elm$core$List$member, pokemonType, team.pokemonTypes) ? team : _Utils_update(
+			return A2($elm$core$List$member, pokemonType, team.J) ? team : _Utils_update(
 				team,
 				{
-					pokemonTypes: A2(
-						elm$core$List$append,
-						team.pokemonTypes,
+					J: A2(
+						$elm$core$List$append,
+						team.J,
 						_List_fromArray(
 							[pokemonType]))
 				});
@@ -7224,82 +7284,46 @@ var author$project$Main$addPokemonTypeToTeam = F2(
 			return team;
 		}
 	});
-var elm$core$Basics$neq = _Utils_notEqual;
-var elm$core$List$filter = F2(
+var $elm$browser$Browser$Navigation$load = _Browser_load;
+var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
+var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
-			elm$core$List$foldr,
+			$elm$core$List$foldr,
 			F2(
 				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
 				}),
 			_List_Nil,
 			list);
 	});
-var author$project$Main$removePokemonFromTeam = F2(
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Main$removePokemonFromTeam = F2(
 	function (team, pokemon) {
 		return _Utils_update(
 			team,
 			{
-				members: A2(
-					elm$core$List$filter,
+				aA: A2(
+					$elm$core$List$filter,
 					function (member) {
 						return !_Utils_eq(member, pokemon);
 					},
-					team.members),
-				pokemonTypes: _List_Nil
+					team.aA),
+				J: _List_Nil
 			});
 	});
-var elm$browser$Browser$External = function (a) {
-	return {$: 'External', a: a};
-};
-var elm$browser$Browser$Internal = function (a) {
-	return {$: 'Internal', a: a};
-};
-var elm$browser$Browser$Dom$NotFound = function (a) {
-	return {$: 'NotFound', a: a};
-};
-var elm$core$Basics$never = function (_n0) {
-	never:
-	while (true) {
-		var nvr = _n0.a;
-		var $temp$_n0 = nvr;
-		_n0 = $temp$_n0;
-		continue never;
-	}
-};
-var elm$core$Task$perform = F2(
-	function (toMessage, task) {
-		return elm$core$Task$command(
-			elm$core$Task$Perform(
-				A2(elm$core$Task$map, toMessage, task)));
-	});
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
-};
-var elm$browser$Browser$Navigation$load = _Browser_load;
-var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
-var elm$url$Url$addPort = F2(
+var $elm$url$Url$addPort = F2(
 	function (maybePort, starter) {
-		if (maybePort.$ === 'Nothing') {
+		if (maybePort.$ === 1) {
 			return starter;
 		} else {
 			var port_ = maybePort.a;
-			return starter + (':' + elm$core$String$fromInt(port_));
+			return starter + (':' + $elm$core$String$fromInt(port_));
 		}
 	});
-var elm$url$Url$addPrefixed = F3(
+var $elm$url$Url$addPrefixed = F3(
 	function (prefix, maybeSegment, starter) {
-		if (maybeSegment.$ === 'Nothing') {
+		if (maybeSegment.$ === 1) {
 			return starter;
 		} else {
 			var segment = maybeSegment.a;
@@ -7308,243 +7332,1889 @@ var elm$url$Url$addPrefixed = F3(
 				_Utils_ap(prefix, segment));
 		}
 	});
-var elm$url$Url$toString = function (url) {
+var $elm$url$Url$toString = function (url) {
 	var http = function () {
-		var _n0 = url.protocol;
-		if (_n0.$ === 'Http') {
+		var _v0 = url.cC;
+		if (!_v0) {
 			return 'http://';
 		} else {
 			return 'https://';
 		}
 	}();
 	return A3(
-		elm$url$Url$addPrefixed,
+		$elm$url$Url$addPrefixed,
 		'#',
-		url.fragment,
+		url.ci,
 		A3(
-			elm$url$Url$addPrefixed,
+			$elm$url$Url$addPrefixed,
 			'?',
-			url.query,
+			url.cD,
 			_Utils_ap(
 				A2(
-					elm$url$Url$addPort,
-					url.port_,
-					_Utils_ap(http, url.host)),
-				url.path)));
+					$elm$url$Url$addPort,
+					url.cB,
+					_Utils_ap(http, url.cn)),
+				url.cz)));
 };
-var author$project$Main$update = F2(
+var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'UrlRequest':
+			case 1:
 				var urlRequest = msg.a;
-				if (urlRequest.$ === 'Internal') {
+				if (!urlRequest.$) {
 					var url = urlRequest.a;
 					return _Utils_Tuple2(
 						model,
 						A2(
-							elm$browser$Browser$Navigation$pushUrl,
-							model.key,
-							elm$url$Url$toString(url)));
+							$elm$browser$Browser$Navigation$pushUrl,
+							model.bD,
+							$elm$url$Url$toString(url)));
 				} else {
 					var href = urlRequest.a;
 					return _Utils_Tuple2(
 						model,
-						elm$browser$Browser$Navigation$load(href));
+						$elm$browser$Browser$Navigation$load(href));
 				}
-			case 'UrlChange':
+			case 0:
 				var url = msg.a;
-				var route = author$project$Route$fromUrl(url);
-				var cmd = A2(author$project$Main$fetchRouteData, model, route);
+				var route = $author$project$Route$fromUrl(url);
+				var cmd = A2($author$project$Main$fetchRouteData, model, route);
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemon: krisajenkins$remotedata$RemoteData$Loading, pokemonType: krisajenkins$remotedata$RemoteData$Loading, route: route, search: ''}),
+						{aT: $krisajenkins$remotedata$RemoteData$Loading, aU: $krisajenkins$remotedata$RemoteData$Loading, a9: route, ba: ''}),
 					cmd);
-			case 'PokedexFetchResponse':
+			case 2:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokedex: response}),
-					elm$core$Platform$Cmd$none);
-			case 'PokemonFetchResponse':
+						{a7: response}),
+					$elm$core$Platform$Cmd$none);
+			case 3:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemon: response}),
-					elm$core$Platform$Cmd$none);
-			case 'PokemonTypesFetchResponse':
+						{aT: response}),
+					$elm$core$Platform$Cmd$none);
+			case 5:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemonTypes: response}),
-					elm$core$Platform$Cmd$none);
-			case 'PokemonTypeFetchResponse':
+						{J: response}),
+					$elm$core$Platform$Cmd$none);
+			case 4:
 				var response = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{pokemonType: response}),
-					elm$core$Platform$Cmd$none);
-			case 'SearchQueryChange':
+						{aU: response}),
+					$elm$core$Platform$Cmd$none);
+			case 6:
 				var searchQuery = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{search: searchQuery}),
-					elm$core$Platform$Cmd$none);
-			case 'AddToTeam':
+						{ba: searchQuery}),
+					$elm$core$Platform$Cmd$none);
+			case 7:
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$addPokemonToTeam, model.team, pokemon)
+							v: A2($author$project$Main$addPokemonToTeam, model.v, pokemon)
 						}),
-					elm$core$Platform$Cmd$none);
-			case 'RemoveFromTeam':
+					$elm$core$Platform$Cmd$none);
+			case 8:
 				var pokemon = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$removePokemonFromTeam, model.team, pokemon)
+							v: A2($author$project$Main$removePokemonFromTeam, model.v, pokemon)
 						}),
-					elm$core$Platform$Cmd$none);
+					$elm$core$Platform$Cmd$none);
 			default:
 				var pokemonType = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							team: A2(author$project$Main$addPokemonTypeToTeam, model.team, pokemonType)
+							v: A2($author$project$Main$addPokemonTypeToTeam, model.v, pokemonType)
 						}),
-					elm$core$Platform$Cmd$none);
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Route$routeToString = function (route) {
-	var pieces = function () {
-		switch (route.$) {
-			case 'NotFound':
-				return _List_fromArray(
-					['404']);
-			case 'Pokedex':
-				return _List_Nil;
-			case 'Pokemon':
-				var nameOrId = route.a;
-				return _List_fromArray(
-					['pokemon', nameOrId]);
-			case 'PokemonTypes':
-				return _List_fromArray(
-					['types']);
-			case 'PokemonType':
-				var nameOrId = route.a;
-				return _List_fromArray(
-					['types', nameOrId]);
-			default:
-				return _List_fromArray(
-					['team']);
-		}
-	}();
-	return '#/' + A2(elm$core$String$join, '/', pieces);
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
+	function (a, b, c) {
+		return {$: 0, a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$Node;
+var $rtfeldman$elm_css$Html$Styled$node = $rtfeldman$elm_css$VirtualDom$Styled$node;
+var $rtfeldman$elm_css$Html$Styled$div = $rtfeldman$elm_css$Html$Styled$node('div');
+var $rtfeldman$elm_css$Css$Structure$Compatible = 0;
+var $rtfeldman$elm_css$Css$capitalize = {V: 0, A: 'capitalize'};
+var $rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
+	return {$: 0, a: a};
 };
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$virtual_dom$VirtualDom$property = F2(
+var $rtfeldman$elm_css$Css$property = F2(
+	function (key, value) {
+		return $rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
+	});
+var $rtfeldman$elm_css$Css$prop1 = F2(
+	function (key, arg) {
+		return A2($rtfeldman$elm_css$Css$property, key, arg.A);
+	});
+var $rtfeldman$elm_css$Css$center = $rtfeldman$elm_css$Css$prop1('center');
+var $rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
+	function (a, b, c) {
+		return {$: 0, a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$compactHelp = F2(
+	function (declaration, _v0) {
+		var keyframesByName = _v0.a;
+		var declarations = _v0.b;
+		switch (declaration.$) {
+			case 0:
+				var _v2 = declaration.a;
+				var properties = _v2.c;
+				return $elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 1:
+				var styleBlocks = declaration.b;
+				return A2(
+					$elm$core$List$all,
+					function (_v3) {
+						var properties = _v3.c;
+						return $elm$core$List$isEmpty(properties);
+					},
+					styleBlocks) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 2:
+				var otherDeclarations = declaration.b;
+				return $elm$core$List$isEmpty(otherDeclarations) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 3:
+				return _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 4:
+				var properties = declaration.b;
+				return $elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 5:
+				var properties = declaration.a;
+				return $elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 6:
+				var record = declaration.a;
+				return $elm$core$String$isEmpty(record.b9) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					A3($elm$core$Dict$insert, record.aB, record.b9, keyframesByName),
+					declarations);
+			case 7:
+				var properties = declaration.a;
+				return $elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			case 8:
+				var properties = declaration.a;
+				return $elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+			default:
+				var tuples = declaration.a;
+				return A2(
+					$elm$core$List$all,
+					function (_v4) {
+						var properties = _v4.b;
+						return $elm$core$List$isEmpty(properties);
+					},
+					tuples) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
+					keyframesByName,
+					A2($elm$core$List$cons, declaration, declarations));
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$Keyframes = function (a) {
+	return {$: 6, a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations = F2(
+	function (keyframesByName, compactedDeclarations) {
+		return A2(
+			$elm$core$List$append,
+			A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var name = _v0.a;
+					var decl = _v0.b;
+					return $rtfeldman$elm_css$Css$Structure$Keyframes(
+						{b9: decl, aB: name});
+				},
+				$elm$core$Dict$toList(keyframesByName)),
+			compactedDeclarations);
+	});
+var $rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_v0) {
+	var charset = _v0.br;
+	var imports = _v0.bz;
+	var namespaces = _v0.bF;
+	var declarations = _v0.ca;
+	var _v1 = A3(
+		$elm$core$List$foldr,
+		$rtfeldman$elm_css$Css$Structure$compactHelp,
+		_Utils_Tuple2($elm$core$Dict$empty, _List_Nil),
+		declarations);
+	var keyframesByName = _v1.a;
+	var compactedDeclarations = _v1.b;
+	var finalDeclarations = A2($rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations, keyframesByName, compactedDeclarations);
+	return {br: charset, ca: finalDeclarations, bz: imports, bF: namespaces};
+};
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		'',
+		A2(
+			$elm$core$Maybe$map,
+			function (str) {
+				return '@charset \"' + (str + '\"');
+			},
+			charset));
+};
+var $rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString = function (expression) {
+	return '(' + (expression.bw + (A2(
+		$elm$core$Maybe$withDefault,
+		'',
+		A2(
+			$elm$core$Maybe$map,
+			$elm$core$Basics$append(': '),
+			expression.A)) + ')'));
+};
+var $rtfeldman$elm_css$Css$Structure$Output$mediaTypeToString = function (mediaType) {
+	switch (mediaType) {
+		case 0:
+			return 'print';
+		case 1:
+			return 'screen';
+		default:
+			return 'speech';
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString = function (mediaQuery) {
+	var prefixWith = F3(
+		function (str, mediaType, expressions) {
+			return str + (' ' + A2(
+				$elm$core$String$join,
+				' and ',
+				A2(
+					$elm$core$List$cons,
+					$rtfeldman$elm_css$Css$Structure$Output$mediaTypeToString(mediaType),
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions))));
+		});
+	switch (mediaQuery.$) {
+		case 0:
+			var expressions = mediaQuery.a;
+			return A2(
+				$elm$core$String$join,
+				' and ',
+				A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions));
+		case 1:
+			var mediaType = mediaQuery.a;
+			var expressions = mediaQuery.b;
+			return A3(prefixWith, 'only', mediaType, expressions);
+		case 2:
+			var mediaType = mediaQuery.a;
+			var expressions = mediaQuery.b;
+			return A3(prefixWith, 'not', mediaType, expressions);
+		default:
+			var str = mediaQuery.a;
+			return str;
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$importMediaQueryToString = F2(
+	function (name, mediaQuery) {
+		return '@import \"' + (name + ($rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString(mediaQuery) + '\"'));
+	});
+var $rtfeldman$elm_css$Css$Structure$Output$importToString = function (_v0) {
+	var name = _v0.a;
+	var mediaQueries = _v0.b;
+	return A2(
+		$elm$core$String$join,
+		'\n',
+		A2(
+			$elm$core$List$map,
+			$rtfeldman$elm_css$Css$Structure$Output$importMediaQueryToString(name),
+			mediaQueries));
+};
+var $rtfeldman$elm_css$Css$Structure$Output$namespaceToString = function (_v0) {
+	var prefix = _v0.a;
+	var str = _v0.b;
+	return '@namespace ' + (prefix + ('\"' + (str + '\"')));
+};
+var $rtfeldman$elm_css$Css$Structure$Output$spaceIndent = '    ';
+var $rtfeldman$elm_css$Css$Structure$Output$indent = function (str) {
+	return _Utils_ap($rtfeldman$elm_css$Css$Structure$Output$spaceIndent, str);
+};
+var $rtfeldman$elm_css$Css$Structure$Output$noIndent = '';
+var $rtfeldman$elm_css$Css$Structure$Output$emitProperty = function (str) {
+	return str + ';';
+};
+var $rtfeldman$elm_css$Css$Structure$Output$emitProperties = function (properties) {
+	return A2(
+		$elm$core$String$join,
+		'\n',
+		A2(
+			$elm$core$List$map,
+			A2($elm$core$Basics$composeL, $rtfeldman$elm_css$Css$Structure$Output$indent, $rtfeldman$elm_css$Css$Structure$Output$emitProperty),
+			properties));
+};
+var $elm$core$String$append = _String_append;
+var $rtfeldman$elm_css$Css$Structure$Output$pseudoElementToString = function (_v0) {
+	var str = _v0;
+	return '::' + str;
+};
+var $rtfeldman$elm_css$Css$Structure$Output$combinatorToString = function (combinator) {
+	switch (combinator) {
+		case 0:
+			return '+';
+		case 1:
+			return '~';
+		case 2:
+			return '>';
+		default:
+			return '';
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString = function (repeatableSimpleSelector) {
+	switch (repeatableSimpleSelector.$) {
+		case 0:
+			var str = repeatableSimpleSelector.a;
+			return '.' + str;
+		case 1:
+			var str = repeatableSimpleSelector.a;
+			return '#' + str;
+		case 2:
+			var str = repeatableSimpleSelector.a;
+			return ':' + str;
+		default:
+			var str = repeatableSimpleSelector.a;
+			return '[' + (str + ']');
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString = function (simpleSelectorSequence) {
+	switch (simpleSelectorSequence.$) {
+		case 0:
+			var str = simpleSelectorSequence.a;
+			var repeatableSimpleSelectors = simpleSelectorSequence.b;
+			return A2(
+				$elm$core$String$join,
+				'',
+				A2(
+					$elm$core$List$cons,
+					str,
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors)));
+		case 1:
+			var repeatableSimpleSelectors = simpleSelectorSequence.a;
+			return $elm$core$List$isEmpty(repeatableSimpleSelectors) ? '*' : A2(
+				$elm$core$String$join,
+				'',
+				A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors));
+		default:
+			var str = simpleSelectorSequence.a;
+			var repeatableSimpleSelectors = simpleSelectorSequence.b;
+			return A2(
+				$elm$core$String$join,
+				'',
+				A2(
+					$elm$core$List$cons,
+					str,
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors)));
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$selectorChainToString = function (_v0) {
+	var combinator = _v0.a;
+	var sequence = _v0.b;
+	return A2(
+		$elm$core$String$join,
+		' ',
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Css$Structure$Output$combinatorToString(combinator),
+				$rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString(sequence)
+			]));
+};
+var $rtfeldman$elm_css$Css$Structure$Output$selectorToString = function (_v0) {
+	var simpleSelectorSequence = _v0.a;
+	var chain = _v0.b;
+	var pseudoElement = _v0.c;
+	var segments = A2(
+		$elm$core$List$cons,
+		$rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString(simpleSelectorSequence),
+		A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$selectorChainToString, chain));
+	var pseudoElementsString = A2(
+		$elm$core$String$join,
+		'',
+		_List_fromArray(
+			[
+				A2(
+				$elm$core$Maybe$withDefault,
+				'',
+				A2($elm$core$Maybe$map, $rtfeldman$elm_css$Css$Structure$Output$pseudoElementToString, pseudoElement))
+			]));
+	return A2(
+		$elm$core$String$append,
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$filter,
+				A2($elm$core$Basics$composeL, $elm$core$Basics$not, $elm$core$String$isEmpty),
+				segments)),
+		pseudoElementsString);
+};
+var $rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock = F2(
+	function (indentLevel, _v0) {
+		var firstSelector = _v0.a;
+		var otherSelectors = _v0.b;
+		var properties = _v0.c;
+		var selectorStr = A2(
+			$elm$core$String$join,
+			', ',
+			A2(
+				$elm$core$List$map,
+				$rtfeldman$elm_css$Css$Structure$Output$selectorToString,
+				A2($elm$core$List$cons, firstSelector, otherSelectors)));
+		return A2(
+			$elm$core$String$join,
+			'',
+			_List_fromArray(
+				[
+					selectorStr,
+					' {\n',
+					indentLevel,
+					$rtfeldman$elm_css$Css$Structure$Output$emitProperties(properties),
+					'\n',
+					indentLevel,
+					'}'
+				]));
+	});
+var $rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration = function (decl) {
+	switch (decl.$) {
+		case 0:
+			var styleBlock = decl.a;
+			return A2($rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock, $rtfeldman$elm_css$Css$Structure$Output$noIndent, styleBlock);
+		case 1:
+			var mediaQueries = decl.a;
+			var styleBlocks = decl.b;
+			var query = A2(
+				$elm$core$String$join,
+				',\n',
+				A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString, mediaQueries));
+			var blocks = A2(
+				$elm$core$String$join,
+				'\n\n',
+				A2(
+					$elm$core$List$map,
+					A2(
+						$elm$core$Basics$composeL,
+						$rtfeldman$elm_css$Css$Structure$Output$indent,
+						$rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock($rtfeldman$elm_css$Css$Structure$Output$spaceIndent)),
+					styleBlocks));
+			return '@media ' + (query + (' {\n' + (blocks + '\n}')));
+		case 2:
+			return 'TODO';
+		case 3:
+			return 'TODO';
+		case 4:
+			return 'TODO';
+		case 5:
+			return 'TODO';
+		case 6:
+			var name = decl.a.aB;
+			var declaration = decl.a.b9;
+			return '@keyframes ' + (name + (' {\n' + (declaration + '\n}')));
+		case 7:
+			return 'TODO';
+		case 8:
+			return 'TODO';
+		default:
+			return 'TODO';
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$Output$prettyPrint = function (_v0) {
+	var charset = _v0.br;
+	var imports = _v0.bz;
+	var namespaces = _v0.bF;
+	var declarations = _v0.ca;
+	return A2(
+		$elm$core$String$join,
+		'\n\n',
+		A2(
+			$elm$core$List$filter,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, $elm$core$String$isEmpty),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Css$Structure$Output$charsetToString(charset),
+					A2(
+					$elm$core$String$join,
+					'\n',
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$importToString, imports)),
+					A2(
+					$elm$core$String$join,
+					'\n',
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$namespaceToString, namespaces)),
+					A2(
+					$elm$core$String$join,
+					'\n\n',
+					A2($elm$core$List$map, $rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration, declarations))
+				])));
+};
+var $rtfeldman$elm_css$Css$Structure$CounterStyle = function (a) {
+	return {$: 8, a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$FontFace = function (a) {
+	return {$: 5, a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$PageRule = F2(
+	function (a, b) {
+		return {$: 4, a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$Selector = F3(
+	function (a, b, c) {
+		return {$: 0, a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$Css$Structure$StyleBlock = F3(
+	function (a, b, c) {
+		return {$: 0, a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration = function (a) {
+	return {$: 0, a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$SupportsRule = F2(
+	function (a, b) {
+		return {$: 2, a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$Viewport = function (a) {
+	return {$: 7, a: a};
+};
+var $rtfeldman$elm_css$Css$Structure$MediaRule = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$mapLast = F2(
+	function (update, list) {
+		if (!list.b) {
+			return list;
+		} else {
+			if (!list.b.b) {
+				var only = list.a;
+				return _List_fromArray(
+					[
+						update(only)
+					]);
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				return A2(
+					$elm$core$List$cons,
+					first,
+					A2($rtfeldman$elm_css$Css$Structure$mapLast, update, rest));
+			}
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$withPropertyAppended = F2(
+	function (property, _v0) {
+		var firstSelector = _v0.a;
+		var otherSelectors = _v0.b;
+		var properties = _v0.c;
+		return A3(
+			$rtfeldman$elm_css$Css$Structure$StyleBlock,
+			firstSelector,
+			otherSelectors,
+			_Utils_ap(
+				properties,
+				_List_fromArray(
+					[property])));
+	});
+var $rtfeldman$elm_css$Css$Structure$appendProperty = F2(
+	function (property, declarations) {
+		if (!declarations.b) {
+			return declarations;
+		} else {
+			if (!declarations.b.b) {
+				switch (declarations.a.$) {
+					case 0:
+						var styleBlock = declarations.a.a;
+						return _List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
+								A2($rtfeldman$elm_css$Css$Structure$withPropertyAppended, property, styleBlock))
+							]);
+					case 1:
+						var _v1 = declarations.a;
+						var mediaQueries = _v1.a;
+						var styleBlocks = _v1.b;
+						return _List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Css$Structure$MediaRule,
+								mediaQueries,
+								A2(
+									$rtfeldman$elm_css$Css$Structure$mapLast,
+									$rtfeldman$elm_css$Css$Structure$withPropertyAppended(property),
+									styleBlocks))
+							]);
+					default:
+						return declarations;
+				}
+			} else {
+				var first = declarations.a;
+				var rest = declarations.b;
+				return A2(
+					$elm$core$List$cons,
+					first,
+					A2($rtfeldman$elm_css$Css$Structure$appendProperty, property, rest));
+			}
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$appendToLastSelector = F2(
+	function (f, styleBlock) {
+		if (!styleBlock.b.b) {
+			var only = styleBlock.a;
+			var properties = styleBlock.c;
+			return _List_fromArray(
+				[
+					A3($rtfeldman$elm_css$Css$Structure$StyleBlock, only, _List_Nil, properties),
+					A3(
+					$rtfeldman$elm_css$Css$Structure$StyleBlock,
+					f(only),
+					_List_Nil,
+					_List_Nil)
+				]);
+		} else {
+			var first = styleBlock.a;
+			var rest = styleBlock.b;
+			var properties = styleBlock.c;
+			var newRest = A2($elm$core$List$map, f, rest);
+			var newFirst = f(first);
+			return _List_fromArray(
+				[
+					A3($rtfeldman$elm_css$Css$Structure$StyleBlock, first, rest, properties),
+					A3($rtfeldman$elm_css$Css$Structure$StyleBlock, newFirst, newRest, _List_Nil)
+				]);
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$applyPseudoElement = F2(
+	function (pseudo, _v0) {
+		var sequence = _v0.a;
+		var selectors = _v0.b;
+		return A3(
+			$rtfeldman$elm_css$Css$Structure$Selector,
+			sequence,
+			selectors,
+			$elm$core$Maybe$Just(pseudo));
+	});
+var $rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector = F2(
+	function (pseudo, styleBlock) {
+		return A2(
+			$rtfeldman$elm_css$Css$Structure$appendToLastSelector,
+			$rtfeldman$elm_css$Css$Structure$applyPseudoElement(pseudo),
+			styleBlock);
+	});
+var $rtfeldman$elm_css$Css$Structure$CustomSelector = F2(
+	function (a, b) {
+		return {$: 2, a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$TypeSelectorSequence = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$Structure$appendRepeatable = F2(
+	function (selector, sequence) {
+		switch (sequence.$) {
+			case 0:
+				var typeSelector = sequence.a;
+				var list = sequence.b;
+				return A2(
+					$rtfeldman$elm_css$Css$Structure$TypeSelectorSequence,
+					typeSelector,
+					_Utils_ap(
+						list,
+						_List_fromArray(
+							[selector])));
+			case 1:
+				var list = sequence.a;
+				return $rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(
+					_Utils_ap(
+						list,
+						_List_fromArray(
+							[selector])));
+			default:
+				var str = sequence.a;
+				var list = sequence.b;
+				return A2(
+					$rtfeldman$elm_css$Css$Structure$CustomSelector,
+					str,
+					_Utils_ap(
+						list,
+						_List_fromArray(
+							[selector])));
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator = F2(
+	function (selector, list) {
+		if (!list.b) {
+			return _List_Nil;
+		} else {
+			if (!list.b.b) {
+				var _v1 = list.a;
+				var combinator = _v1.a;
+				var sequence = _v1.b;
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						combinator,
+						A2($rtfeldman$elm_css$Css$Structure$appendRepeatable, selector, sequence))
+					]);
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				return A2(
+					$elm$core$List$cons,
+					first,
+					A2($rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator, selector, rest));
+			}
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$appendRepeatableSelector = F2(
+	function (repeatableSimpleSelector, selector) {
+		if (!selector.b.b) {
+			var sequence = selector.a;
+			var pseudoElement = selector.c;
+			return A3(
+				$rtfeldman$elm_css$Css$Structure$Selector,
+				A2($rtfeldman$elm_css$Css$Structure$appendRepeatable, repeatableSimpleSelector, sequence),
+				_List_Nil,
+				pseudoElement);
+		} else {
+			var firstSelector = selector.a;
+			var tuples = selector.b;
+			var pseudoElement = selector.c;
+			return A3(
+				$rtfeldman$elm_css$Css$Structure$Selector,
+				firstSelector,
+				A2($rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator, repeatableSimpleSelector, tuples),
+				pseudoElement);
+		}
+	});
+var $rtfeldman$elm_css$Css$Structure$appendRepeatableToLastSelector = F2(
+	function (selector, styleBlock) {
+		return A2(
+			$rtfeldman$elm_css$Css$Structure$appendToLastSelector,
+			$rtfeldman$elm_css$Css$Structure$appendRepeatableSelector(selector),
+			styleBlock);
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors = function (declarations) {
+	collectSelectors:
+	while (true) {
+		if (!declarations.b) {
+			return _List_Nil;
+		} else {
+			if (!declarations.a.$) {
+				var _v1 = declarations.a.a;
+				var firstSelector = _v1.a;
+				var otherSelectors = _v1.b;
+				var rest = declarations.b;
+				return _Utils_ap(
+					A2($elm$core$List$cons, firstSelector, otherSelectors),
+					$rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(rest));
+			} else {
+				var rest = declarations.b;
+				var $temp$declarations = rest;
+				declarations = $temp$declarations;
+				continue collectSelectors;
+			}
+		}
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$DocumentRule = F5(
+	function (a, b, c, d, e) {
+		return {$: 3, a: a, b: b, c: c, d: d, e: e};
+	});
+var $rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
+	function (update, declarations) {
+		_v0$12:
+		while (true) {
+			if (!declarations.b) {
+				return declarations;
+			} else {
+				if (!declarations.b.b) {
+					switch (declarations.a.$) {
+						case 0:
+							var styleBlock = declarations.a.a;
+							return A2(
+								$elm$core$List$map,
+								$rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration,
+								update(styleBlock));
+						case 1:
+							if (declarations.a.b.b) {
+								if (!declarations.a.b.b.b) {
+									var _v1 = declarations.a;
+									var mediaQueries = _v1.a;
+									var _v2 = _v1.b;
+									var styleBlock = _v2.a;
+									return _List_fromArray(
+										[
+											A2(
+											$rtfeldman$elm_css$Css$Structure$MediaRule,
+											mediaQueries,
+											update(styleBlock))
+										]);
+								} else {
+									var _v3 = declarations.a;
+									var mediaQueries = _v3.a;
+									var _v4 = _v3.b;
+									var first = _v4.a;
+									var rest = _v4.b;
+									var _v5 = A2(
+										$rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock,
+										update,
+										_List_fromArray(
+											[
+												A2($rtfeldman$elm_css$Css$Structure$MediaRule, mediaQueries, rest)
+											]));
+									if ((_v5.b && (_v5.a.$ === 1)) && (!_v5.b.b)) {
+										var _v6 = _v5.a;
+										var newMediaQueries = _v6.a;
+										var newStyleBlocks = _v6.b;
+										return _List_fromArray(
+											[
+												A2(
+												$rtfeldman$elm_css$Css$Structure$MediaRule,
+												newMediaQueries,
+												A2($elm$core$List$cons, first, newStyleBlocks))
+											]);
+									} else {
+										var newDeclarations = _v5;
+										return newDeclarations;
+									}
+								}
+							} else {
+								break _v0$12;
+							}
+						case 2:
+							var _v7 = declarations.a;
+							var str = _v7.a;
+							var nestedDeclarations = _v7.b;
+							return _List_fromArray(
+								[
+									A2(
+									$rtfeldman$elm_css$Css$Structure$SupportsRule,
+									str,
+									A2($rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, update, nestedDeclarations))
+								]);
+						case 3:
+							var _v8 = declarations.a;
+							var str1 = _v8.a;
+							var str2 = _v8.b;
+							var str3 = _v8.c;
+							var str4 = _v8.d;
+							var styleBlock = _v8.e;
+							return A2(
+								$elm$core$List$map,
+								A4($rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4),
+								update(styleBlock));
+						case 4:
+							var _v9 = declarations.a;
+							return declarations;
+						case 5:
+							return declarations;
+						case 6:
+							return declarations;
+						case 7:
+							return declarations;
+						case 8:
+							return declarations;
+						default:
+							return declarations;
+					}
+				} else {
+					break _v0$12;
+				}
+			}
+		}
+		var first = declarations.a;
+		var rest = declarations.b;
+		return A2(
+			$elm$core$List$cons,
+			first,
+			A2($rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, update, rest));
+	});
+var $elm$core$String$cons = _String_cons;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$HashData = F4(
+	function (shift, seed, hash, charsProcessed) {
+		return {Z: charsProcessed, ae: hash, T: seed, ak: shift};
+	});
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$c1 = 3432918353;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$c2 = 461845907;
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy = F2(
+	function (b, a) {
+		return ((a & 65535) * b) + ((((a >>> 16) * b) & 65535) << 16);
+	});
+var $elm$core$Bitwise$or = _Bitwise_or;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$rotlBy = F2(
+	function (b, a) {
+		return (a << b) | (a >>> (32 - b));
+	});
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$finalize = function (data) {
+	var acc = (!(!data.ae)) ? (data.T ^ A2(
+		$rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy,
+		$rtfeldman$elm_css$ElmCssVendor$Murmur3$c2,
+		A2(
+			$rtfeldman$elm_css$ElmCssVendor$Murmur3$rotlBy,
+			15,
+			A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy, $rtfeldman$elm_css$ElmCssVendor$Murmur3$c1, data.ae)))) : data.T;
+	var h0 = acc ^ data.Z;
+	var h1 = A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy, 2246822507, h0 ^ (h0 >>> 16));
+	var h2 = A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy, 3266489909, h1 ^ (h1 >>> 13));
+	return (h2 ^ (h2 >>> 16)) >>> 0;
+};
+var $elm$core$String$foldl = _String_foldl;
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$mix = F2(
+	function (h1, k1) {
+		return A2(
+			$rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy,
+			5,
+			A2(
+				$rtfeldman$elm_css$ElmCssVendor$Murmur3$rotlBy,
+				13,
+				h1 ^ A2(
+					$rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy,
+					$rtfeldman$elm_css$ElmCssVendor$Murmur3$c2,
+					A2(
+						$rtfeldman$elm_css$ElmCssVendor$Murmur3$rotlBy,
+						15,
+						A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$multiplyBy, $rtfeldman$elm_css$ElmCssVendor$Murmur3$c1, k1))))) + 3864292196;
+	});
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$hashFold = F2(
+	function (c, data) {
+		var res = data.ae | ((255 & $elm$core$Char$toCode(c)) << data.ak);
+		var _v0 = data.ak;
+		if (_v0 === 24) {
+			return {
+				Z: data.Z + 1,
+				ae: 0,
+				T: A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$mix, data.T, res),
+				ak: 0
+			};
+		} else {
+			return {Z: data.Z + 1, ae: res, T: data.T, ak: data.ak + 8};
+		}
+	});
+var $rtfeldman$elm_css$ElmCssVendor$Murmur3$hashString = F2(
+	function (seed, str) {
+		return $rtfeldman$elm_css$ElmCssVendor$Murmur3$finalize(
+			A3(
+				$elm$core$String$foldl,
+				$rtfeldman$elm_css$ElmCssVendor$Murmur3$hashFold,
+				A4($rtfeldman$elm_css$ElmCssVendor$Murmur3$HashData, 0, seed, 0, 0),
+				str));
+	});
+var $rtfeldman$elm_css$Hash$murmurSeed = 15739;
+var $elm$core$String$fromList = _String_fromList;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $rtfeldman$elm_hex$Hex$unsafeToDigit = function (num) {
+	unsafeToDigit:
+	while (true) {
+		switch (num) {
+			case 0:
+				return '0';
+			case 1:
+				return '1';
+			case 2:
+				return '2';
+			case 3:
+				return '3';
+			case 4:
+				return '4';
+			case 5:
+				return '5';
+			case 6:
+				return '6';
+			case 7:
+				return '7';
+			case 8:
+				return '8';
+			case 9:
+				return '9';
+			case 10:
+				return 'a';
+			case 11:
+				return 'b';
+			case 12:
+				return 'c';
+			case 13:
+				return 'd';
+			case 14:
+				return 'e';
+			case 15:
+				return 'f';
+			default:
+				var $temp$num = num;
+				num = $temp$num;
+				continue unsafeToDigit;
+		}
+	}
+};
+var $rtfeldman$elm_hex$Hex$unsafePositiveToDigits = F2(
+	function (digits, num) {
+		unsafePositiveToDigits:
+		while (true) {
+			if (num < 16) {
+				return A2(
+					$elm$core$List$cons,
+					$rtfeldman$elm_hex$Hex$unsafeToDigit(num),
+					digits);
+			} else {
+				var $temp$digits = A2(
+					$elm$core$List$cons,
+					$rtfeldman$elm_hex$Hex$unsafeToDigit(
+						A2($elm$core$Basics$modBy, 16, num)),
+					digits),
+					$temp$num = (num / 16) | 0;
+				digits = $temp$digits;
+				num = $temp$num;
+				continue unsafePositiveToDigits;
+			}
+		}
+	});
+var $rtfeldman$elm_hex$Hex$toString = function (num) {
+	return $elm$core$String$fromList(
+		(num < 0) ? A2(
+			$elm$core$List$cons,
+			'-',
+			A2($rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, -num)) : A2($rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, num));
+};
+var $rtfeldman$elm_css$Hash$fromString = function (str) {
+	return A2(
+		$elm$core$String$cons,
+		'_',
+		$rtfeldman$elm_hex$Hex$toString(
+			A2($rtfeldman$elm_css$ElmCssVendor$Murmur3$hashString, $rtfeldman$elm_css$Hash$murmurSeed, str)));
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$last = function (list) {
+	last:
+	while (true) {
+		if (!list.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (!list.b.b) {
+				var singleton = list.a;
+				return $elm$core$Maybe$Just(singleton);
+			} else {
+				var rest = list.b;
+				var $temp$list = rest;
+				list = $temp$list;
+				continue last;
+			}
+		}
+	}
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration = function (declarations) {
+	lastDeclaration:
+	while (true) {
+		if (!declarations.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			if (!declarations.b.b) {
+				var x = declarations.a;
+				return $elm$core$Maybe$Just(
+					_List_fromArray(
+						[x]));
+			} else {
+				var xs = declarations.b;
+				var $temp$declarations = xs;
+				declarations = $temp$declarations;
+				continue lastDeclaration;
+			}
+		}
+	}
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf = function (maybes) {
+	oneOf:
+	while (true) {
+		if (!maybes.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var maybe = maybes.a;
+			var rest = maybes.b;
+			if (maybe.$ === 1) {
+				var $temp$maybes = rest;
+				maybes = $temp$maybes;
+				continue oneOf;
+			} else {
+				return maybe;
+			}
+		}
+	}
+};
+var $rtfeldman$elm_css$Css$Structure$FontFeatureValues = function (a) {
+	return {$: 9, a: a};
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues = function (tuples) {
+	var expandTuples = function (tuplesToExpand) {
+		if (!tuplesToExpand.b) {
+			return _List_Nil;
+		} else {
+			var properties = tuplesToExpand.a;
+			var rest = tuplesToExpand.b;
+			return A2(
+				$elm$core$List$cons,
+				properties,
+				expandTuples(rest));
+		}
+	};
+	var newTuples = expandTuples(tuples);
+	return _List_fromArray(
+		[
+			$rtfeldman$elm_css$Css$Structure$FontFeatureValues(newTuples)
+		]);
+};
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule = F2(
+	function (mediaQueries, declaration) {
+		if (!declaration.$) {
+			var styleBlock = declaration.a;
+			return A2(
+				$rtfeldman$elm_css$Css$Structure$MediaRule,
+				mediaQueries,
+				_List_fromArray(
+					[styleBlock]));
+		} else {
+			return declaration;
+		}
+	});
+var $elm$core$List$tail = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(xs);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
+	function (str1, str2, str3, str4, declaration) {
+		if (!declaration.$) {
+			var structureStyleBlock = declaration.a;
+			return A5($rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
+		} else {
+			return declaration;
+		}
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule = F2(
+	function (mediaQueries, declaration) {
+		switch (declaration.$) {
+			case 0:
+				var structureStyleBlock = declaration.a;
+				return A2(
+					$rtfeldman$elm_css$Css$Structure$MediaRule,
+					mediaQueries,
+					_List_fromArray(
+						[structureStyleBlock]));
+			case 1:
+				var newMediaQueries = declaration.a;
+				var structureStyleBlocks = declaration.b;
+				return A2(
+					$rtfeldman$elm_css$Css$Structure$MediaRule,
+					_Utils_ap(mediaQueries, newMediaQueries),
+					structureStyleBlocks);
+			case 2:
+				var str = declaration.a;
+				var declarations = declaration.b;
+				return A2(
+					$rtfeldman$elm_css$Css$Structure$SupportsRule,
+					str,
+					A2(
+						$elm$core$List$map,
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule(mediaQueries),
+						declarations));
+			case 3:
+				var str1 = declaration.a;
+				var str2 = declaration.b;
+				var str3 = declaration.c;
+				var str4 = declaration.d;
+				var structureStyleBlock = declaration.e;
+				return A5($rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
+			case 4:
+				return declaration;
+			case 5:
+				return declaration;
+			case 6:
+				return declaration;
+			case 7:
+				return declaration;
+			case 8:
+				return declaration;
+			default:
+				return declaration;
+		}
+	});
+var $rtfeldman$elm_css$Css$Preprocess$unwrapSnippet = function (_v0) {
+	var declarations = _v0;
+	return declarations;
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast = F4(
+	function (nestedStyles, rest, f, declarations) {
+		var withoutParent = function (decls) {
+			return A2(
+				$elm$core$Maybe$withDefault,
+				_List_Nil,
+				$elm$core$List$tail(decls));
+		};
+		var nextResult = A2(
+			$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+			rest,
+			A2(
+				$elm$core$Maybe$withDefault,
+				_List_Nil,
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration(declarations)));
+		var newDeclarations = function () {
+			var _v14 = _Utils_Tuple2(
+				$elm$core$List$head(nextResult),
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$last(declarations));
+			if ((!_v14.a.$) && (!_v14.b.$)) {
+				var nextResultParent = _v14.a.a;
+				var originalParent = _v14.b.a;
+				return _Utils_ap(
+					A2(
+						$elm$core$List$take,
+						$elm$core$List$length(declarations) - 1,
+						declarations),
+					_List_fromArray(
+						[
+							(!_Utils_eq(originalParent, nextResultParent)) ? nextResultParent : originalParent
+						]));
+			} else {
+				return declarations;
+			}
+		}();
+		var insertStylesToNestedDecl = function (lastDecl) {
+			return $elm$core$List$concat(
+				A2(
+					$rtfeldman$elm_css$Css$Structure$mapLast,
+					$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles(nestedStyles),
+					A2(
+						$elm$core$List$map,
+						$elm$core$List$singleton,
+						A2($rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, f, lastDecl))));
+		};
+		var initialResult = A2(
+			$elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2(
+				$elm$core$Maybe$map,
+				insertStylesToNestedDecl,
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration(declarations)));
+		return _Utils_ap(
+			newDeclarations,
+			_Utils_ap(
+				withoutParent(initialResult),
+				withoutParent(nextResult)));
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
+	function (styles, declarations) {
+		if (!styles.b) {
+			return declarations;
+		} else {
+			switch (styles.a.$) {
+				case 0:
+					var property = styles.a.a;
+					var rest = styles.b;
+					return A2(
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+						rest,
+						A2($rtfeldman$elm_css$Css$Structure$appendProperty, property, declarations));
+				case 1:
+					var _v4 = styles.a;
+					var selector = _v4.a;
+					var nestedStyles = _v4.b;
+					var rest = styles.b;
+					return A4(
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast,
+						nestedStyles,
+						rest,
+						$rtfeldman$elm_css$Css$Structure$appendRepeatableToLastSelector(selector),
+						declarations);
+				case 2:
+					var _v5 = styles.a;
+					var selectorCombinator = _v5.a;
+					var snippets = _v5.b;
+					var rest = styles.b;
+					var chain = F2(
+						function (_v9, _v10) {
+							var originalSequence = _v9.a;
+							var originalTuples = _v9.b;
+							var originalPseudoElement = _v9.c;
+							var newSequence = _v10.a;
+							var newTuples = _v10.b;
+							var newPseudoElement = _v10.c;
+							return A3(
+								$rtfeldman$elm_css$Css$Structure$Selector,
+								originalSequence,
+								_Utils_ap(
+									originalTuples,
+									A2(
+										$elm$core$List$cons,
+										_Utils_Tuple2(selectorCombinator, newSequence),
+										newTuples)),
+								$rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf(
+									_List_fromArray(
+										[newPseudoElement, originalPseudoElement])));
+						});
+					var expandDeclaration = function (declaration) {
+						switch (declaration.$) {
+							case 0:
+								var _v7 = declaration.a;
+								var firstSelector = _v7.a;
+								var otherSelectors = _v7.b;
+								var nestedStyles = _v7.c;
+								var newSelectors = A2(
+									$elm$core$List$concatMap,
+									function (originalSelector) {
+										return A2(
+											$elm$core$List$map,
+											chain(originalSelector),
+											A2($elm$core$List$cons, firstSelector, otherSelectors));
+									},
+									$rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(declarations));
+								var newDeclarations = function () {
+									if (!newSelectors.b) {
+										return _List_Nil;
+									} else {
+										var first = newSelectors.a;
+										var remainder = newSelectors.b;
+										return _List_fromArray(
+											[
+												$rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
+												A3($rtfeldman$elm_css$Css$Structure$StyleBlock, first, remainder, _List_Nil))
+											]);
+									}
+								}();
+								return A2($rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, nestedStyles, newDeclarations);
+							case 1:
+								var mediaQueries = declaration.a;
+								var styleBlocks = declaration.b;
+								return A2($rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
+							case 2:
+								var str = declaration.a;
+								var otherSnippets = declaration.b;
+								return A2($rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, otherSnippets);
+							case 3:
+								var str1 = declaration.a;
+								var str2 = declaration.b;
+								var str3 = declaration.c;
+								var str4 = declaration.d;
+								var styleBlock = declaration.e;
+								return A2(
+									$elm$core$List$map,
+									A4($rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
+									$rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
+							case 4:
+								var str = declaration.a;
+								var properties = declaration.b;
+								return _List_fromArray(
+									[
+										A2($rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
+									]);
+							case 5:
+								var properties = declaration.a;
+								return _List_fromArray(
+									[
+										$rtfeldman$elm_css$Css$Structure$FontFace(properties)
+									]);
+							case 6:
+								var properties = declaration.a;
+								return _List_fromArray(
+									[
+										$rtfeldman$elm_css$Css$Structure$Viewport(properties)
+									]);
+							case 7:
+								var properties = declaration.a;
+								return _List_fromArray(
+									[
+										$rtfeldman$elm_css$Css$Structure$CounterStyle(properties)
+									]);
+							default:
+								var tuples = declaration.a;
+								return $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues(tuples);
+						}
+					};
+					return $elm$core$List$concat(
+						_Utils_ap(
+							_List_fromArray(
+								[
+									A2($rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, rest, declarations)
+								]),
+							A2(
+								$elm$core$List$map,
+								expandDeclaration,
+								A2($elm$core$List$concatMap, $rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets))));
+				case 3:
+					var _v11 = styles.a;
+					var pseudoElement = _v11.a;
+					var nestedStyles = _v11.b;
+					var rest = styles.b;
+					return A4(
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast,
+						nestedStyles,
+						rest,
+						$rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector(pseudoElement),
+						declarations);
+				case 5:
+					var str = styles.a.a;
+					var rest = styles.b;
+					var name = $rtfeldman$elm_css$Hash$fromString(str);
+					var newProperty = 'animation-name:' + name;
+					var newDeclarations = A2(
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+						rest,
+						A2($rtfeldman$elm_css$Css$Structure$appendProperty, newProperty, declarations));
+					return A2(
+						$elm$core$List$append,
+						newDeclarations,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$Structure$Keyframes(
+								{b9: str, aB: name})
+							]));
+				case 4:
+					var _v12 = styles.a;
+					var mediaQueries = _v12.a;
+					var nestedStyles = _v12.b;
+					var rest = styles.b;
+					var extraDeclarations = function () {
+						var _v13 = $rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(declarations);
+						if (!_v13.b) {
+							return _List_Nil;
+						} else {
+							var firstSelector = _v13.a;
+							var otherSelectors = _v13.b;
+							return A2(
+								$elm$core$List$map,
+								$rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule(mediaQueries),
+								A2(
+									$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+									nestedStyles,
+									$elm$core$List$singleton(
+										$rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
+											A3($rtfeldman$elm_css$Css$Structure$StyleBlock, firstSelector, otherSelectors, _List_Nil)))));
+						}
+					}();
+					return _Utils_ap(
+						A2($rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, rest, declarations),
+						extraDeclarations);
+				default:
+					var otherStyles = styles.a.a;
+					var rest = styles.b;
+					return A2(
+						$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+						_Utils_ap(otherStyles, rest),
+						declarations);
+			}
+		}
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock = function (_v2) {
+	var firstSelector = _v2.a;
+	var otherSelectors = _v2.b;
+	var styles = _v2.c;
+	return A2(
+		$rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
+		styles,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
+				A3($rtfeldman$elm_css$Css$Structure$StyleBlock, firstSelector, otherSelectors, _List_Nil))
+			]));
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$extract = function (snippetDeclarations) {
+	if (!snippetDeclarations.b) {
+		return _List_Nil;
+	} else {
+		var first = snippetDeclarations.a;
+		var rest = snippetDeclarations.b;
+		return _Utils_ap(
+			$rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations(first),
+			$rtfeldman$elm_css$Css$Preprocess$Resolve$extract(rest));
+	}
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule = F2(
+	function (mediaQueries, styleBlocks) {
+		var handleStyleBlock = function (styleBlock) {
+			return A2(
+				$elm$core$List$map,
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule(mediaQueries),
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
+		};
+		return A2($elm$core$List$concatMap, handleStyleBlock, styleBlocks);
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule = F2(
+	function (str, snippets) {
+		var declarations = $rtfeldman$elm_css$Css$Preprocess$Resolve$extract(
+			A2($elm$core$List$concatMap, $rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
+		return _List_fromArray(
+			[
+				A2($rtfeldman$elm_css$Css$Structure$SupportsRule, str, declarations)
+			]);
+	});
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations = function (snippetDeclaration) {
+	switch (snippetDeclaration.$) {
+		case 0:
+			var styleBlock = snippetDeclaration.a;
+			return $rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock);
+		case 1:
+			var mediaQueries = snippetDeclaration.a;
+			var styleBlocks = snippetDeclaration.b;
+			return A2($rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
+		case 2:
+			var str = snippetDeclaration.a;
+			var snippets = snippetDeclaration.b;
+			return A2($rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, snippets);
+		case 3:
+			var str1 = snippetDeclaration.a;
+			var str2 = snippetDeclaration.b;
+			var str3 = snippetDeclaration.c;
+			var str4 = snippetDeclaration.d;
+			var styleBlock = snippetDeclaration.e;
+			return A2(
+				$elm$core$List$map,
+				A4($rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
+		case 4:
+			var str = snippetDeclaration.a;
+			var properties = snippetDeclaration.b;
+			return _List_fromArray(
+				[
+					A2($rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
+				]);
+		case 5:
+			var properties = snippetDeclaration.a;
+			return _List_fromArray(
+				[
+					$rtfeldman$elm_css$Css$Structure$FontFace(properties)
+				]);
+		case 6:
+			var properties = snippetDeclaration.a;
+			return _List_fromArray(
+				[
+					$rtfeldman$elm_css$Css$Structure$Viewport(properties)
+				]);
+		case 7:
+			var properties = snippetDeclaration.a;
+			return _List_fromArray(
+				[
+					$rtfeldman$elm_css$Css$Structure$CounterStyle(properties)
+				]);
+		default:
+			var tuples = snippetDeclaration.a;
+			return $rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues(tuples);
+	}
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_v0) {
+	var charset = _v0.br;
+	var imports = _v0.bz;
+	var namespaces = _v0.bF;
+	var snippets = _v0.bR;
+	var declarations = $rtfeldman$elm_css$Css$Preprocess$Resolve$extract(
+		A2($elm$core$List$concatMap, $rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
+	return {br: charset, ca: declarations, bz: imports, bF: namespaces};
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$compileHelp = function (sheet) {
+	return $rtfeldman$elm_css$Css$Structure$Output$prettyPrint(
+		$rtfeldman$elm_css$Css$Structure$compactStylesheet(
+			$rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure(sheet)));
+};
+var $rtfeldman$elm_css$Css$Preprocess$Resolve$compile = function (styles) {
+	return A2(
+		$elm$core$String$join,
+		'\n\n',
+		A2($elm$core$List$map, $rtfeldman$elm_css$Css$Preprocess$Resolve$compileHelp, styles));
+};
+var $rtfeldman$elm_css$Css$Preprocess$Snippet = $elm$core$Basics$identity;
+var $rtfeldman$elm_css$Css$Preprocess$StyleBlock = F3(
+	function (a, b, c) {
+		return {$: 0, a: a, b: b, c: c};
+	});
+var $rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration = function (a) {
+	return {$: 0, a: a};
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$makeSnippet = F2(
+	function (styles, sequence) {
+		var selector = A3($rtfeldman$elm_css$Css$Structure$Selector, sequence, _List_Nil, $elm$core$Maybe$Nothing);
+		return _List_fromArray(
+			[
+				$rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration(
+				A3($rtfeldman$elm_css$Css$Preprocess$StyleBlock, selector, _List_Nil, styles))
+			]);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$murmurSeed = 15739;
+var $rtfeldman$elm_css$Css$Preprocess$stylesheet = function (snippets) {
+	return {br: $elm$core$Maybe$Nothing, bz: _List_Nil, bF: _List_Nil, bR: snippets};
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$getClassname = function (styles) {
+	return $elm$core$List$isEmpty(styles) ? 'unstyled' : A2(
+		$elm$core$String$cons,
+		'_',
+		$rtfeldman$elm_hex$Hex$toString(
+			A2(
+				$rtfeldman$elm_css$ElmCssVendor$Murmur3$hashString,
+				$rtfeldman$elm_css$VirtualDom$Styled$murmurSeed,
+				$rtfeldman$elm_css$Css$Preprocess$Resolve$compile(
+					$elm$core$List$singleton(
+						$rtfeldman$elm_css$Css$Preprocess$stylesheet(
+							$elm$core$List$singleton(
+								A2(
+									$rtfeldman$elm_css$VirtualDom$Styled$makeSnippet,
+									styles,
+									$rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(_List_Nil)))))))));
+};
+var $elm$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
 			_VirtualDom_property,
 			_VirtualDom_noInnerHtmlOrFormAction(key),
 			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
-var rtfeldman$elm_css$VirtualDom$Styled$Attribute = F3(
-	function (a, b, c) {
-		return {$: 'Attribute', a: a, b: b, c: c};
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$property = F2(
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
+	var classname = $rtfeldman$elm_css$VirtualDom$Styled$getClassname(styles);
+	var classProperty = A2(
+		$elm$virtual_dom$VirtualDom$property,
+		'className',
+		$elm$json$Json$Encode$string(classname));
+	return A3($rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, styles, classname);
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$css = $rtfeldman$elm_css$Html$Styled$Internal$css;
+var $rtfeldman$elm_css$Html$Styled$h1 = $rtfeldman$elm_css$Html$Styled$node('h1');
+var $rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
+	return {$: 4, a: a};
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
+	return $rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
+		$elm$virtual_dom$VirtualDom$text(str));
+};
+var $rtfeldman$elm_css$Html$Styled$text = $rtfeldman$elm_css$VirtualDom$Styled$text;
+var $rtfeldman$elm_css$Css$Preprocess$ApplyStyles = function (a) {
+	return {$: 6, a: a};
+};
+var $rtfeldman$elm_css$Css$Internal$property = F2(
 	function (key, value) {
-		return A3(
-			rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2(elm$virtual_dom$VirtualDom$property, key, value),
-			_List_Nil,
-			'');
+		return $rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
 	});
-var rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			rtfeldman$elm_css$VirtualDom$Styled$property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var rtfeldman$elm_css$Html$Styled$Attributes$href = function (url) {
-	return A2(rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'href', url);
-};
-var author$project$Route$styledHref = function (targetRoute) {
-	return rtfeldman$elm_css$Html$Styled$Attributes$href(
-		author$project$Route$routeToString(targetRoute));
-};
-var author$project$View$pokemonImageSrc = function (id) {
-	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
-};
-var author$project$View$shinyImageSrc = function (id) {
-	return 'assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
-};
-var rtfeldman$elm_css$Css$Preprocess$AppendProperty = function (a) {
-	return {$: 'AppendProperty', a: a};
-};
-var rtfeldman$elm_css$Css$property = F2(
-	function (key, value) {
-		return rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
-	});
-var rtfeldman$elm_css$Css$backgroundColor = function (c) {
-	return A2(rtfeldman$elm_css$Css$property, 'background-color', c.value);
-};
-var rtfeldman$elm_css$Css$prop1 = F2(
-	function (key, arg) {
-		return A2(rtfeldman$elm_css$Css$property, key, arg.value);
-	});
-var rtfeldman$elm_css$Css$backgroundImage = rtfeldman$elm_css$Css$prop1('background-image');
-var rtfeldman$elm_css$Css$Internal$property = F2(
-	function (key, value) {
-		return rtfeldman$elm_css$Css$Preprocess$AppendProperty(key + (':' + value));
-	});
-var rtfeldman$elm_css$Css$Preprocess$ApplyStyles = function (a) {
-	return {$: 'ApplyStyles', a: a};
-};
-var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
+var $rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 	function (functionName, desiredKey, style) {
 		getOverloadedProperty:
 		while (true) {
 			switch (style.$) {
-				case 'AppendProperty':
+				case 0:
 					var str = style.a;
 					var key = A2(
-						elm$core$Maybe$withDefault,
+						$elm$core$Maybe$withDefault,
 						'',
-						elm$core$List$head(
-							A2(elm$core$String$split, ':', str)));
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, key);
-				case 'ExtendSelector':
+						$elm$core$List$head(
+							A2($elm$core$String$split, ':', str)));
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, key);
+				case 1:
 					var selector = style.a;
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-selector'));
-				case 'NestSnippet':
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-selector'));
+				case 2:
 					var combinator = style.a;
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-combinator'));
-				case 'WithPseudoElement':
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-combinator'));
+				case 3:
 					var pseudoElement = style.a;
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-pseudo-element setter'));
-				case 'WithMedia':
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-media-query'));
-				case 'WithKeyframes':
-					return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-keyframes'));
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-pseudo-element setter'));
+				case 4:
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-media-query'));
+				case 5:
+					return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-inapplicable-Style-for-keyframes'));
 				default:
 					if (!style.a.b) {
-						return A2(rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-empty-Style'));
+						return A2($rtfeldman$elm_css$Css$Internal$property, desiredKey, 'elm-css-error-cannot-apply-' + (functionName + '-with-empty-Style'));
 					} else {
 						if (!style.a.b.b) {
-							var _n1 = style.a;
-							var only = _n1.a;
+							var _v1 = style.a;
+							var only = _v1.a;
 							var $temp$functionName = functionName,
 								$temp$desiredKey = desiredKey,
 								$temp$style = only;
@@ -7553,12 +9223,12 @@ var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 							style = $temp$style;
 							continue getOverloadedProperty;
 						} else {
-							var _n2 = style.a;
-							var first = _n2.a;
-							var rest = _n2.b;
+							var _v2 = style.a;
+							var first = _v2.a;
+							var rest = _v2.b;
 							var $temp$functionName = functionName,
 								$temp$desiredKey = desiredKey,
-								$temp$style = rtfeldman$elm_css$Css$Preprocess$ApplyStyles(rest);
+								$temp$style = $rtfeldman$elm_css$Css$Preprocess$ApplyStyles(rest);
 							functionName = $temp$functionName;
 							desiredKey = $temp$desiredKey;
 							style = $temp$style;
@@ -7568,112 +9238,633 @@ var rtfeldman$elm_css$Css$Internal$getOverloadedProperty = F3(
 			}
 		}
 	});
-var rtfeldman$elm_css$Css$Internal$IncompatibleUnits = {$: 'IncompatibleUnits'};
-var elm$core$String$fromFloat = _String_fromNumber;
-var rtfeldman$elm_css$Css$Structure$Compatible = {$: 'Compatible'};
-var rtfeldman$elm_css$Css$Internal$lengthConverter = F3(
+var $rtfeldman$elm_css$Css$Internal$IncompatibleUnits = 0;
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $rtfeldman$elm_css$Css$Internal$lengthConverter = F3(
 	function (units, unitLabel, numericValue) {
 		return {
-			absoluteLength: rtfeldman$elm_css$Css$Structure$Compatible,
-			calc: rtfeldman$elm_css$Css$Structure$Compatible,
-			flexBasis: rtfeldman$elm_css$Css$Structure$Compatible,
-			fontSize: rtfeldman$elm_css$Css$Structure$Compatible,
-			length: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNumber: rtfeldman$elm_css$Css$Structure$Compatible,
-			lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible,
-			numericValue: numericValue,
-			textIndent: rtfeldman$elm_css$Css$Structure$Compatible,
-			unitLabel: unitLabel,
-			units: units,
-			value: _Utils_ap(
-				elm$core$String$fromFloat(numericValue),
+			bg: 0,
+			bp: 0,
+			ab: 0,
+			l: 0,
+			ay: 0,
+			af: 0,
+			G: 0,
+			ag: 0,
+			ah: 0,
+			P: 0,
+			Q: 0,
+			y: 0,
+			I: numericValue,
+			an: 0,
+			ap: unitLabel,
+			aI: units,
+			A: _Utils_ap(
+				$elm$core$String$fromFloat(numericValue),
 				unitLabel)
 		};
 	});
-var rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty = A3(rtfeldman$elm_css$Css$Internal$lengthConverter, rtfeldman$elm_css$Css$Internal$IncompatibleUnits, '', 0);
-var rtfeldman$elm_css$Css$backgroundPosition = function (fn) {
+var $rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty = A3($rtfeldman$elm_css$Css$Internal$lengthConverter, 0, '', 0);
+var $rtfeldman$elm_css$Css$textAlign = function (fn) {
 	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'backgroundPosition',
-		'background-position',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+		$rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'textAlign',
+		'text-align',
+		fn($rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
 };
-var rtfeldman$elm_css$Css$backgroundRepeat = rtfeldman$elm_css$Css$prop1('background-repeat');
-var rtfeldman$elm_css$Css$block = {display: rtfeldman$elm_css$Css$Structure$Compatible, value: 'block'};
-var rtfeldman$elm_css$Css$borderRadius = rtfeldman$elm_css$Css$prop1('border-radius');
-var rtfeldman$elm_css$Css$prop5 = F6(
-	function (key, argA, argB, argC, argD, argE) {
-		return A2(
-			rtfeldman$elm_css$Css$property,
-			key,
-			A2(
-				elm$core$String$join,
-				' ',
+var $rtfeldman$elm_css$Css$textTransform = $rtfeldman$elm_css$Css$prop1('text-transform');
+var $author$project$View$pageTitle = function (title) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$h1,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
-					[argA.value, argB.value, argC.value, argD.value, argE.value])));
+					[
+						$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$capitalize)
+					]))
+			]),
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$text(title)
+			]));
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles = F2(
+	function (_v0, styles) {
+		var newStyles = _v0.b;
+		var classname = _v0.c;
+		return $elm$core$List$isEmpty(newStyles) ? styles : A3($elm$core$Dict$insert, classname, newStyles, styles);
 	});
-var rtfeldman$elm_css$Css$boxShadow5 = rtfeldman$elm_css$Css$prop5('box-shadow');
-var rtfeldman$elm_css$Css$capitalize = {textTransform: rtfeldman$elm_css$Css$Structure$Compatible, value: 'capitalize'};
-var rtfeldman$elm_css$Css$center = rtfeldman$elm_css$Css$prop1('center');
-var rtfeldman$elm_css$Css$color = function (c) {
-	return A2(rtfeldman$elm_css$Css$property, 'color', c.value);
+var $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute = function (_v0) {
+	var val = _v0.a;
+	return val;
 };
-var rtfeldman$elm_css$Css$display = rtfeldman$elm_css$Css$prop1('display');
-var rtfeldman$elm_css$Css$height = rtfeldman$elm_css$Css$prop1('height');
-var elm$core$String$foldr = _String_foldr;
-var elm$core$String$toList = function (string) {
-	return A3(elm$core$String$foldr, elm$core$List$cons, _List_Nil, string);
+var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
+	return _VirtualDom_keyedNode(
+		_VirtualDom_noScript(tag));
 };
-var elm$core$String$cons = _String_cons;
-var rtfeldman$elm_css$Css$withPrecedingHash = function (str) {
-	return A2(elm$core$String$startsWith, '#', str) ? str : A2(
-		elm$core$String$cons,
-		_Utils_chr('#'),
-		str);
+var $elm$virtual_dom$VirtualDom$keyedNodeNS = F2(
+	function (namespace, tag) {
+		return A2(
+			_VirtualDom_keyedNodeNS,
+			namespace,
+			_VirtualDom_noScript(tag));
+	});
+var $elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
 };
-var rtfeldman$elm_css$Css$erroneousHex = function (str) {
-	return {
-		alpha: 1,
-		blue: 0,
-		color: rtfeldman$elm_css$Css$Structure$Compatible,
-		green: 0,
-		red: 0,
-		value: rtfeldman$elm_css$Css$withPrecedingHash(str)
-	};
+var $elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
+	return _VirtualDom_nodeNS(
+		_VirtualDom_noScript(tag));
 };
-var elm$core$String$fromList = _String_fromList;
-var elm$core$String$toLower = _String_toLower;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(xs);
+var $rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
+	function (_v6, _v7) {
+		var key = _v6.a;
+		var html = _v6.b;
+		var pairs = _v7.a;
+		var styles = _v7.b;
+		switch (html.$) {
+			case 4:
+				var vdom = html.a;
+				return _Utils_Tuple2(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(key, vdom),
+						pairs),
+					styles);
+			case 0:
+				var elemType = html.a;
+				var properties = html.b;
+				var children = html.c;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v9 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v9.a;
+				var finalStyles = _v9.b;
+				var vdom = A3(
+					$elm$virtual_dom$VirtualDom$node,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(key, vdom),
+						pairs),
+					finalStyles);
+			case 1:
+				var ns = html.a;
+				var elemType = html.b;
+				var properties = html.c;
+				var children = html.d;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v10 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v10.a;
+				var finalStyles = _v10.b;
+				var vdom = A4(
+					$elm$virtual_dom$VirtualDom$nodeNS,
+					ns,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(key, vdom),
+						pairs),
+					finalStyles);
+			case 2:
+				var elemType = html.a;
+				var properties = html.b;
+				var children = html.c;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v11 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v11.a;
+				var finalStyles = _v11.b;
+				var vdom = A3(
+					$elm$virtual_dom$VirtualDom$keyedNode,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(key, vdom),
+						pairs),
+					finalStyles);
+			default:
+				var ns = html.a;
+				var elemType = html.b;
+				var properties = html.c;
+				var children = html.d;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v12 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v12.a;
+				var finalStyles = _v12.b;
+				var vdom = A4(
+					$elm$virtual_dom$VirtualDom$keyedNodeNS,
+					ns,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(key, vdom),
+						pairs),
+					finalStyles);
+		}
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
+	function (html, _v0) {
+		var nodes = _v0.a;
+		var styles = _v0.b;
+		switch (html.$) {
+			case 4:
+				var vdomNode = html.a;
+				return _Utils_Tuple2(
+					A2($elm$core$List$cons, vdomNode, nodes),
+					styles);
+			case 0:
+				var elemType = html.a;
+				var properties = html.b;
+				var children = html.c;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v2 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v2.a;
+				var finalStyles = _v2.b;
+				var vdomNode = A3(
+					$elm$virtual_dom$VirtualDom$node,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2($elm$core$List$cons, vdomNode, nodes),
+					finalStyles);
+			case 1:
+				var ns = html.a;
+				var elemType = html.b;
+				var properties = html.c;
+				var children = html.d;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v3 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v3.a;
+				var finalStyles = _v3.b;
+				var vdomNode = A4(
+					$elm$virtual_dom$VirtualDom$nodeNS,
+					ns,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2($elm$core$List$cons, vdomNode, nodes),
+					finalStyles);
+			case 2:
+				var elemType = html.a;
+				var properties = html.b;
+				var children = html.c;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v4 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v4.a;
+				var finalStyles = _v4.b;
+				var vdomNode = A3(
+					$elm$virtual_dom$VirtualDom$keyedNode,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2($elm$core$List$cons, vdomNode, nodes),
+					finalStyles);
+			default:
+				var ns = html.a;
+				var elemType = html.b;
+				var properties = html.c;
+				var children = html.d;
+				var combinedStyles = A3($elm$core$List$foldl, $rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
+				var _v5 = A3(
+					$elm$core$List$foldl,
+					$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+					_Utils_Tuple2(_List_Nil, combinedStyles),
+					children);
+				var childNodes = _v5.a;
+				var finalStyles = _v5.b;
+				var vdomNode = A4(
+					$elm$virtual_dom$VirtualDom$keyedNodeNS,
+					ns,
+					elemType,
+					A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
+					$elm$core$List$reverse(childNodes));
+				return _Utils_Tuple2(
+					A2($elm$core$List$cons, vdomNode, nodes),
+					finalStyles);
+		}
+	});
+var $elm$core$Dict$singleton = F2(
+	function (key, value) {
+		return A5($elm$core$Dict$RBNode_elm_builtin, 1, key, value, $elm$core$Dict$RBEmpty_elm_builtin, $elm$core$Dict$RBEmpty_elm_builtin);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp = F2(
+	function (candidate, properties) {
+		stylesFromPropertiesHelp:
+		while (true) {
+			if (!properties.b) {
+				return candidate;
+			} else {
+				var _v1 = properties.a;
+				var styles = _v1.b;
+				var classname = _v1.c;
+				var rest = properties.b;
+				if ($elm$core$String$isEmpty(classname)) {
+					var $temp$candidate = candidate,
+						$temp$properties = rest;
+					candidate = $temp$candidate;
+					properties = $temp$properties;
+					continue stylesFromPropertiesHelp;
+				} else {
+					var $temp$candidate = $elm$core$Maybe$Just(
+						_Utils_Tuple2(classname, styles)),
+						$temp$properties = rest;
+					candidate = $temp$candidate;
+					properties = $temp$properties;
+					continue stylesFromPropertiesHelp;
+				}
+			}
+		}
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties = function (properties) {
+	var _v0 = A2($rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp, $elm$core$Maybe$Nothing, properties);
+	if (_v0.$ === 1) {
+		return $elm$core$Dict$empty;
 	} else {
-		return elm$core$Maybe$Nothing;
+		var _v1 = _v0.a;
+		var classname = _v1.a;
+		var styles = _v1.b;
+		return A2($elm$core$Dict$singleton, classname, styles);
 	}
 };
-var elm$core$Basics$pow = _Basics_pow;
-var elm$core$String$fromChar = function (_char) {
-	return A2(elm$core$String$cons, _char, '');
+var $rtfeldman$elm_css$Css$Structure$ClassSelector = function (a) {
+	return {$: 0, a: a};
 };
-var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
+var $rtfeldman$elm_css$VirtualDom$Styled$snippetFromPair = function (_v0) {
+	var classname = _v0.a;
+	var styles = _v0.b;
+	return A2(
+		$rtfeldman$elm_css$VirtualDom$Styled$makeSnippet,
+		styles,
+		$rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Css$Structure$ClassSelector(classname)
+				])));
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$toDeclaration = function (dict) {
+	return $rtfeldman$elm_css$Css$Preprocess$Resolve$compile(
+		$elm$core$List$singleton(
+			$rtfeldman$elm_css$Css$Preprocess$stylesheet(
+				A2(
+					$elm$core$List$map,
+					$rtfeldman$elm_css$VirtualDom$Styled$snippetFromPair,
+					$elm$core$Dict$toList(dict)))));
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$toStyleNode = function (styles) {
+	return A3(
+		$elm$virtual_dom$VirtualDom$node,
+		'style',
+		_List_Nil,
+		$elm$core$List$singleton(
+			$elm$virtual_dom$VirtualDom$text(
+				$rtfeldman$elm_css$VirtualDom$Styled$toDeclaration(styles))));
+};
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyle = F3(
+	function (elemType, properties, children) {
+		var unstyledProperties = A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
+		var initialStyles = $rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+			_Utils_Tuple2(_List_Nil, initialStyles),
+			children);
+		var childNodes = _v0.a;
+		var styles = _v0.b;
+		var styleNode = $rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(styles);
+		return A3(
+			$elm$virtual_dom$VirtualDom$node,
+			elemType,
+			unstyledProperties,
+			A2(
+				$elm$core$List$cons,
+				styleNode,
+				$elm$core$List$reverse(childNodes)));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$containsKey = F2(
+	function (key, pairs) {
+		containsKey:
+		while (true) {
+			if (!pairs.b) {
+				return false;
+			} else {
+				var _v1 = pairs.a;
+				var str = _v1.a;
+				var rest = pairs.b;
+				if (_Utils_eq(key, str)) {
+					return true;
+				} else {
+					var $temp$key = key,
+						$temp$pairs = rest;
+					key = $temp$key;
+					pairs = $temp$pairs;
+					continue containsKey;
+				}
+			}
+		}
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$getUnusedKey = F2(
+	function (_default, pairs) {
+		getUnusedKey:
+		while (true) {
+			if (!pairs.b) {
+				return _default;
+			} else {
+				var _v1 = pairs.a;
+				var firstKey = _v1.a;
+				var rest = pairs.b;
+				var newKey = '_' + firstKey;
+				if (A2($rtfeldman$elm_css$VirtualDom$Styled$containsKey, newKey, rest)) {
+					var $temp$default = newKey,
+						$temp$pairs = rest;
+					_default = $temp$default;
+					pairs = $temp$pairs;
+					continue getUnusedKey;
+				} else {
+					return newKey;
+				}
+			}
+		}
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode = F2(
+	function (allStyles, keyedChildNodes) {
+		var styleNodeKey = A2($rtfeldman$elm_css$VirtualDom$Styled$getUnusedKey, '_', keyedChildNodes);
+		var finalNode = $rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(allStyles);
+		return _Utils_Tuple2(styleNodeKey, finalNode);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyed = F3(
+	function (elemType, properties, keyedChildren) {
+		var unstyledProperties = A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
+		var initialStyles = $rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+			_Utils_Tuple2(_List_Nil, initialStyles),
+			keyedChildren);
+		var keyedChildNodes = _v0.a;
+		var styles = _v0.b;
+		var keyedStyleNode = A2($rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode, styles, keyedChildNodes);
+		return A3(
+			$elm$virtual_dom$VirtualDom$keyedNode,
+			elemType,
+			unstyledProperties,
+			A2(
+				$elm$core$List$cons,
+				keyedStyleNode,
+				$elm$core$List$reverse(keyedChildNodes)));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyedNS = F4(
+	function (ns, elemType, properties, keyedChildren) {
+		var unstyledProperties = A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
+		var initialStyles = $rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			$rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
+			_Utils_Tuple2(_List_Nil, initialStyles),
+			keyedChildren);
+		var keyedChildNodes = _v0.a;
+		var styles = _v0.b;
+		var keyedStyleNode = A2($rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode, styles, keyedChildNodes);
+		return A4(
+			$elm$virtual_dom$VirtualDom$keyedNodeNS,
+			ns,
+			elemType,
+			unstyledProperties,
+			A2(
+				$elm$core$List$cons,
+				keyedStyleNode,
+				$elm$core$List$reverse(keyedChildNodes)));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyleNS = F4(
+	function (ns, elemType, properties, children) {
+		var unstyledProperties = A2($elm$core$List$map, $rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
+		var initialStyles = $rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			$rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
+			_Utils_Tuple2(_List_Nil, initialStyles),
+			children);
+		var childNodes = _v0.a;
+		var styles = _v0.b;
+		var styleNode = $rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(styles);
+		return A4(
+			$elm$virtual_dom$VirtualDom$nodeNS,
+			ns,
+			elemType,
+			unstyledProperties,
+			A2(
+				$elm$core$List$cons,
+				styleNode,
+				$elm$core$List$reverse(childNodes)));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
+	switch (vdom.$) {
+		case 4:
+			var plainNode = vdom.a;
+			return plainNode;
+		case 0:
+			var elemType = vdom.a;
+			var properties = vdom.b;
+			var children = vdom.c;
+			return A3($rtfeldman$elm_css$VirtualDom$Styled$unstyle, elemType, properties, children);
+		case 1:
+			var ns = vdom.a;
+			var elemType = vdom.b;
+			var properties = vdom.c;
+			var children = vdom.d;
+			return A4($rtfeldman$elm_css$VirtualDom$Styled$unstyleNS, ns, elemType, properties, children);
+		case 2:
+			var elemType = vdom.a;
+			var properties = vdom.b;
+			var children = vdom.c;
+			return A3($rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyed, elemType, properties, children);
+		default:
+			var ns = vdom.a;
+			var elemType = vdom.b;
+			var properties = vdom.c;
+			var children = vdom.d;
+			return A4($rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyedNS, ns, elemType, properties, children);
+	}
+};
+var $rtfeldman$elm_css$Html$Styled$toUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
+var $rtfeldman$elm_css$Css$displayFlex = A2($rtfeldman$elm_css$Css$property, 'display', 'flex');
+var $rtfeldman$elm_css$Css$flexWrap = $rtfeldman$elm_css$Css$prop1('flex-wrap');
+var $rtfeldman$elm_css$Css$justifyContent = function (fn) {
+	return A3(
+		$rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'justifyContent',
+		'justify-content',
+		fn($rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+};
+var $rtfeldman$elm_css$Html$Styled$a = $rtfeldman$elm_css$Html$Styled$node('a');
+var $rtfeldman$elm_css$Css$Transitions$Background = 0;
+var $rtfeldman$elm_css$Css$Transitions$Transition = $elm$core$Basics$identity;
+var $rtfeldman$elm_css$Css$Transitions$fullTransition = F4(
+	function (animation, duration, delay, timing) {
+		return {
+			aK: animation,
+			aM: $elm$core$Maybe$Just(delay),
+			bt: duration,
+			aZ: $elm$core$Maybe$Just(timing)
+		};
+	});
+var $rtfeldman$elm_css$Css$Transitions$background3 = $rtfeldman$elm_css$Css$Transitions$fullTransition(0);
+var $rtfeldman$elm_css$Css$backgroundColor = function (c) {
+	return A2($rtfeldman$elm_css$Css$property, 'background-color', c.A);
+};
+var $rtfeldman$elm_css$Css$backgroundImage = $rtfeldman$elm_css$Css$prop1('background-image');
+var $rtfeldman$elm_css$Css$backgroundPosition = function (fn) {
+	return A3(
+		$rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'backgroundPosition',
+		'background-position',
+		fn($rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+};
+var $rtfeldman$elm_css$Css$backgroundRepeat = $rtfeldman$elm_css$Css$prop1('background-repeat');
+var $rtfeldman$elm_css$Css$block = {f: 0, A: 'block'};
+var $rtfeldman$elm_css$Css$borderRadius = $rtfeldman$elm_css$Css$prop1('border-radius');
+var $rtfeldman$elm_css$Css$Transitions$BoxShadow = 25;
+var $rtfeldman$elm_css$Css$Transitions$boxShadow3 = $rtfeldman$elm_css$Css$Transitions$fullTransition(25);
+var $rtfeldman$elm_css$Css$prop5 = F6(
+	function (key, argA, argB, argC, argD, argE) {
+		return A2(
+			$rtfeldman$elm_css$Css$property,
+			key,
+			A2(
+				$elm$core$String$join,
+				' ',
+				_List_fromArray(
+					[argA.A, argB.A, argC.A, argD.A, argE.A])));
+	});
+var $rtfeldman$elm_css$Css$boxShadow5 = $rtfeldman$elm_css$Css$prop5('box-shadow');
+var $rtfeldman$elm_css$Css$color = function (c) {
+	return A2($rtfeldman$elm_css$Css$property, 'color', c.A);
+};
+var $rtfeldman$elm_css$Css$Transitions$CubicBezier = F4(
+	function (a, b, c, d) {
+		return {$: 7, a: a, b: b, c: c, d: d};
+	});
+var $rtfeldman$elm_css$Css$Transitions$cubicBezier = F4(
+	function (f1, f2, f3, f4) {
+		return A4($rtfeldman$elm_css$Css$Transitions$CubicBezier, f1, f2, f3, f4);
+	});
+var $rtfeldman$elm_css$Css$display = $rtfeldman$elm_css$Css$prop1('display');
+var $rtfeldman$elm_css$Css$height = $rtfeldman$elm_css$Css$prop1('height');
+var $rtfeldman$elm_css$Css$withPrecedingHash = function (str) {
+	return A2($elm$core$String$startsWith, '#', str) ? str : A2($elm$core$String$cons, '#', str);
+};
+var $rtfeldman$elm_css$Css$erroneousHex = function (str) {
+	return {
+		as: 1,
+		au: 0,
+		x: 0,
+		aw: 0,
+		aE: 0,
+		A: $rtfeldman$elm_css$Css$withPrecedingHash(str)
+	};
+};
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Basics$pow = _Basics_pow;
+var $rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 	function (position, chars, accumulated) {
 		fromStringHelp:
 		while (true) {
 			if (!chars.b) {
-				return elm$core$Result$Ok(accumulated);
+				return $elm$core$Result$Ok(accumulated);
 			} else {
 				var _char = chars.a;
 				var rest = chars.b;
-				switch (_char.valueOf()) {
+				switch (_char) {
 					case '0':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
@@ -7685,7 +9876,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '1':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + A2(elm$core$Basics$pow, 16, position);
+							$temp$accumulated = accumulated + A2($elm$core$Basics$pow, 16, position);
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7693,7 +9884,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '2':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (2 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (2 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7701,7 +9892,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '3':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (3 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (3 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7709,7 +9900,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '4':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (4 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (4 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7717,7 +9908,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '5':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (5 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (5 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7725,7 +9916,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '6':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (6 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (6 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7733,7 +9924,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '7':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (7 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (7 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7741,7 +9932,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '8':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (8 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (8 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7749,7 +9940,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case '9':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (9 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (9 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7757,7 +9948,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'a':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (10 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (10 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7765,7 +9956,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'b':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (11 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (11 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7773,7 +9964,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'c':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (12 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (12 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7781,7 +9972,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'd':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (13 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (13 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7789,7 +9980,7 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'e':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (14 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (14 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
@@ -7797,70 +9988,82 @@ var rtfeldman$elm_hex$Hex$fromStringHelp = F3(
 					case 'f':
 						var $temp$position = position - 1,
 							$temp$chars = rest,
-							$temp$accumulated = accumulated + (15 * A2(elm$core$Basics$pow, 16, position));
+							$temp$accumulated = accumulated + (15 * A2($elm$core$Basics$pow, 16, position));
 						position = $temp$position;
 						chars = $temp$chars;
 						accumulated = $temp$accumulated;
 						continue fromStringHelp;
 					default:
 						var nonHex = _char;
-						return elm$core$Result$Err(
-							elm$core$String$fromChar(nonHex) + ' is not a valid hexadecimal character.');
+						return $elm$core$Result$Err(
+							$elm$core$String$fromChar(nonHex) + ' is not a valid hexadecimal character.');
 				}
 			}
 		}
 	});
-var rtfeldman$elm_hex$Hex$fromString = function (str) {
-	if (elm$core$String$isEmpty(str)) {
-		return elm$core$Result$Err('Empty strings are not valid hexadecimal strings.');
+var $elm$core$Result$map = F2(
+	function (func, ra) {
+		if (!ra.$) {
+			var a = ra.a;
+			return $elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return $elm$core$Result$Err(e);
+		}
+	});
+var $rtfeldman$elm_hex$Hex$fromString = function (str) {
+	if ($elm$core$String$isEmpty(str)) {
+		return $elm$core$Result$Err('Empty strings are not valid hexadecimal strings.');
 	} else {
 		var result = function () {
-			if (A2(elm$core$String$startsWith, '-', str)) {
+			if (A2($elm$core$String$startsWith, '-', str)) {
 				var list = A2(
-					elm$core$Maybe$withDefault,
+					$elm$core$Maybe$withDefault,
 					_List_Nil,
-					elm$core$List$tail(
-						elm$core$String$toList(str)));
+					$elm$core$List$tail(
+						$elm$core$String$toList(str)));
 				return A2(
-					elm$core$Result$map,
-					elm$core$Basics$negate,
+					$elm$core$Result$map,
+					$elm$core$Basics$negate,
 					A3(
-						rtfeldman$elm_hex$Hex$fromStringHelp,
-						elm$core$List$length(list) - 1,
+						$rtfeldman$elm_hex$Hex$fromStringHelp,
+						$elm$core$List$length(list) - 1,
 						list,
 						0));
 			} else {
 				return A3(
-					rtfeldman$elm_hex$Hex$fromStringHelp,
-					elm$core$String$length(str) - 1,
-					elm$core$String$toList(str),
+					$rtfeldman$elm_hex$Hex$fromStringHelp,
+					$elm$core$String$length(str) - 1,
+					$elm$core$String$toList(str),
 					0);
 			}
 		}();
 		var formatError = function (err) {
 			return A2(
-				elm$core$String$join,
+				$elm$core$String$join,
 				' ',
 				_List_fromArray(
 					['\"' + (str + '\"'), 'is not a valid hexadecimal string because', err]));
 		};
-		return A2(elm$core$Result$mapError, formatError, result);
+		return A2($elm$core$Result$mapError, formatError, result);
 	}
 };
-var rtfeldman$elm_css$Css$validHex = F5(
-	function (str, _n0, _n1, _n2, _n3) {
-		var r1 = _n0.a;
-		var r2 = _n0.b;
-		var g1 = _n1.a;
-		var g2 = _n1.b;
-		var b1 = _n2.a;
-		var b2 = _n2.b;
-		var a1 = _n3.a;
-		var a2 = _n3.b;
+var $elm$core$String$toLower = _String_toLower;
+var $rtfeldman$elm_css$Css$validHex = F5(
+	function (str, _v0, _v1, _v2, _v3) {
+		var r1 = _v0.a;
+		var r2 = _v0.b;
+		var g1 = _v1.a;
+		var g2 = _v1.b;
+		var b1 = _v2.a;
+		var b2 = _v2.b;
+		var a1 = _v3.a;
+		var a2 = _v3.b;
 		var toResult = A2(
-			elm$core$Basics$composeR,
-			elm$core$String$fromList,
-			A2(elm$core$Basics$composeR, elm$core$String$toLower, rtfeldman$elm_hex$Hex$fromString));
+			$elm$core$Basics$composeR,
+			$elm$core$String$fromList,
+			A2($elm$core$Basics$composeR, $elm$core$String$toLower, $rtfeldman$elm_hex$Hex$fromString));
 		var results = _Utils_Tuple2(
 			_Utils_Tuple2(
 				toResult(
@@ -7876,2857 +10079,672 @@ var rtfeldman$elm_css$Css$validHex = F5(
 				toResult(
 					_List_fromArray(
 						[a1, a2]))));
-		if ((((results.a.a.$ === 'Ok') && (results.a.b.$ === 'Ok')) && (results.b.a.$ === 'Ok')) && (results.b.b.$ === 'Ok')) {
-			var _n5 = results.a;
-			var red = _n5.a.a;
-			var green = _n5.b.a;
-			var _n6 = results.b;
-			var blue = _n6.a.a;
-			var alpha = _n6.b.a;
+		if ((((!results.a.a.$) && (!results.a.b.$)) && (!results.b.a.$)) && (!results.b.b.$)) {
+			var _v5 = results.a;
+			var red = _v5.a.a;
+			var green = _v5.b.a;
+			var _v6 = results.b;
+			var blue = _v6.a.a;
+			var alpha = _v6.b.a;
 			return {
-				alpha: alpha / 255,
-				blue: blue,
-				color: rtfeldman$elm_css$Css$Structure$Compatible,
-				green: green,
-				red: red,
-				value: rtfeldman$elm_css$Css$withPrecedingHash(str)
+				as: alpha / 255,
+				au: blue,
+				x: 0,
+				aw: green,
+				aE: red,
+				A: $rtfeldman$elm_css$Css$withPrecedingHash(str)
 			};
 		} else {
-			return rtfeldman$elm_css$Css$erroneousHex(str);
+			return $rtfeldman$elm_css$Css$erroneousHex(str);
 		}
 	});
-var rtfeldman$elm_css$Css$hex = function (str) {
-	var withoutHash = A2(elm$core$String$startsWith, '#', str) ? A2(elm$core$String$dropLeft, 1, str) : str;
-	var _n0 = elm$core$String$toList(withoutHash);
-	_n0$4:
+var $rtfeldman$elm_css$Css$hex = function (str) {
+	var withoutHash = A2($elm$core$String$startsWith, '#', str) ? A2($elm$core$String$dropLeft, 1, str) : str;
+	var _v0 = $elm$core$String$toList(withoutHash);
+	_v0$4:
 	while (true) {
-		if ((_n0.b && _n0.b.b) && _n0.b.b.b) {
-			if (!_n0.b.b.b.b) {
-				var r = _n0.a;
-				var _n1 = _n0.b;
-				var g = _n1.a;
-				var _n2 = _n1.b;
-				var b = _n2.a;
+		if ((_v0.b && _v0.b.b) && _v0.b.b.b) {
+			if (!_v0.b.b.b.b) {
+				var r = _v0.a;
+				var _v1 = _v0.b;
+				var g = _v1.a;
+				var _v2 = _v1.b;
+				var b = _v2.a;
 				return A5(
-					rtfeldman$elm_css$Css$validHex,
+					$rtfeldman$elm_css$Css$validHex,
 					str,
 					_Utils_Tuple2(r, r),
 					_Utils_Tuple2(g, g),
 					_Utils_Tuple2(b, b),
-					_Utils_Tuple2(
-						_Utils_chr('f'),
-						_Utils_chr('f')));
+					_Utils_Tuple2('f', 'f'));
 			} else {
-				if (!_n0.b.b.b.b.b) {
-					var r = _n0.a;
-					var _n3 = _n0.b;
-					var g = _n3.a;
-					var _n4 = _n3.b;
-					var b = _n4.a;
-					var _n5 = _n4.b;
-					var a = _n5.a;
+				if (!_v0.b.b.b.b.b) {
+					var r = _v0.a;
+					var _v3 = _v0.b;
+					var g = _v3.a;
+					var _v4 = _v3.b;
+					var b = _v4.a;
+					var _v5 = _v4.b;
+					var a = _v5.a;
 					return A5(
-						rtfeldman$elm_css$Css$validHex,
+						$rtfeldman$elm_css$Css$validHex,
 						str,
 						_Utils_Tuple2(r, r),
 						_Utils_Tuple2(g, g),
 						_Utils_Tuple2(b, b),
 						_Utils_Tuple2(a, a));
 				} else {
-					if (_n0.b.b.b.b.b.b) {
-						if (!_n0.b.b.b.b.b.b.b) {
-							var r1 = _n0.a;
-							var _n6 = _n0.b;
-							var r2 = _n6.a;
-							var _n7 = _n6.b;
-							var g1 = _n7.a;
-							var _n8 = _n7.b;
-							var g2 = _n8.a;
-							var _n9 = _n8.b;
-							var b1 = _n9.a;
-							var _n10 = _n9.b;
-							var b2 = _n10.a;
+					if (_v0.b.b.b.b.b.b) {
+						if (!_v0.b.b.b.b.b.b.b) {
+							var r1 = _v0.a;
+							var _v6 = _v0.b;
+							var r2 = _v6.a;
+							var _v7 = _v6.b;
+							var g1 = _v7.a;
+							var _v8 = _v7.b;
+							var g2 = _v8.a;
+							var _v9 = _v8.b;
+							var b1 = _v9.a;
+							var _v10 = _v9.b;
+							var b2 = _v10.a;
 							return A5(
-								rtfeldman$elm_css$Css$validHex,
+								$rtfeldman$elm_css$Css$validHex,
 								str,
 								_Utils_Tuple2(r1, r2),
 								_Utils_Tuple2(g1, g2),
 								_Utils_Tuple2(b1, b2),
-								_Utils_Tuple2(
-									_Utils_chr('f'),
-									_Utils_chr('f')));
+								_Utils_Tuple2('f', 'f'));
 						} else {
-							if (_n0.b.b.b.b.b.b.b.b && (!_n0.b.b.b.b.b.b.b.b.b)) {
-								var r1 = _n0.a;
-								var _n11 = _n0.b;
-								var r2 = _n11.a;
-								var _n12 = _n11.b;
-								var g1 = _n12.a;
-								var _n13 = _n12.b;
-								var g2 = _n13.a;
-								var _n14 = _n13.b;
-								var b1 = _n14.a;
-								var _n15 = _n14.b;
-								var b2 = _n15.a;
-								var _n16 = _n15.b;
-								var a1 = _n16.a;
-								var _n17 = _n16.b;
-								var a2 = _n17.a;
+							if (_v0.b.b.b.b.b.b.b.b && (!_v0.b.b.b.b.b.b.b.b.b)) {
+								var r1 = _v0.a;
+								var _v11 = _v0.b;
+								var r2 = _v11.a;
+								var _v12 = _v11.b;
+								var g1 = _v12.a;
+								var _v13 = _v12.b;
+								var g2 = _v13.a;
+								var _v14 = _v13.b;
+								var b1 = _v14.a;
+								var _v15 = _v14.b;
+								var b2 = _v15.a;
+								var _v16 = _v15.b;
+								var a1 = _v16.a;
+								var _v17 = _v16.b;
+								var a2 = _v17.a;
 								return A5(
-									rtfeldman$elm_css$Css$validHex,
+									$rtfeldman$elm_css$Css$validHex,
 									str,
 									_Utils_Tuple2(r1, r2),
 									_Utils_Tuple2(g1, g2),
 									_Utils_Tuple2(b1, b2),
 									_Utils_Tuple2(a1, a2));
 							} else {
-								break _n0$4;
+								break _v0$4;
 							}
 						}
 					} else {
-						break _n0$4;
+						break _v0$4;
 					}
 				}
 			}
 		} else {
-			break _n0$4;
+			break _v0$4;
 		}
 	}
-	return rtfeldman$elm_css$Css$erroneousHex(str);
+	return $rtfeldman$elm_css$Css$erroneousHex(str);
 };
-var rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
+var $rtfeldman$elm_css$Css$Preprocess$ExtendSelector = F2(
 	function (a, b) {
-		return {$: 'ExtendSelector', a: a, b: b};
+		return {$: 1, a: a, b: b};
 	});
-var rtfeldman$elm_css$Css$Structure$PseudoClassSelector = function (a) {
-	return {$: 'PseudoClassSelector', a: a};
+var $rtfeldman$elm_css$Css$Structure$PseudoClassSelector = function (a) {
+	return {$: 2, a: a};
 };
-var rtfeldman$elm_css$Css$pseudoClass = function (_class) {
-	return rtfeldman$elm_css$Css$Preprocess$ExtendSelector(
-		rtfeldman$elm_css$Css$Structure$PseudoClassSelector(_class));
+var $rtfeldman$elm_css$Css$pseudoClass = function (_class) {
+	return $rtfeldman$elm_css$Css$Preprocess$ExtendSelector(
+		$rtfeldman$elm_css$Css$Structure$PseudoClassSelector(_class));
 };
-var rtfeldman$elm_css$Css$hover = rtfeldman$elm_css$Css$pseudoClass('hover');
-var rtfeldman$elm_css$Css$margin = rtfeldman$elm_css$Css$prop1('margin');
-var rtfeldman$elm_css$Css$noRepeat = {backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, value: 'no-repeat'};
-var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
-var rtfeldman$elm_css$Css$prop2 = F3(
+var $rtfeldman$elm_css$Css$hover = $rtfeldman$elm_css$Css$pseudoClass('hover');
+var $rtfeldman$elm_css$Css$margin = $rtfeldman$elm_css$Css$prop1('margin');
+var $rtfeldman$elm_css$Css$noRepeat = {Y: 0, C: 0, A: 'no-repeat'};
+var $rtfeldman$elm_css$Css$none = {X: 0, bn: 0, n: 0, a: 0, f: 0, co: 0, bB: 0, a2: 0, ah: 0, P: 0, y: 0, c: 0, b: 0, a4: 0, aS: 0, cA: 0, u: 0, aV: 0, cH: 0, am: 0, V: 0, q: 0, e: 0, cR: 0, A: 'none'};
+var $rtfeldman$elm_css$Css$prop2 = F3(
 	function (key, argA, argB) {
 		return A2(
-			rtfeldman$elm_css$Css$property,
+			$rtfeldman$elm_css$Css$property,
 			key,
 			A2(
-				elm$core$String$join,
+				$elm$core$String$join,
 				' ',
 				_List_fromArray(
-					[argA.value, argB.value])));
+					[argA.A, argB.A])));
 	});
-var rtfeldman$elm_css$Css$padding2 = rtfeldman$elm_css$Css$prop2('padding');
-var rtfeldman$elm_css$Css$paddingTop = rtfeldman$elm_css$Css$prop1('padding-top');
-var rtfeldman$elm_css$Css$PxUnits = {$: 'PxUnits'};
-var rtfeldman$elm_css$Css$px = A2(rtfeldman$elm_css$Css$Internal$lengthConverter, rtfeldman$elm_css$Css$PxUnits, 'px');
-var rtfeldman$elm_css$Css$cssFunction = F2(
+var $rtfeldman$elm_css$Css$padding2 = $rtfeldman$elm_css$Css$prop2('padding');
+var $rtfeldman$elm_css$Css$paddingTop = $rtfeldman$elm_css$Css$prop1('padding-top');
+var $author$project$View$pokemonImageSrc = function (id) {
+	return 'assets/images/pokemon/' + ($elm$core$String$fromInt(id) + '.png');
+};
+var $rtfeldman$elm_css$Css$PxUnits = 0;
+var $rtfeldman$elm_css$Css$px = A2($rtfeldman$elm_css$Css$Internal$lengthConverter, 0, 'px');
+var $rtfeldman$elm_css$Css$cssFunction = F2(
 	function (funcName, args) {
-		return funcName + ('(' + (A2(elm$core$String$join, ', ', args) + ')'));
+		return funcName + ('(' + (A2($elm$core$String$join, ', ', args) + ')'));
 	});
-var rtfeldman$elm_css$Css$rgba = F4(
+var $rtfeldman$elm_css$Css$rgba = F4(
 	function (r, g, b, alpha) {
 		return {
-			alpha: alpha,
-			blue: b,
-			color: rtfeldman$elm_css$Css$Structure$Compatible,
-			green: g,
-			red: r,
-			value: A2(
-				rtfeldman$elm_css$Css$cssFunction,
+			as: alpha,
+			au: b,
+			x: 0,
+			aw: g,
+			aE: r,
+			A: A2(
+				$rtfeldman$elm_css$Css$cssFunction,
 				'rgba',
 				_Utils_ap(
 					A2(
-						elm$core$List$map,
-						elm$core$String$fromInt,
+						$elm$core$List$map,
+						$elm$core$String$fromInt,
 						_List_fromArray(
 							[r, g, b])),
 					_List_fromArray(
 						[
-							elm$core$String$fromFloat(alpha)
+							$elm$core$String$fromFloat(alpha)
 						])))
 		};
 	});
-var rtfeldman$elm_css$Css$textAlign = function (fn) {
-	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'textAlign',
-		'text-align',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
+var $author$project$View$shinyImageSrc = function (id) {
+	return 'assets/images/shiny/' + ($elm$core$String$fromInt(id) + '.png');
 };
-var rtfeldman$elm_css$Css$textDecoration = rtfeldman$elm_css$Css$prop1('text-decoration');
-var rtfeldman$elm_css$Css$textTransform = rtfeldman$elm_css$Css$prop1('text-transform');
-var rtfeldman$elm_css$Css$url = function (urlValue) {
-	return {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, value: 'url(' + (urlValue + ')')};
+var $rtfeldman$elm_css$Html$Styled$span = $rtfeldman$elm_css$Html$Styled$node('span');
+var $rtfeldman$elm_css$VirtualDom$Styled$property = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$property, key, value),
+			_List_Nil,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$href = function (url) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'href', url);
 };
-var rtfeldman$elm_css$Css$width = rtfeldman$elm_css$Css$prop1('width');
-var rtfeldman$elm_css$Css$Transitions$Background = {$: 'Background'};
-var rtfeldman$elm_css$Css$Transitions$Transition = function (a) {
-	return {$: 'Transition', a: a};
-};
-var rtfeldman$elm_css$Css$Transitions$fullTransition = F4(
-	function (animation, duration, delay, timing) {
-		return rtfeldman$elm_css$Css$Transitions$Transition(
-			{
-				animation: animation,
-				delay: elm$core$Maybe$Just(delay),
-				duration: duration,
-				timing: elm$core$Maybe$Just(timing)
-			});
-	});
-var rtfeldman$elm_css$Css$Transitions$background3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$Background);
-var rtfeldman$elm_css$Css$Transitions$BoxShadow = {$: 'BoxShadow'};
-var rtfeldman$elm_css$Css$Transitions$boxShadow3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$BoxShadow);
-var rtfeldman$elm_css$Css$Transitions$CubicBezier = F4(
-	function (a, b, c, d) {
-		return {$: 'CubicBezier', a: a, b: b, c: c, d: d};
-	});
-var rtfeldman$elm_css$Css$Transitions$cubicBezier = F4(
-	function (f1, f2, f3, f4) {
-		return A4(rtfeldman$elm_css$Css$Transitions$CubicBezier, f1, f2, f3, f4);
-	});
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
+var $author$project$Route$routeToString = function (route) {
+	var pieces = function () {
+		switch (route.$) {
+			case 0:
+				return _List_fromArray(
+					['404']);
+			case 1:
+				return _List_Nil;
+			case 2:
+				var nameOrId = route.a;
+				return _List_fromArray(
+					['pokemon', nameOrId]);
+			case 3:
+				return _List_fromArray(
+					['types']);
+			case 4:
+				var nameOrId = route.a;
+				return _List_fromArray(
+					['types', nameOrId]);
+			default:
+				return _List_fromArray(
+					['team']);
 		}
-	});
-var rtfeldman$elm_css$Css$Transitions$propToString = function (prop) {
-	switch (prop.$) {
-		case 'Background':
+	}();
+	return '#/' + A2($elm$core$String$join, '/', pieces);
+};
+var $author$project$Route$styledHref = function (targetRoute) {
+	return $rtfeldman$elm_css$Html$Styled$Attributes$href(
+		$author$project$Route$routeToString(targetRoute));
+};
+var $rtfeldman$elm_css$Css$textDecoration = $rtfeldman$elm_css$Css$prop1('text-decoration');
+var $rtfeldman$elm_css$Css$Transitions$propToString = function (prop) {
+	switch (prop) {
+		case 0:
 			return 'background';
-		case 'BackgroundColor':
+		case 1:
 			return 'background-color';
-		case 'BackgroundPosition':
+		case 2:
 			return 'background-position';
-		case 'BackgroundSize':
+		case 3:
 			return 'background-size';
-		case 'Border':
+		case 4:
 			return 'border';
-		case 'BorderBottom':
+		case 5:
 			return 'border-bottom';
-		case 'BorderBottomColor':
+		case 6:
 			return 'border-bottom-color';
-		case 'BorderBottomLeftRadius':
+		case 7:
 			return 'border-bottom-left-radius';
-		case 'BorderBottomRightRadius':
+		case 8:
 			return 'border-bottom-right-radius';
-		case 'BorderBottomWidth':
+		case 9:
 			return 'border-bottom-width';
-		case 'BorderColor':
+		case 10:
 			return 'border-color';
-		case 'BorderLeft':
+		case 11:
 			return 'border-left';
-		case 'BorderLeftColor':
+		case 12:
 			return 'border-left-color';
-		case 'BorderLeftWidth':
+		case 13:
 			return 'border-left-width';
-		case 'BorderRadius':
+		case 14:
 			return 'border-radius';
-		case 'BorderRight':
+		case 15:
 			return 'border-right';
-		case 'BorderRightColor':
+		case 16:
 			return 'border-right-color';
-		case 'BorderRightWidth':
+		case 17:
 			return 'border-right-width';
-		case 'BorderTop':
+		case 18:
 			return 'border-top';
-		case 'BorderTopColor':
+		case 19:
 			return 'border-top-color';
-		case 'BorderTopLeftRadius':
+		case 20:
 			return 'border-top-left-radius';
-		case 'BorderTopRightRadius':
+		case 21:
 			return 'border-top-right-radius';
-		case 'BorderTopWidth':
+		case 22:
 			return 'border-top-width';
-		case 'BorderWidth':
+		case 23:
 			return 'border-width';
-		case 'Bottom':
+		case 24:
 			return 'bottom';
-		case 'BoxShadow':
+		case 25:
 			return 'box-shadow';
-		case 'CaretColor':
+		case 26:
 			return 'caret-color';
-		case 'Clip':
+		case 27:
 			return 'clip';
-		case 'ClipPath':
+		case 28:
 			return 'clip-path';
-		case 'Color':
+		case 29:
 			return 'color';
-		case 'ColumnCount':
+		case 30:
 			return 'column-count';
-		case 'ColumnGap':
+		case 31:
 			return 'column-gap';
-		case 'ColumnRule':
+		case 32:
 			return 'column-rule';
-		case 'ColumnRuleColor':
+		case 33:
 			return 'column-rule-color';
-		case 'ColumnRuleWidth':
+		case 34:
 			return 'column-rule-width';
-		case 'ColumnWidth':
+		case 35:
 			return 'column-width';
-		case 'Columns':
+		case 36:
 			return 'columns';
-		case 'Filter':
+		case 37:
 			return 'filter';
-		case 'Flex':
+		case 38:
 			return 'flex';
-		case 'FlexBasis':
+		case 39:
 			return 'flex-basis';
-		case 'FlexGrow':
+		case 40:
 			return 'flex-grow';
-		case 'FlexShrink':
+		case 41:
 			return 'flex-shrink';
-		case 'Font':
+		case 42:
 			return 'font';
-		case 'FontSize':
+		case 43:
 			return 'font-size';
-		case 'FontSizeAdjust':
+		case 44:
 			return 'font-size-adjust';
-		case 'FontStretch':
+		case 45:
 			return 'font-stretch';
-		case 'FontVariationSettings':
+		case 46:
 			return 'font-variation-settings';
-		case 'FontWeight':
+		case 47:
 			return 'font-weight';
-		case 'GridColumnGap':
+		case 48:
 			return 'grid-column-gap';
-		case 'GridGap':
+		case 49:
 			return 'grid-gap';
-		case 'GridRowGap':
+		case 50:
 			return 'grid-row-gap';
-		case 'Height':
+		case 51:
 			return 'height';
-		case 'Left':
+		case 52:
 			return 'left';
-		case 'LetterSpacing':
+		case 53:
 			return 'letter-spacing';
-		case 'LineHeight':
+		case 54:
 			return 'line-height';
-		case 'Margin':
+		case 55:
 			return 'margin';
-		case 'MarginBottom':
+		case 56:
 			return 'margin-bottom';
-		case 'MarginLeft':
+		case 57:
 			return 'margin-left';
-		case 'MarginRight':
+		case 58:
 			return 'margin-right';
-		case 'MarginTop':
+		case 59:
 			return 'margin-top';
-		case 'Mask':
+		case 60:
 			return 'mask';
-		case 'MaskPosition':
+		case 61:
 			return 'mask-position';
-		case 'MaskSize':
+		case 62:
 			return 'mask-size';
-		case 'MaxHeight':
+		case 63:
 			return 'max-height';
-		case 'MaxWidth':
+		case 64:
 			return 'max-width';
-		case 'MinHeight':
+		case 65:
 			return 'min-height';
-		case 'MinWidth':
+		case 66:
 			return 'min-width';
-		case 'ObjectPosition':
+		case 67:
 			return 'object-position';
-		case 'Offset':
+		case 68:
 			return 'offset';
-		case 'OffsetAnchor':
+		case 69:
 			return 'offset-anchor';
-		case 'OffsetDistance':
+		case 70:
 			return 'offset-distance';
-		case 'OffsetPath':
+		case 71:
 			return 'offset-path';
-		case 'OffsetRotate':
+		case 72:
 			return 'offset-rotate';
-		case 'Opacity':
+		case 73:
 			return 'opacity';
-		case 'Order':
+		case 74:
 			return 'order';
-		case 'Outline':
+		case 75:
 			return 'outline';
-		case 'OutlineColor':
+		case 76:
 			return 'outline-color';
-		case 'OutlineOffset':
+		case 77:
 			return 'outline-offset';
-		case 'OutlineWidth':
+		case 78:
 			return 'outline-width';
-		case 'Padding':
+		case 79:
 			return 'padding';
-		case 'PaddingBottom':
+		case 80:
 			return 'padding-bottom';
-		case 'PaddingLeft':
+		case 81:
 			return 'padding-left';
-		case 'PaddingRight':
+		case 82:
 			return 'padding-right';
-		case 'PaddingTop':
+		case 83:
 			return 'padding-top';
-		case 'Right':
+		case 84:
 			return 'right';
-		case 'TabSize':
+		case 85:
 			return 'tab-size';
-		case 'TextIndent':
+		case 86:
 			return 'text-indent';
-		case 'TextShadow':
+		case 87:
 			return 'text-shadow';
-		case 'Top':
+		case 88:
 			return 'top';
-		case 'Transform':
+		case 89:
 			return 'transform';
-		case 'TransformOrigin':
+		case 90:
 			return 'transform-origin';
-		case 'VerticalAlign':
+		case 91:
 			return 'vertical-align';
-		case 'Visibility':
+		case 92:
 			return 'visibility';
-		case 'Width':
+		case 93:
 			return 'width';
-		case 'WordSpacing':
+		case 94:
 			return 'word-spacing';
 		default:
 			return 'z-index';
 	}
 };
-var rtfeldman$elm_css$Css$Transitions$timeToString = function (time) {
-	return elm$core$String$fromFloat(time) + 'ms';
+var $rtfeldman$elm_css$Css$Transitions$timeToString = function (time) {
+	return $elm$core$String$fromFloat(time) + 'ms';
 };
-var rtfeldman$elm_css$Css$Transitions$timingFunctionToString = function (tf) {
+var $rtfeldman$elm_css$Css$Transitions$timingFunctionToString = function (tf) {
 	switch (tf.$) {
-		case 'Ease':
+		case 0:
 			return 'ease';
-		case 'Linear':
+		case 1:
 			return 'linear';
-		case 'EaseIn':
+		case 2:
 			return 'ease-in';
-		case 'EaseOut':
+		case 3:
 			return 'ease-out';
-		case 'EaseInOut':
+		case 4:
 			return 'ease-in-out';
-		case 'StepStart':
+		case 5:
 			return 'step-start';
-		case 'StepEnd':
+		case 6:
 			return 'step-end';
 		default:
 			var _float = tf.a;
 			var float2 = tf.b;
 			var float3 = tf.c;
 			var float4 = tf.d;
-			return 'cubic-bezier(' + (elm$core$String$fromFloat(_float) + (' , ' + (elm$core$String$fromFloat(float2) + (' , ' + (elm$core$String$fromFloat(float3) + (' , ' + (elm$core$String$fromFloat(float4) + ')')))))));
+			return 'cubic-bezier(' + ($elm$core$String$fromFloat(_float) + (' , ' + ($elm$core$String$fromFloat(float2) + (' , ' + ($elm$core$String$fromFloat(float3) + (' , ' + ($elm$core$String$fromFloat(float4) + ')')))))));
 	}
 };
-var rtfeldman$elm_css$Css$Transitions$transition = function (options) {
+var $rtfeldman$elm_css$Css$Transitions$transition = function (options) {
 	var v = A3(
-		elm$core$String$slice,
+		$elm$core$String$slice,
 		0,
 		-1,
 		A3(
-			elm$core$List$foldl,
+			$elm$core$List$foldl,
 			F2(
-				function (_n0, s) {
-					var animation = _n0.a.animation;
-					var duration = _n0.a.duration;
-					var delay = _n0.a.delay;
-					var timing = _n0.a.timing;
+				function (_v0, s) {
+					var animation = _v0.aK;
+					var duration = _v0.bt;
+					var delay = _v0.aM;
+					var timing = _v0.aZ;
 					return s + (A2(
-						elm$core$String$join,
+						$elm$core$String$join,
 						' ',
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$Transitions$propToString(animation),
-								rtfeldman$elm_css$Css$Transitions$timeToString(duration),
+								$rtfeldman$elm_css$Css$Transitions$propToString(animation),
+								$rtfeldman$elm_css$Css$Transitions$timeToString(duration),
 								A2(
-								elm$core$Maybe$withDefault,
+								$elm$core$Maybe$withDefault,
 								'',
-								A2(elm$core$Maybe$map, rtfeldman$elm_css$Css$Transitions$timeToString, delay)),
+								A2($elm$core$Maybe$map, $rtfeldman$elm_css$Css$Transitions$timeToString, delay)),
 								A2(
-								elm$core$Maybe$withDefault,
+								$elm$core$Maybe$withDefault,
 								'',
-								A2(elm$core$Maybe$map, rtfeldman$elm_css$Css$Transitions$timingFunctionToString, timing))
+								A2($elm$core$Maybe$map, $rtfeldman$elm_css$Css$Transitions$timingFunctionToString, timing))
 							])) + ',');
 				}),
 			'',
 			options));
-	return A2(rtfeldman$elm_css$Css$property, 'transition', v);
+	return A2($rtfeldman$elm_css$Css$property, 'transition', v);
 };
-var rtfeldman$elm_css$VirtualDom$Styled$Node = F3(
-	function (a, b, c) {
-		return {$: 'Node', a: a, b: b, c: c};
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$Node;
-var rtfeldman$elm_css$Html$Styled$node = rtfeldman$elm_css$VirtualDom$Styled$node;
-var rtfeldman$elm_css$Html$Styled$a = rtfeldman$elm_css$Html$Styled$node('a');
-var rtfeldman$elm_css$Html$Styled$span = rtfeldman$elm_css$Html$Styled$node('span');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var rtfeldman$elm_css$VirtualDom$Styled$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
+var $rtfeldman$elm_css$Css$url = function (urlValue) {
+	return {X: 0, A: 'url(' + (urlValue + ')')};
 };
-var rtfeldman$elm_css$VirtualDom$Styled$text = function (str) {
-	return rtfeldman$elm_css$VirtualDom$Styled$Unstyled(
-		elm$virtual_dom$VirtualDom$text(str));
-};
-var rtfeldman$elm_css$Html$Styled$text = rtfeldman$elm_css$VirtualDom$Styled$text;
-var Skinney$murmur3$Murmur3$HashData = F4(
-	function (shift, seed, hash, charsProcessed) {
-		return {charsProcessed: charsProcessed, hash: hash, seed: seed, shift: shift};
-	});
-var Skinney$murmur3$Murmur3$c1 = 3432918353;
-var Skinney$murmur3$Murmur3$c2 = 461845907;
-var elm$core$Bitwise$and = _Bitwise_and;
-var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var Skinney$murmur3$Murmur3$multiplyBy = F2(
-	function (b, a) {
-		return ((a & 65535) * b) + ((((a >>> 16) * b) & 65535) << 16);
-	});
-var elm$core$Bitwise$or = _Bitwise_or;
-var Skinney$murmur3$Murmur3$rotlBy = F2(
-	function (b, a) {
-		return (a << b) | (a >>> (32 - b));
-	});
-var elm$core$Bitwise$xor = _Bitwise_xor;
-var Skinney$murmur3$Murmur3$finalize = function (data) {
-	var acc = data.hash ? (data.seed ^ A2(
-		Skinney$murmur3$Murmur3$multiplyBy,
-		Skinney$murmur3$Murmur3$c2,
-		A2(
-			Skinney$murmur3$Murmur3$rotlBy,
-			15,
-			A2(Skinney$murmur3$Murmur3$multiplyBy, Skinney$murmur3$Murmur3$c1, data.hash)))) : data.seed;
-	var h0 = acc ^ data.charsProcessed;
-	var h1 = A2(Skinney$murmur3$Murmur3$multiplyBy, 2246822507, h0 ^ (h0 >>> 16));
-	var h2 = A2(Skinney$murmur3$Murmur3$multiplyBy, 3266489909, h1 ^ (h1 >>> 13));
-	return (h2 ^ (h2 >>> 16)) >>> 0;
-};
-var Skinney$murmur3$Murmur3$mix = F2(
-	function (h1, k1) {
-		return A2(
-			Skinney$murmur3$Murmur3$multiplyBy,
-			5,
-			A2(
-				Skinney$murmur3$Murmur3$rotlBy,
-				13,
-				h1 ^ A2(
-					Skinney$murmur3$Murmur3$multiplyBy,
-					Skinney$murmur3$Murmur3$c2,
-					A2(
-						Skinney$murmur3$Murmur3$rotlBy,
-						15,
-						A2(Skinney$murmur3$Murmur3$multiplyBy, Skinney$murmur3$Murmur3$c1, k1))))) + 3864292196;
-	});
-var Skinney$murmur3$Murmur3$hashFold = F2(
-	function (c, data) {
-		var res = data.hash | ((255 & elm$core$Char$toCode(c)) << data.shift);
-		var _n0 = data.shift;
-		if (_n0 === 24) {
-			return {
-				charsProcessed: data.charsProcessed + 1,
-				hash: 0,
-				seed: A2(Skinney$murmur3$Murmur3$mix, data.seed, res),
-				shift: 0
-			};
-		} else {
-			return {charsProcessed: data.charsProcessed + 1, hash: res, seed: data.seed, shift: data.shift + 8};
-		}
-	});
-var elm$core$String$foldl = _String_foldl;
-var Skinney$murmur3$Murmur3$hashString = F2(
-	function (seed, str) {
-		return Skinney$murmur3$Murmur3$finalize(
-			A3(
-				elm$core$String$foldl,
-				Skinney$murmur3$Murmur3$hashFold,
-				A4(Skinney$murmur3$Murmur3$HashData, 0, seed, 0, 0),
-				str));
-	});
-var elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
-var elm$core$List$singleton = function (value) {
-	return _List_fromArray(
-		[value]);
-};
-var rtfeldman$elm_css$Css$Preprocess$stylesheet = function (snippets) {
-	return {charset: elm$core$Maybe$Nothing, imports: _List_Nil, namespaces: _List_Nil, snippets: snippets};
-};
-var rtfeldman$elm_css$Css$Preprocess$unwrapSnippet = function (_n0) {
-	var declarations = _n0.a;
-	return declarations;
-};
-var elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2(elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return elm$core$List$reverse(
-			A3(elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _n0 = _Utils_Tuple2(n, list);
-			_n0$1:
-			while (true) {
-				_n0$5:
-				while (true) {
-					if (!_n0.b.b) {
-						return list;
-					} else {
-						if (_n0.b.b.b) {
-							switch (_n0.a) {
-								case 1:
-									break _n0$1;
-								case 2:
-									var _n2 = _n0.b;
-									var x = _n2.a;
-									var _n3 = _n2.b;
-									var y = _n3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_n0.b.b.b.b) {
-										var _n4 = _n0.b;
-										var x = _n4.a;
-										var _n5 = _n4.b;
-										var y = _n5.a;
-										var _n6 = _n5.b;
-										var z = _n6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _n0$5;
-									}
-								default:
-									if (_n0.b.b.b.b && _n0.b.b.b.b.b) {
-										var _n7 = _n0.b;
-										var x = _n7.a;
-										var _n8 = _n7.b;
-										var y = _n8.a;
-										var _n9 = _n8.b;
-										var z = _n9.a;
-										var _n10 = _n9.b;
-										var w = _n10.a;
-										var tl = _n10.b;
-										return (ctr > 1000) ? A2(
-											elm$core$List$cons,
-											x,
-											A2(
-												elm$core$List$cons,
-												y,
-												A2(
-													elm$core$List$cons,
-													z,
-													A2(
-														elm$core$List$cons,
-														w,
-														A2(elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											elm$core$List$cons,
-											x,
-											A2(
-												elm$core$List$cons,
-												y,
-												A2(
-													elm$core$List$cons,
-													z,
-													A2(
-														elm$core$List$cons,
-														w,
-														A3(elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _n0$5;
-									}
-							}
-						} else {
-							if (_n0.a === 1) {
-								break _n0$1;
-							} else {
-								break _n0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _n1 = _n0.b;
-			var x = _n1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var elm$core$List$take = F2(
-	function (n, list) {
-		return A3(elm$core$List$takeFast, 0, n, list);
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors = function (declarations) {
-	collectSelectors:
-	while (true) {
-		if (!declarations.b) {
-			return _List_Nil;
-		} else {
-			if (declarations.a.$ === 'StyleBlockDeclaration') {
-				var _n1 = declarations.a.a;
-				var firstSelector = _n1.a;
-				var otherSelectors = _n1.b;
-				var rest = declarations.b;
-				return _Utils_ap(
-					A2(elm$core$List$cons, firstSelector, otherSelectors),
-					rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(rest));
-			} else {
-				var rest = declarations.b;
-				var $temp$declarations = rest;
-				declarations = $temp$declarations;
-				continue collectSelectors;
-			}
-		}
-	}
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$last = function (list) {
-	last:
-	while (true) {
-		if (!list.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			if (!list.b.b) {
-				var singleton = list.a;
-				return elm$core$Maybe$Just(singleton);
-			} else {
-				var rest = list.b;
-				var $temp$list = rest;
-				list = $temp$list;
-				continue last;
-			}
-		}
-	}
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration = function (declarations) {
-	lastDeclaration:
-	while (true) {
-		if (!declarations.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			if (!declarations.b.b) {
-				var x = declarations.a;
-				return elm$core$Maybe$Just(
-					_List_fromArray(
-						[x]));
-			} else {
-				var xs = declarations.b;
-				var $temp$declarations = xs;
-				declarations = $temp$declarations;
-				continue lastDeclaration;
-			}
-		}
-	}
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf = function (maybes) {
-	oneOf:
-	while (true) {
-		if (!maybes.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var maybe = maybes.a;
-			var rest = maybes.b;
-			if (maybe.$ === 'Nothing') {
-				var $temp$maybes = rest;
-				maybes = $temp$maybes;
-				continue oneOf;
-			} else {
-				return maybe;
-			}
-		}
-	}
-};
-var rtfeldman$elm_css$Css$Structure$FontFeatureValues = function (a) {
-	return {$: 'FontFeatureValues', a: a};
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues = function (tuples) {
-	var expandTuples = function (tuplesToExpand) {
-		if (!tuplesToExpand.b) {
-			return _List_Nil;
-		} else {
-			var properties = tuplesToExpand.a;
-			var rest = tuplesToExpand.b;
-			return A2(
-				elm$core$List$cons,
-				properties,
-				expandTuples(rest));
-		}
-	};
-	var newTuples = expandTuples(tuples);
-	return _List_fromArray(
-		[
-			rtfeldman$elm_css$Css$Structure$FontFeatureValues(newTuples)
-		]);
-};
-var rtfeldman$elm_css$Css$Structure$DocumentRule = F5(
-	function (a, b, c, d, e) {
-		return {$: 'DocumentRule', a: a, b: b, c: c, d: d, e: e};
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule = F5(
-	function (str1, str2, str3, str4, declaration) {
-		if (declaration.$ === 'StyleBlockDeclaration') {
-			var structureStyleBlock = declaration.a;
-			return A5(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
-		} else {
-			return declaration;
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$MediaRule = F2(
-	function (a, b) {
-		return {$: 'MediaRule', a: a, b: b};
-	});
-var rtfeldman$elm_css$Css$Structure$SupportsRule = F2(
-	function (a, b) {
-		return {$: 'SupportsRule', a: a, b: b};
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule = F2(
-	function (mediaQueries, declaration) {
-		switch (declaration.$) {
-			case 'StyleBlockDeclaration':
-				var structureStyleBlock = declaration.a;
-				return A2(
-					rtfeldman$elm_css$Css$Structure$MediaRule,
-					mediaQueries,
-					_List_fromArray(
-						[structureStyleBlock]));
-			case 'MediaRule':
-				var newMediaQueries = declaration.a;
-				var structureStyleBlocks = declaration.b;
-				return A2(
-					rtfeldman$elm_css$Css$Structure$MediaRule,
-					_Utils_ap(mediaQueries, newMediaQueries),
-					structureStyleBlocks);
-			case 'SupportsRule':
-				var str = declaration.a;
-				var declarations = declaration.b;
-				return A2(
-					rtfeldman$elm_css$Css$Structure$SupportsRule,
-					str,
-					A2(
-						elm$core$List$map,
-						rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule(mediaQueries),
-						declarations));
-			case 'DocumentRule':
-				var str1 = declaration.a;
-				var str2 = declaration.b;
-				var str3 = declaration.c;
-				var str4 = declaration.d;
-				var structureStyleBlock = declaration.e;
-				return A5(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4, structureStyleBlock);
-			case 'PageRule':
-				return declaration;
-			case 'FontFace':
-				return declaration;
-			case 'Keyframes':
-				return declaration;
-			case 'Viewport':
-				return declaration;
-			case 'CounterStyle':
-				return declaration;
-			default:
-				return declaration;
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$CounterStyle = function (a) {
-	return {$: 'CounterStyle', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$FontFace = function (a) {
-	return {$: 'FontFace', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$Keyframes = function (a) {
-	return {$: 'Keyframes', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$PageRule = F2(
-	function (a, b) {
-		return {$: 'PageRule', a: a, b: b};
-	});
-var rtfeldman$elm_css$Css$Structure$Selector = F3(
-	function (a, b, c) {
-		return {$: 'Selector', a: a, b: b, c: c};
-	});
-var rtfeldman$elm_css$Css$Structure$StyleBlock = F3(
-	function (a, b, c) {
-		return {$: 'StyleBlock', a: a, b: b, c: c};
-	});
-var rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration = function (a) {
-	return {$: 'StyleBlockDeclaration', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$Viewport = function (a) {
-	return {$: 'Viewport', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$mapLast = F2(
-	function (update, list) {
-		if (!list.b) {
-			return list;
-		} else {
-			if (!list.b.b) {
-				var only = list.a;
-				return _List_fromArray(
-					[
-						update(only)
-					]);
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				return A2(
-					elm$core$List$cons,
-					first,
-					A2(rtfeldman$elm_css$Css$Structure$mapLast, update, rest));
-			}
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$withPropertyAppended = F2(
-	function (property, _n0) {
-		var firstSelector = _n0.a;
-		var otherSelectors = _n0.b;
-		var properties = _n0.c;
-		return A3(
-			rtfeldman$elm_css$Css$Structure$StyleBlock,
-			firstSelector,
-			otherSelectors,
-			_Utils_ap(
-				properties,
-				_List_fromArray(
-					[property])));
-	});
-var rtfeldman$elm_css$Css$Structure$appendProperty = F2(
-	function (property, declarations) {
-		if (!declarations.b) {
-			return declarations;
-		} else {
-			if (!declarations.b.b) {
-				switch (declarations.a.$) {
-					case 'StyleBlockDeclaration':
-						var styleBlock = declarations.a.a;
-						return _List_fromArray(
-							[
-								rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
-								A2(rtfeldman$elm_css$Css$Structure$withPropertyAppended, property, styleBlock))
-							]);
-					case 'MediaRule':
-						var _n1 = declarations.a;
-						var mediaQueries = _n1.a;
-						var styleBlocks = _n1.b;
-						return _List_fromArray(
-							[
-								A2(
-								rtfeldman$elm_css$Css$Structure$MediaRule,
-								mediaQueries,
-								A2(
-									rtfeldman$elm_css$Css$Structure$mapLast,
-									rtfeldman$elm_css$Css$Structure$withPropertyAppended(property),
-									styleBlocks))
-							]);
-					default:
-						return declarations;
-				}
-			} else {
-				var first = declarations.a;
-				var rest = declarations.b;
-				return A2(
-					elm$core$List$cons,
-					first,
-					A2(rtfeldman$elm_css$Css$Structure$appendProperty, property, rest));
-			}
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$appendToLastSelector = F2(
-	function (f, styleBlock) {
-		if (!styleBlock.b.b) {
-			var only = styleBlock.a;
-			var properties = styleBlock.c;
-			return _List_fromArray(
-				[
-					A3(rtfeldman$elm_css$Css$Structure$StyleBlock, only, _List_Nil, properties),
-					A3(
-					rtfeldman$elm_css$Css$Structure$StyleBlock,
-					f(only),
-					_List_Nil,
-					_List_Nil)
-				]);
-		} else {
-			var first = styleBlock.a;
-			var rest = styleBlock.b;
-			var properties = styleBlock.c;
-			var newRest = A2(elm$core$List$map, f, rest);
-			var newFirst = f(first);
-			return _List_fromArray(
-				[
-					A3(rtfeldman$elm_css$Css$Structure$StyleBlock, first, rest, properties),
-					A3(rtfeldman$elm_css$Css$Structure$StyleBlock, newFirst, newRest, _List_Nil)
-				]);
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$applyPseudoElement = F2(
-	function (pseudo, _n0) {
-		var sequence = _n0.a;
-		var selectors = _n0.b;
-		return A3(
-			rtfeldman$elm_css$Css$Structure$Selector,
-			sequence,
-			selectors,
-			elm$core$Maybe$Just(pseudo));
-	});
-var rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector = F2(
-	function (pseudo, styleBlock) {
-		return A2(
-			rtfeldman$elm_css$Css$Structure$appendToLastSelector,
-			rtfeldman$elm_css$Css$Structure$applyPseudoElement(pseudo),
-			styleBlock);
-	});
-var rtfeldman$elm_css$Css$Structure$CustomSelector = F2(
-	function (a, b) {
-		return {$: 'CustomSelector', a: a, b: b};
-	});
-var rtfeldman$elm_css$Css$Structure$TypeSelectorSequence = F2(
-	function (a, b) {
-		return {$: 'TypeSelectorSequence', a: a, b: b};
-	});
-var rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence = function (a) {
-	return {$: 'UniversalSelectorSequence', a: a};
-};
-var rtfeldman$elm_css$Css$Structure$appendRepeatable = F2(
-	function (selector, sequence) {
-		switch (sequence.$) {
-			case 'TypeSelectorSequence':
-				var typeSelector = sequence.a;
-				var list = sequence.b;
-				return A2(
-					rtfeldman$elm_css$Css$Structure$TypeSelectorSequence,
-					typeSelector,
-					_Utils_ap(
-						list,
-						_List_fromArray(
-							[selector])));
-			case 'UniversalSelectorSequence':
-				var list = sequence.a;
-				return rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(
-					_Utils_ap(
-						list,
-						_List_fromArray(
-							[selector])));
-			default:
-				var str = sequence.a;
-				var list = sequence.b;
-				return A2(
-					rtfeldman$elm_css$Css$Structure$CustomSelector,
-					str,
-					_Utils_ap(
-						list,
-						_List_fromArray(
-							[selector])));
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator = F2(
-	function (selector, list) {
-		if (!list.b) {
-			return _List_Nil;
-		} else {
-			if (!list.b.b) {
-				var _n1 = list.a;
-				var combinator = _n1.a;
-				var sequence = _n1.b;
-				return _List_fromArray(
-					[
-						_Utils_Tuple2(
-						combinator,
-						A2(rtfeldman$elm_css$Css$Structure$appendRepeatable, selector, sequence))
-					]);
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				return A2(
-					elm$core$List$cons,
-					first,
-					A2(rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator, selector, rest));
-			}
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$appendRepeatableSelector = F2(
-	function (repeatableSimpleSelector, selector) {
-		if (!selector.b.b) {
-			var sequence = selector.a;
-			var pseudoElement = selector.c;
-			return A3(
-				rtfeldman$elm_css$Css$Structure$Selector,
-				A2(rtfeldman$elm_css$Css$Structure$appendRepeatable, repeatableSimpleSelector, sequence),
-				_List_Nil,
-				pseudoElement);
-		} else {
-			var firstSelector = selector.a;
-			var tuples = selector.b;
-			var pseudoElement = selector.c;
-			return A3(
-				rtfeldman$elm_css$Css$Structure$Selector,
-				firstSelector,
-				A2(rtfeldman$elm_css$Css$Structure$appendRepeatableWithCombinator, repeatableSimpleSelector, tuples),
-				pseudoElement);
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$appendRepeatableToLastSelector = F2(
-	function (selector, styleBlock) {
-		return A2(
-			rtfeldman$elm_css$Css$Structure$appendToLastSelector,
-			rtfeldman$elm_css$Css$Structure$appendRepeatableSelector(selector),
-			styleBlock);
-	});
-var rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock = F2(
-	function (update, declarations) {
-		_n0$12:
-		while (true) {
-			if (!declarations.b) {
-				return declarations;
-			} else {
-				if (!declarations.b.b) {
-					switch (declarations.a.$) {
-						case 'StyleBlockDeclaration':
-							var styleBlock = declarations.a.a;
-							return A2(
-								elm$core$List$map,
-								rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration,
-								update(styleBlock));
-						case 'MediaRule':
-							if (declarations.a.b.b) {
-								if (!declarations.a.b.b.b) {
-									var _n1 = declarations.a;
-									var mediaQueries = _n1.a;
-									var _n2 = _n1.b;
-									var styleBlock = _n2.a;
-									return _List_fromArray(
-										[
-											A2(
-											rtfeldman$elm_css$Css$Structure$MediaRule,
-											mediaQueries,
-											update(styleBlock))
-										]);
-								} else {
-									var _n3 = declarations.a;
-									var mediaQueries = _n3.a;
-									var _n4 = _n3.b;
-									var first = _n4.a;
-									var rest = _n4.b;
-									var _n5 = A2(
-										rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock,
-										update,
-										_List_fromArray(
-											[
-												A2(rtfeldman$elm_css$Css$Structure$MediaRule, mediaQueries, rest)
-											]));
-									if ((_n5.b && (_n5.a.$ === 'MediaRule')) && (!_n5.b.b)) {
-										var _n6 = _n5.a;
-										var newMediaQueries = _n6.a;
-										var newStyleBlocks = _n6.b;
-										return _List_fromArray(
-											[
-												A2(
-												rtfeldman$elm_css$Css$Structure$MediaRule,
-												newMediaQueries,
-												A2(elm$core$List$cons, first, newStyleBlocks))
-											]);
-									} else {
-										var newDeclarations = _n5;
-										return newDeclarations;
-									}
-								}
-							} else {
-								break _n0$12;
-							}
-						case 'SupportsRule':
-							var _n7 = declarations.a;
-							var str = _n7.a;
-							var nestedDeclarations = _n7.b;
-							return _List_fromArray(
-								[
-									A2(
-									rtfeldman$elm_css$Css$Structure$SupportsRule,
-									str,
-									A2(rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, update, nestedDeclarations))
-								]);
-						case 'DocumentRule':
-							var _n8 = declarations.a;
-							var str1 = _n8.a;
-							var str2 = _n8.b;
-							var str3 = _n8.c;
-							var str4 = _n8.d;
-							var styleBlock = _n8.e;
-							return A2(
-								elm$core$List$map,
-								A4(rtfeldman$elm_css$Css$Structure$DocumentRule, str1, str2, str3, str4),
-								update(styleBlock));
-						case 'PageRule':
-							var _n9 = declarations.a;
-							return declarations;
-						case 'FontFace':
-							return declarations;
-						case 'Keyframes':
-							return declarations;
-						case 'Viewport':
-							return declarations;
-						case 'CounterStyle':
-							return declarations;
-						default:
-							return declarations;
-					}
-				} else {
-					break _n0$12;
-				}
-			}
-		}
-		var first = declarations.a;
-		var rest = declarations.b;
-		return A2(
-			elm$core$List$cons,
-			first,
-			A2(rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, update, rest));
-	});
-var rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule = F2(
-	function (mediaQueries, declaration) {
-		if (declaration.$ === 'StyleBlockDeclaration') {
-			var styleBlock = declaration.a;
-			return A2(
-				rtfeldman$elm_css$Css$Structure$MediaRule,
-				mediaQueries,
-				_List_fromArray(
-					[styleBlock]));
-		} else {
-			return declaration;
-		}
-	});
-var rtfeldman$elm_css$Hash$murmurSeed = 15739;
-var elm$core$Basics$modBy = _Basics_modBy;
-var rtfeldman$elm_hex$Hex$unsafeToDigit = function (num) {
-	unsafeToDigit:
-	while (true) {
-		switch (num) {
-			case 0:
-				return _Utils_chr('0');
-			case 1:
-				return _Utils_chr('1');
-			case 2:
-				return _Utils_chr('2');
-			case 3:
-				return _Utils_chr('3');
-			case 4:
-				return _Utils_chr('4');
-			case 5:
-				return _Utils_chr('5');
-			case 6:
-				return _Utils_chr('6');
-			case 7:
-				return _Utils_chr('7');
-			case 8:
-				return _Utils_chr('8');
-			case 9:
-				return _Utils_chr('9');
-			case 10:
-				return _Utils_chr('a');
-			case 11:
-				return _Utils_chr('b');
-			case 12:
-				return _Utils_chr('c');
-			case 13:
-				return _Utils_chr('d');
-			case 14:
-				return _Utils_chr('e');
-			case 15:
-				return _Utils_chr('f');
-			default:
-				var $temp$num = num;
-				num = $temp$num;
-				continue unsafeToDigit;
-		}
-	}
-};
-var rtfeldman$elm_hex$Hex$unsafePositiveToDigits = F2(
-	function (digits, num) {
-		unsafePositiveToDigits:
-		while (true) {
-			if (num < 16) {
-				return A2(
-					elm$core$List$cons,
-					rtfeldman$elm_hex$Hex$unsafeToDigit(num),
-					digits);
-			} else {
-				var $temp$digits = A2(
-					elm$core$List$cons,
-					rtfeldman$elm_hex$Hex$unsafeToDigit(
-						A2(elm$core$Basics$modBy, 16, num)),
-					digits),
-					$temp$num = (num / 16) | 0;
-				digits = $temp$digits;
-				num = $temp$num;
-				continue unsafePositiveToDigits;
-			}
-		}
-	});
-var rtfeldman$elm_hex$Hex$toString = function (num) {
-	return elm$core$String$fromList(
-		(num < 0) ? A2(
-			elm$core$List$cons,
-			_Utils_chr('-'),
-			A2(rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, -num)) : A2(rtfeldman$elm_hex$Hex$unsafePositiveToDigits, _List_Nil, num));
-};
-var rtfeldman$elm_css$Hash$fromString = function (str) {
-	return A2(
-		elm$core$String$cons,
-		_Utils_chr('_'),
-		rtfeldman$elm_hex$Hex$toString(
-			A2(Skinney$murmur3$Murmur3$hashString, rtfeldman$elm_css$Hash$murmurSeed, str)));
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast = F4(
-	function (nestedStyles, rest, f, declarations) {
-		var withoutParent = function (decls) {
-			return A2(
-				elm$core$Maybe$withDefault,
-				_List_Nil,
-				elm$core$List$tail(decls));
-		};
-		var nextResult = A2(
-			rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-			rest,
-			A2(
-				elm$core$Maybe$withDefault,
-				_List_Nil,
-				rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration(declarations)));
-		var newDeclarations = function () {
-			var _n14 = _Utils_Tuple2(
-				elm$core$List$head(nextResult),
-				rtfeldman$elm_css$Css$Preprocess$Resolve$last(declarations));
-			if ((_n14.a.$ === 'Just') && (_n14.b.$ === 'Just')) {
-				var nextResultParent = _n14.a.a;
-				var originalParent = _n14.b.a;
-				return _Utils_ap(
-					A2(
-						elm$core$List$take,
-						elm$core$List$length(declarations) - 1,
-						declarations),
-					_List_fromArray(
-						[
-							(!_Utils_eq(originalParent, nextResultParent)) ? nextResultParent : originalParent
-						]));
-			} else {
-				return declarations;
-			}
-		}();
-		var insertStylesToNestedDecl = function (lastDecl) {
-			return elm$core$List$concat(
-				A2(
-					rtfeldman$elm_css$Css$Structure$mapLast,
-					rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles(nestedStyles),
-					A2(
-						elm$core$List$map,
-						elm$core$List$singleton,
-						A2(rtfeldman$elm_css$Css$Structure$concatMapLastStyleBlock, f, lastDecl))));
-		};
-		var initialResult = A2(
-			elm$core$Maybe$withDefault,
-			_List_Nil,
-			A2(
-				elm$core$Maybe$map,
-				insertStylesToNestedDecl,
-				rtfeldman$elm_css$Css$Preprocess$Resolve$lastDeclaration(declarations)));
-		return _Utils_ap(
-			newDeclarations,
-			_Utils_ap(
-				withoutParent(initialResult),
-				withoutParent(nextResult)));
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles = F2(
-	function (styles, declarations) {
-		if (!styles.b) {
-			return declarations;
-		} else {
-			switch (styles.a.$) {
-				case 'AppendProperty':
-					var property = styles.a.a;
-					var rest = styles.b;
-					return A2(
-						rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-						rest,
-						A2(rtfeldman$elm_css$Css$Structure$appendProperty, property, declarations));
-				case 'ExtendSelector':
-					var _n4 = styles.a;
-					var selector = _n4.a;
-					var nestedStyles = _n4.b;
-					var rest = styles.b;
-					return A4(
-						rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast,
-						nestedStyles,
-						rest,
-						rtfeldman$elm_css$Css$Structure$appendRepeatableToLastSelector(selector),
-						declarations);
-				case 'NestSnippet':
-					var _n5 = styles.a;
-					var selectorCombinator = _n5.a;
-					var snippets = _n5.b;
-					var rest = styles.b;
-					var chain = F2(
-						function (_n9, _n10) {
-							var originalSequence = _n9.a;
-							var originalTuples = _n9.b;
-							var originalPseudoElement = _n9.c;
-							var newSequence = _n10.a;
-							var newTuples = _n10.b;
-							var newPseudoElement = _n10.c;
-							return A3(
-								rtfeldman$elm_css$Css$Structure$Selector,
-								originalSequence,
-								_Utils_ap(
-									originalTuples,
-									A2(
-										elm$core$List$cons,
-										_Utils_Tuple2(selectorCombinator, newSequence),
-										newTuples)),
-								rtfeldman$elm_css$Css$Preprocess$Resolve$oneOf(
-									_List_fromArray(
-										[newPseudoElement, originalPseudoElement])));
-						});
-					var expandDeclaration = function (declaration) {
-						switch (declaration.$) {
-							case 'StyleBlockDeclaration':
-								var _n7 = declaration.a;
-								var firstSelector = _n7.a;
-								var otherSelectors = _n7.b;
-								var nestedStyles = _n7.c;
-								var newSelectors = A2(
-									elm$core$List$concatMap,
-									function (originalSelector) {
-										return A2(
-											elm$core$List$map,
-											chain(originalSelector),
-											A2(elm$core$List$cons, firstSelector, otherSelectors));
-									},
-									rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(declarations));
-								var newDeclarations = function () {
-									if (!newSelectors.b) {
-										return _List_Nil;
-									} else {
-										var first = newSelectors.a;
-										var remainder = newSelectors.b;
-										return _List_fromArray(
-											[
-												rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
-												A3(rtfeldman$elm_css$Css$Structure$StyleBlock, first, remainder, _List_Nil))
-											]);
-									}
-								}();
-								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, nestedStyles, newDeclarations);
-							case 'MediaRule':
-								var mediaQueries = declaration.a;
-								var styleBlocks = declaration.b;
-								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
-							case 'SupportsRule':
-								var str = declaration.a;
-								var otherSnippets = declaration.b;
-								return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, otherSnippets);
-							case 'DocumentRule':
-								var str1 = declaration.a;
-								var str2 = declaration.b;
-								var str3 = declaration.c;
-								var str4 = declaration.d;
-								var styleBlock = declaration.e;
-								return A2(
-									elm$core$List$map,
-									A4(rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
-									rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
-							case 'PageRule':
-								var str = declaration.a;
-								var properties = declaration.b;
-								return _List_fromArray(
-									[
-										A2(rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
-									]);
-							case 'FontFace':
-								var properties = declaration.a;
-								return _List_fromArray(
-									[
-										rtfeldman$elm_css$Css$Structure$FontFace(properties)
-									]);
-							case 'Viewport':
-								var properties = declaration.a;
-								return _List_fromArray(
-									[
-										rtfeldman$elm_css$Css$Structure$Viewport(properties)
-									]);
-							case 'CounterStyle':
-								var properties = declaration.a;
-								return _List_fromArray(
-									[
-										rtfeldman$elm_css$Css$Structure$CounterStyle(properties)
-									]);
-							default:
-								var tuples = declaration.a;
-								return rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues(tuples);
-						}
-					};
-					return elm$core$List$concat(
-						_Utils_ap(
-							_List_fromArray(
-								[
-									A2(rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, rest, declarations)
-								]),
-							A2(
-								elm$core$List$map,
-								expandDeclaration,
-								A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets))));
-				case 'WithPseudoElement':
-					var _n11 = styles.a;
-					var pseudoElement = _n11.a;
-					var nestedStyles = _n11.b;
-					var rest = styles.b;
-					return A4(
-						rtfeldman$elm_css$Css$Preprocess$Resolve$applyNestedStylesToLast,
-						nestedStyles,
-						rest,
-						rtfeldman$elm_css$Css$Structure$appendPseudoElementToLastSelector(pseudoElement),
-						declarations);
-				case 'WithKeyframes':
-					var str = styles.a.a;
-					var rest = styles.b;
-					var name = rtfeldman$elm_css$Hash$fromString(str);
-					var newProperty = 'animation-name:' + name;
-					var newDeclarations = A2(
-						rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-						rest,
-						A2(rtfeldman$elm_css$Css$Structure$appendProperty, newProperty, declarations));
-					return A2(
-						elm$core$List$append,
-						newDeclarations,
-						_List_fromArray(
-							[
-								rtfeldman$elm_css$Css$Structure$Keyframes(
-								{declaration: str, name: name})
-							]));
-				case 'WithMedia':
-					var _n12 = styles.a;
-					var mediaQueries = _n12.a;
-					var nestedStyles = _n12.b;
-					var rest = styles.b;
-					var extraDeclarations = function () {
-						var _n13 = rtfeldman$elm_css$Css$Preprocess$Resolve$collectSelectors(declarations);
-						if (!_n13.b) {
-							return _List_Nil;
-						} else {
-							var firstSelector = _n13.a;
-							var otherSelectors = _n13.b;
-							return A2(
-								elm$core$List$map,
-								rtfeldman$elm_css$Css$Structure$styleBlockToMediaRule(mediaQueries),
-								A2(
-									rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-									nestedStyles,
-									elm$core$List$singleton(
-										rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
-											A3(rtfeldman$elm_css$Css$Structure$StyleBlock, firstSelector, otherSelectors, _List_Nil)))));
-						}
-					}();
-					return _Utils_ap(
-						A2(rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles, rest, declarations),
-						extraDeclarations);
-				default:
-					var otherStyles = styles.a.a;
-					var rest = styles.b;
-					return A2(
-						rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-						_Utils_ap(otherStyles, rest),
-						declarations);
-			}
-		}
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock = function (_n2) {
-	var firstSelector = _n2.a;
-	var otherSelectors = _n2.b;
-	var styles = _n2.c;
-	return A2(
-		rtfeldman$elm_css$Css$Preprocess$Resolve$applyStyles,
-		styles,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Css$Structure$StyleBlockDeclaration(
-				A3(rtfeldman$elm_css$Css$Structure$StyleBlock, firstSelector, otherSelectors, _List_Nil))
-			]));
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$extract = function (snippetDeclarations) {
-	if (!snippetDeclarations.b) {
-		return _List_Nil;
-	} else {
-		var first = snippetDeclarations.a;
-		var rest = snippetDeclarations.b;
-		return _Utils_ap(
-			rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations(first),
-			rtfeldman$elm_css$Css$Preprocess$Resolve$extract(rest));
-	}
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule = F2(
-	function (mediaQueries, styleBlocks) {
-		var handleStyleBlock = function (styleBlock) {
-			return A2(
-				elm$core$List$map,
-				rtfeldman$elm_css$Css$Preprocess$Resolve$toMediaRule(mediaQueries),
-				rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
-		};
-		return A2(elm$core$List$concatMap, handleStyleBlock, styleBlocks);
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule = F2(
-	function (str, snippets) {
-		var declarations = rtfeldman$elm_css$Css$Preprocess$Resolve$extract(
-			A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
-		return _List_fromArray(
-			[
-				A2(rtfeldman$elm_css$Css$Structure$SupportsRule, str, declarations)
-			]);
-	});
-var rtfeldman$elm_css$Css$Preprocess$Resolve$toDeclarations = function (snippetDeclaration) {
-	switch (snippetDeclaration.$) {
-		case 'StyleBlockDeclaration':
-			var styleBlock = snippetDeclaration.a;
-			return rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock);
-		case 'MediaRule':
-			var mediaQueries = snippetDeclaration.a;
-			var styleBlocks = snippetDeclaration.b;
-			return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveMediaRule, mediaQueries, styleBlocks);
-		case 'SupportsRule':
-			var str = snippetDeclaration.a;
-			var snippets = snippetDeclaration.b;
-			return A2(rtfeldman$elm_css$Css$Preprocess$Resolve$resolveSupportsRule, str, snippets);
-		case 'DocumentRule':
-			var str1 = snippetDeclaration.a;
-			var str2 = snippetDeclaration.b;
-			var str3 = snippetDeclaration.c;
-			var str4 = snippetDeclaration.d;
-			var styleBlock = snippetDeclaration.e;
-			return A2(
-				elm$core$List$map,
-				A4(rtfeldman$elm_css$Css$Preprocess$Resolve$toDocumentRule, str1, str2, str3, str4),
-				rtfeldman$elm_css$Css$Preprocess$Resolve$expandStyleBlock(styleBlock));
-		case 'PageRule':
-			var str = snippetDeclaration.a;
-			var properties = snippetDeclaration.b;
-			return _List_fromArray(
-				[
-					A2(rtfeldman$elm_css$Css$Structure$PageRule, str, properties)
-				]);
-		case 'FontFace':
-			var properties = snippetDeclaration.a;
-			return _List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Structure$FontFace(properties)
-				]);
-		case 'Viewport':
-			var properties = snippetDeclaration.a;
-			return _List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Structure$Viewport(properties)
-				]);
-		case 'CounterStyle':
-			var properties = snippetDeclaration.a;
-			return _List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Structure$CounterStyle(properties)
-				]);
-		default:
-			var tuples = snippetDeclaration.a;
-			return rtfeldman$elm_css$Css$Preprocess$Resolve$resolveFontFeatureValues(tuples);
-	}
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var snippets = _n0.snippets;
-	var declarations = rtfeldman$elm_css$Css$Preprocess$Resolve$extract(
-		A2(elm$core$List$concatMap, rtfeldman$elm_css$Css$Preprocess$unwrapSnippet, snippets));
-	return {charset: charset, declarations: declarations, imports: imports, namespaces: namespaces};
-};
-var elm$core$Basics$not = _Basics_not;
-var elm$core$List$all = F2(
-	function (isOkay, list) {
-		return !A2(
-			elm$core$List$any,
-			A2(elm$core$Basics$composeL, elm$core$Basics$not, isOkay),
-			list);
-	});
-var rtfeldman$elm_css$Css$Structure$compactHelp = F2(
-	function (declaration, _n0) {
-		var keyframesByName = _n0.a;
-		var declarations = _n0.b;
-		switch (declaration.$) {
-			case 'StyleBlockDeclaration':
-				var _n2 = declaration.a;
-				var properties = _n2.c;
-				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'MediaRule':
-				var styleBlocks = declaration.b;
-				return A2(
-					elm$core$List$all,
-					function (_n3) {
-						var properties = _n3.c;
-						return elm$core$List$isEmpty(properties);
-					},
-					styleBlocks) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'SupportsRule':
-				var otherDeclarations = declaration.b;
-				return elm$core$List$isEmpty(otherDeclarations) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'DocumentRule':
-				return _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'PageRule':
-				var properties = declaration.b;
-				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'FontFace':
-				var properties = declaration.a;
-				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'Keyframes':
-				var record = declaration.a;
-				return elm$core$String$isEmpty(record.declaration) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					A3(elm$core$Dict$insert, record.name, record.declaration, keyframesByName),
-					declarations);
-			case 'Viewport':
-				var properties = declaration.a;
-				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			case 'CounterStyle':
-				var properties = declaration.a;
-				return elm$core$List$isEmpty(properties) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-			default:
-				var tuples = declaration.a;
-				return A2(
-					elm$core$List$all,
-					function (_n4) {
-						var properties = _n4.b;
-						return elm$core$List$isEmpty(properties);
-					},
-					tuples) ? _Utils_Tuple2(keyframesByName, declarations) : _Utils_Tuple2(
-					keyframesByName,
-					A2(elm$core$List$cons, declaration, declarations));
-		}
-	});
-var rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations = F2(
-	function (keyframesByName, compactedDeclarations) {
-		return A2(
-			elm$core$List$append,
-			A2(
-				elm$core$List$map,
-				function (_n0) {
-					var name = _n0.a;
-					var decl = _n0.b;
-					return rtfeldman$elm_css$Css$Structure$Keyframes(
-						{declaration: decl, name: name});
-				},
-				elm$core$Dict$toList(keyframesByName)),
-			compactedDeclarations);
-	});
-var rtfeldman$elm_css$Css$Structure$compactStylesheet = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var declarations = _n0.declarations;
-	var _n1 = A3(
-		elm$core$List$foldr,
-		rtfeldman$elm_css$Css$Structure$compactHelp,
-		_Utils_Tuple2(elm$core$Dict$empty, _List_Nil),
-		declarations);
-	var keyframesByName = _n1.a;
-	var compactedDeclarations = _n1.b;
-	var finalDeclarations = A2(rtfeldman$elm_css$Css$Structure$withKeyframeDeclarations, keyframesByName, compactedDeclarations);
-	return {charset: charset, declarations: finalDeclarations, imports: imports, namespaces: namespaces};
-};
-var rtfeldman$elm_css$Css$Structure$Output$charsetToString = function (charset) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		'',
-		A2(
-			elm$core$Maybe$map,
-			function (str) {
-				return '@charset \"' + (str + '\"');
-			},
-			charset));
-};
-var rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString = function (expression) {
-	return '(' + (expression.feature + (A2(
-		elm$core$Maybe$withDefault,
-		'',
-		A2(
-			elm$core$Maybe$map,
-			elm$core$Basics$append(': '),
-			expression.value)) + ')'));
-};
-var rtfeldman$elm_css$Css$Structure$Output$mediaTypeToString = function (mediaType) {
-	switch (mediaType.$) {
-		case 'Print':
-			return 'print';
-		case 'Screen':
-			return 'screen';
-		default:
-			return 'speech';
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString = function (mediaQuery) {
-	var prefixWith = F3(
-		function (str, mediaType, expressions) {
-			return str + (' ' + A2(
-				elm$core$String$join,
-				' and ',
-				A2(
-					elm$core$List$cons,
-					rtfeldman$elm_css$Css$Structure$Output$mediaTypeToString(mediaType),
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions))));
-		});
-	switch (mediaQuery.$) {
-		case 'AllQuery':
-			var expressions = mediaQuery.a;
-			return A2(
-				elm$core$String$join,
-				' and ',
-				A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$mediaExpressionToString, expressions));
-		case 'OnlyQuery':
-			var mediaType = mediaQuery.a;
-			var expressions = mediaQuery.b;
-			return A3(prefixWith, 'only', mediaType, expressions);
-		case 'NotQuery':
-			var mediaType = mediaQuery.a;
-			var expressions = mediaQuery.b;
-			return A3(prefixWith, 'not', mediaType, expressions);
-		default:
-			var str = mediaQuery.a;
-			return str;
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$importMediaQueryToString = F2(
-	function (name, mediaQuery) {
-		return '@import \"' + (name + (rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString(mediaQuery) + '\"'));
-	});
-var rtfeldman$elm_css$Css$Structure$Output$importToString = function (_n0) {
-	var name = _n0.a;
-	var mediaQueries = _n0.b;
-	return A2(
-		elm$core$String$join,
-		'\n',
-		A2(
-			elm$core$List$map,
-			rtfeldman$elm_css$Css$Structure$Output$importMediaQueryToString(name),
-			mediaQueries));
-};
-var rtfeldman$elm_css$Css$Structure$Output$namespaceToString = function (_n0) {
-	var prefix = _n0.a;
-	var str = _n0.b;
-	return '@namespace ' + (prefix + ('\"' + (str + '\"')));
-};
-var rtfeldman$elm_css$Css$Structure$Output$spaceIndent = '    ';
-var rtfeldman$elm_css$Css$Structure$Output$indent = function (str) {
-	return _Utils_ap(rtfeldman$elm_css$Css$Structure$Output$spaceIndent, str);
-};
-var rtfeldman$elm_css$Css$Structure$Output$noIndent = '';
-var rtfeldman$elm_css$Css$Structure$Output$emitProperty = function (str) {
-	return str + ';';
-};
-var rtfeldman$elm_css$Css$Structure$Output$emitProperties = function (properties) {
-	return A2(
-		elm$core$String$join,
-		'\n',
-		A2(
-			elm$core$List$map,
-			A2(elm$core$Basics$composeL, rtfeldman$elm_css$Css$Structure$Output$indent, rtfeldman$elm_css$Css$Structure$Output$emitProperty),
-			properties));
-};
-var elm$core$String$append = _String_append;
-var rtfeldman$elm_css$Css$Structure$Output$pseudoElementToString = function (_n0) {
-	var str = _n0.a;
-	return '::' + str;
-};
-var rtfeldman$elm_css$Css$Structure$Output$combinatorToString = function (combinator) {
-	switch (combinator.$) {
-		case 'AdjacentSibling':
-			return '+';
-		case 'GeneralSibling':
-			return '~';
-		case 'Child':
-			return '>';
-		default:
-			return '';
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString = function (repeatableSimpleSelector) {
-	switch (repeatableSimpleSelector.$) {
-		case 'ClassSelector':
-			var str = repeatableSimpleSelector.a;
-			return '.' + str;
-		case 'IdSelector':
-			var str = repeatableSimpleSelector.a;
-			return '#' + str;
-		case 'PseudoClassSelector':
-			var str = repeatableSimpleSelector.a;
-			return ':' + str;
-		default:
-			var str = repeatableSimpleSelector.a;
-			return '[' + (str + ']');
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString = function (simpleSelectorSequence) {
-	switch (simpleSelectorSequence.$) {
-		case 'TypeSelectorSequence':
-			var str = simpleSelectorSequence.a.a;
-			var repeatableSimpleSelectors = simpleSelectorSequence.b;
-			return A2(
-				elm$core$String$join,
-				'',
-				A2(
-					elm$core$List$cons,
-					str,
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors)));
-		case 'UniversalSelectorSequence':
-			var repeatableSimpleSelectors = simpleSelectorSequence.a;
-			return elm$core$List$isEmpty(repeatableSimpleSelectors) ? '*' : A2(
-				elm$core$String$join,
-				'',
-				A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors));
-		default:
-			var str = simpleSelectorSequence.a;
-			var repeatableSimpleSelectors = simpleSelectorSequence.b;
-			return A2(
-				elm$core$String$join,
-				'',
-				A2(
-					elm$core$List$cons,
-					str,
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$repeatableSimpleSelectorToString, repeatableSimpleSelectors)));
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$selectorChainToString = function (_n0) {
-	var combinator = _n0.a;
-	var sequence = _n0.b;
-	return A2(
-		elm$core$String$join,
-		' ',
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Css$Structure$Output$combinatorToString(combinator),
-				rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString(sequence)
-			]));
-};
-var rtfeldman$elm_css$Css$Structure$Output$selectorToString = function (_n0) {
-	var simpleSelectorSequence = _n0.a;
-	var chain = _n0.b;
-	var pseudoElement = _n0.c;
-	var segments = A2(
-		elm$core$List$cons,
-		rtfeldman$elm_css$Css$Structure$Output$simpleSelectorSequenceToString(simpleSelectorSequence),
-		A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$selectorChainToString, chain));
-	var pseudoElementsString = A2(
-		elm$core$String$join,
-		'',
-		_List_fromArray(
-			[
-				A2(
-				elm$core$Maybe$withDefault,
-				'',
-				A2(elm$core$Maybe$map, rtfeldman$elm_css$Css$Structure$Output$pseudoElementToString, pseudoElement))
-			]));
-	return A2(
-		elm$core$String$append,
-		A2(
-			elm$core$String$join,
-			' ',
-			A2(
-				elm$core$List$filter,
-				A2(elm$core$Basics$composeL, elm$core$Basics$not, elm$core$String$isEmpty),
-				segments)),
-		pseudoElementsString);
-};
-var rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock = F2(
-	function (indentLevel, _n0) {
-		var firstSelector = _n0.a;
-		var otherSelectors = _n0.b;
-		var properties = _n0.c;
-		var selectorStr = A2(
-			elm$core$String$join,
-			', ',
-			A2(
-				elm$core$List$map,
-				rtfeldman$elm_css$Css$Structure$Output$selectorToString,
-				A2(elm$core$List$cons, firstSelector, otherSelectors)));
-		return A2(
-			elm$core$String$join,
-			'',
-			_List_fromArray(
-				[
-					selectorStr,
-					' {\n',
-					indentLevel,
-					rtfeldman$elm_css$Css$Structure$Output$emitProperties(properties),
-					'\n',
-					indentLevel,
-					'}'
-				]));
-	});
-var rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration = function (decl) {
-	switch (decl.$) {
-		case 'StyleBlockDeclaration':
-			var styleBlock = decl.a;
-			return A2(rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock, rtfeldman$elm_css$Css$Structure$Output$noIndent, styleBlock);
-		case 'MediaRule':
-			var mediaQueries = decl.a;
-			var styleBlocks = decl.b;
-			var query = A2(
-				elm$core$String$join,
-				',\n',
-				A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$mediaQueryToString, mediaQueries));
-			var blocks = A2(
-				elm$core$String$join,
-				'\n\n',
-				A2(
-					elm$core$List$map,
-					A2(
-						elm$core$Basics$composeL,
-						rtfeldman$elm_css$Css$Structure$Output$indent,
-						rtfeldman$elm_css$Css$Structure$Output$prettyPrintStyleBlock(rtfeldman$elm_css$Css$Structure$Output$spaceIndent)),
-					styleBlocks));
-			return '@media ' + (query + (' {\n' + (blocks + '\n}')));
-		case 'SupportsRule':
-			return 'TODO';
-		case 'DocumentRule':
-			return 'TODO';
-		case 'PageRule':
-			return 'TODO';
-		case 'FontFace':
-			return 'TODO';
-		case 'Keyframes':
-			var name = decl.a.name;
-			var declaration = decl.a.declaration;
-			return '@keyframes ' + (name + (' {\n' + (declaration + '\n}')));
-		case 'Viewport':
-			return 'TODO';
-		case 'CounterStyle':
-			return 'TODO';
-		default:
-			return 'TODO';
-	}
-};
-var rtfeldman$elm_css$Css$Structure$Output$prettyPrint = function (_n0) {
-	var charset = _n0.charset;
-	var imports = _n0.imports;
-	var namespaces = _n0.namespaces;
-	var declarations = _n0.declarations;
-	return A2(
-		elm$core$String$join,
-		'\n\n',
-		A2(
-			elm$core$List$filter,
-			A2(elm$core$Basics$composeL, elm$core$Basics$not, elm$core$String$isEmpty),
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Structure$Output$charsetToString(charset),
-					A2(
-					elm$core$String$join,
-					'\n',
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$importToString, imports)),
-					A2(
-					elm$core$String$join,
-					'\n',
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$namespaceToString, namespaces)),
-					A2(
-					elm$core$String$join,
-					'\n\n',
-					A2(elm$core$List$map, rtfeldman$elm_css$Css$Structure$Output$prettyPrintDeclaration, declarations))
-				])));
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$compileHelp = function (sheet) {
-	return rtfeldman$elm_css$Css$Structure$Output$prettyPrint(
-		rtfeldman$elm_css$Css$Structure$compactStylesheet(
-			rtfeldman$elm_css$Css$Preprocess$Resolve$toStructure(sheet)));
-};
-var rtfeldman$elm_css$Css$Preprocess$Resolve$compile = function (styles) {
-	return A2(
-		elm$core$String$join,
-		'\n\n',
-		A2(elm$core$List$map, rtfeldman$elm_css$Css$Preprocess$Resolve$compileHelp, styles));
-};
-var rtfeldman$elm_css$Css$Preprocess$Snippet = function (a) {
-	return {$: 'Snippet', a: a};
-};
-var rtfeldman$elm_css$Css$Preprocess$StyleBlock = F3(
-	function (a, b, c) {
-		return {$: 'StyleBlock', a: a, b: b, c: c};
-	});
-var rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration = function (a) {
-	return {$: 'StyleBlockDeclaration', a: a};
-};
-var rtfeldman$elm_css$VirtualDom$Styled$makeSnippet = F2(
-	function (styles, sequence) {
-		var selector = A3(rtfeldman$elm_css$Css$Structure$Selector, sequence, _List_Nil, elm$core$Maybe$Nothing);
-		return rtfeldman$elm_css$Css$Preprocess$Snippet(
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Preprocess$StyleBlockDeclaration(
-					A3(rtfeldman$elm_css$Css$Preprocess$StyleBlock, selector, _List_Nil, styles))
-				]));
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$murmurSeed = 15739;
-var rtfeldman$elm_css$VirtualDom$Styled$getClassname = function (styles) {
-	return elm$core$List$isEmpty(styles) ? 'unstyled' : A2(
-		elm$core$String$cons,
-		_Utils_chr('_'),
-		rtfeldman$elm_hex$Hex$toString(
-			A2(
-				Skinney$murmur3$Murmur3$hashString,
-				rtfeldman$elm_css$VirtualDom$Styled$murmurSeed,
-				rtfeldman$elm_css$Css$Preprocess$Resolve$compile(
-					elm$core$List$singleton(
-						rtfeldman$elm_css$Css$Preprocess$stylesheet(
-							elm$core$List$singleton(
-								A2(
-									rtfeldman$elm_css$VirtualDom$Styled$makeSnippet,
-									styles,
-									rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(_List_Nil)))))))));
-};
-var rtfeldman$elm_css$Html$Styled$Internal$css = function (styles) {
-	var classname = rtfeldman$elm_css$VirtualDom$Styled$getClassname(styles);
-	var classProperty = A2(
-		elm$virtual_dom$VirtualDom$property,
-		'className',
-		elm$json$Json$Encode$string(classname));
-	return A3(rtfeldman$elm_css$VirtualDom$Styled$Attribute, classProperty, styles, classname);
-};
-var rtfeldman$elm_css$Html$Styled$Attributes$css = rtfeldman$elm_css$Html$Styled$Internal$css;
-var author$project$View$pokemon = F2(
+var $rtfeldman$elm_css$Css$width = $rtfeldman$elm_css$Css$prop1('width');
+var $author$project$View$pokemon = F2(
 	function (name, id) {
 		return A2(
-			rtfeldman$elm_css$Html$Styled$a,
+			$rtfeldman$elm_css$Html$Styled$a,
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
-							rtfeldman$elm_css$Css$margin(
-							rtfeldman$elm_css$Css$px(8)),
-							rtfeldman$elm_css$Css$width(
-							rtfeldman$elm_css$Css$px(120)),
-							rtfeldman$elm_css$Css$height(
-							rtfeldman$elm_css$Css$px(160)),
-							rtfeldman$elm_css$Css$borderRadius(
-							rtfeldman$elm_css$Css$px(3)),
+							$rtfeldman$elm_css$Css$display($rtfeldman$elm_css$Css$block),
+							$rtfeldman$elm_css$Css$margin(
+							$rtfeldman$elm_css$Css$px(8)),
+							$rtfeldman$elm_css$Css$width(
+							$rtfeldman$elm_css$Css$px(120)),
+							$rtfeldman$elm_css$Css$height(
+							$rtfeldman$elm_css$Css$px(160)),
+							$rtfeldman$elm_css$Css$borderRadius(
+							$rtfeldman$elm_css$Css$px(3)),
 							A5(
-							rtfeldman$elm_css$Css$boxShadow5,
-							rtfeldman$elm_css$Css$px(0),
-							rtfeldman$elm_css$Css$px(1),
-							rtfeldman$elm_css$Css$px(3),
-							rtfeldman$elm_css$Css$px(1),
-							A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
-							rtfeldman$elm_css$Css$paddingTop(
-							rtfeldman$elm_css$Css$px(16)),
-							rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
-							rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
-							rtfeldman$elm_css$Css$color(
-							rtfeldman$elm_css$Css$hex('#000000')),
-							rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-							rtfeldman$elm_css$Css$backgroundImage(
-							rtfeldman$elm_css$Css$url(
-								author$project$View$pokemonImageSrc(id))),
-							rtfeldman$elm_css$Css$backgroundPosition(rtfeldman$elm_css$Css$center),
-							rtfeldman$elm_css$Css$backgroundRepeat(rtfeldman$elm_css$Css$noRepeat),
-							rtfeldman$elm_css$Css$hover(
+							$rtfeldman$elm_css$Css$boxShadow5,
+							$rtfeldman$elm_css$Css$px(0),
+							$rtfeldman$elm_css$Css$px(1),
+							$rtfeldman$elm_css$Css$px(3),
+							$rtfeldman$elm_css$Css$px(1),
+							A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
+							$rtfeldman$elm_css$Css$paddingTop(
+							$rtfeldman$elm_css$Css$px(16)),
+							$rtfeldman$elm_css$Css$textDecoration($rtfeldman$elm_css$Css$none),
+							$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$capitalize),
+							$rtfeldman$elm_css$Css$color(
+							$rtfeldman$elm_css$Css$hex('#000000')),
+							$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center),
+							$rtfeldman$elm_css$Css$backgroundImage(
+							$rtfeldman$elm_css$Css$url(
+								$author$project$View$pokemonImageSrc(id))),
+							$rtfeldman$elm_css$Css$backgroundPosition($rtfeldman$elm_css$Css$center),
+							$rtfeldman$elm_css$Css$backgroundRepeat($rtfeldman$elm_css$Css$noRepeat),
+							$rtfeldman$elm_css$Css$hover(
 							_List_fromArray(
 								[
 									A5(
-									rtfeldman$elm_css$Css$boxShadow5,
-									rtfeldman$elm_css$Css$px(0),
-									rtfeldman$elm_css$Css$px(2),
-									rtfeldman$elm_css$Css$px(8),
-									rtfeldman$elm_css$Css$px(4),
-									A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1)),
-									rtfeldman$elm_css$Css$backgroundImage(
-									rtfeldman$elm_css$Css$url(
-										author$project$View$shinyImageSrc(id)))
+									$rtfeldman$elm_css$Css$boxShadow5,
+									$rtfeldman$elm_css$Css$px(0),
+									$rtfeldman$elm_css$Css$px(2),
+									$rtfeldman$elm_css$Css$px(8),
+									$rtfeldman$elm_css$Css$px(4),
+									A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1)),
+									$rtfeldman$elm_css$Css$backgroundImage(
+									$rtfeldman$elm_css$Css$url(
+										$author$project$View$shinyImageSrc(id)))
 								])),
-							rtfeldman$elm_css$Css$Transitions$transition(
+							$rtfeldman$elm_css$Css$Transitions$transition(
 							_List_fromArray(
 								[
 									A3(
-									rtfeldman$elm_css$Css$Transitions$boxShadow3,
+									$rtfeldman$elm_css$Css$Transitions$boxShadow3,
 									135,
 									0,
-									A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
+									A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
 									A3(
-									rtfeldman$elm_css$Css$Transitions$background3,
+									$rtfeldman$elm_css$Css$Transitions$background3,
 									135,
 									0,
-									A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+									A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
 								]))
 						])),
-					author$project$Route$styledHref(
-					author$project$Route$Pokemon(
-						elm$core$String$fromInt(id)))
+					$author$project$Route$styledHref(
+					$author$project$Route$Pokemon(
+						$elm$core$String$fromInt(id)))
 				]),
 			_List_fromArray(
 				[
 					A2(
-					rtfeldman$elm_css$Html$Styled$span,
+					$rtfeldman$elm_css$Html$Styled$span,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
-									rtfeldman$elm_css$Css$backgroundColor(
-									rtfeldman$elm_css$Css$hex('#f1f1f1')),
+									$rtfeldman$elm_css$Css$display($rtfeldman$elm_css$Css$block),
+									$rtfeldman$elm_css$Css$backgroundColor(
+									$rtfeldman$elm_css$Css$hex('#f1f1f1')),
 									A2(
-									rtfeldman$elm_css$Css$padding2,
-									rtfeldman$elm_css$Css$px(4),
-									rtfeldman$elm_css$Css$px(0))
+									$rtfeldman$elm_css$Css$padding2,
+									$rtfeldman$elm_css$Css$px(4),
+									$rtfeldman$elm_css$Css$px(0))
 								]))
 						]),
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$text(name)
+							$rtfeldman$elm_css$Html$Styled$text(name)
 						]))
 				]));
 	});
-var rtfeldman$elm_css$Css$displayFlex = A2(rtfeldman$elm_css$Css$property, 'display', 'flex');
-var rtfeldman$elm_css$Css$flexWrap = rtfeldman$elm_css$Css$prop1('flex-wrap');
-var rtfeldman$elm_css$Css$justifyContent = function (fn) {
-	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'justifyContent',
-		'justify-content',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
-};
-var rtfeldman$elm_css$Css$wrap = {flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, flexWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'wrap'};
-var rtfeldman$elm_css$Html$Styled$div = rtfeldman$elm_css$Html$Styled$node('div');
-var author$project$Page$Pokedex$viewPokedex = function (model) {
+var $rtfeldman$elm_css$Css$wrap = {av: 0, aN: 0, A: 'wrap'};
+var $author$project$Page$Pokedex$viewPokedex = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
-			return rtfeldman$elm_css$Html$Styled$text('Initialising...');
-		case 'Loading':
-			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-		case 'Failure':
+		case 0:
+			return $rtfeldman$elm_css$Html$Styled$text('Initialising...');
+		case 1:
+			return $rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
+		case 2:
 			var error = model.a;
-			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
+			return $rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 		default:
 			var pokedex = model.a;
 			return A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$displayFlex,
-								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								$rtfeldman$elm_css$Css$displayFlex,
+								$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap),
+								$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 							]))
 					]),
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (pokemon) {
-						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+						return A2($author$project$View$pokemon, pokemon.aB, pokemon.ax);
 					},
 					pokedex));
 	}
 };
-var rtfeldman$elm_css$Html$Styled$h1 = rtfeldman$elm_css$Html$Styled$node('h1');
-var author$project$View$pageTitle = function (title) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$h1,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
-					]))
-			]),
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$text(title)
-			]));
-};
-var elm$virtual_dom$VirtualDom$node = function (tag) {
-	return _VirtualDom_node(
-		_VirtualDom_noScript(tag));
-};
-var elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
-	return _VirtualDom_keyedNode(
-		_VirtualDom_noScript(tag));
-};
-var elm$virtual_dom$VirtualDom$keyedNodeNS = F2(
-	function (namespace, tag) {
-		return A2(
-			_VirtualDom_keyedNodeNS,
-			namespace,
-			_VirtualDom_noScript(tag));
-	});
-var elm$virtual_dom$VirtualDom$nodeNS = function (tag) {
-	return _VirtualDom_nodeNS(
-		_VirtualDom_noScript(tag));
-};
-var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles = F2(
-	function (_n0, styles) {
-		var newStyles = _n0.b;
-		var classname = _n0.c;
-		return elm$core$List$isEmpty(newStyles) ? styles : A3(elm$core$Dict$insert, classname, newStyles, styles);
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute = function (_n0) {
-	var val = _n0.a;
-	return val;
-};
-var rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml = F2(
-	function (_n6, _n7) {
-		var key = _n6.a;
-		var html = _n6.b;
-		var pairs = _n7.a;
-		var styles = _n7.b;
-		switch (html.$) {
-			case 'Unstyled':
-				var vdom = html.a;
-				return _Utils_Tuple2(
-					A2(
-						elm$core$List$cons,
-						_Utils_Tuple2(key, vdom),
-						pairs),
-					styles);
-			case 'Node':
-				var elemType = html.a;
-				var properties = html.b;
-				var children = html.c;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n9 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n9.a;
-				var finalStyles = _n9.b;
-				var vdom = A3(
-					elm$virtual_dom$VirtualDom$node,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(
-						elm$core$List$cons,
-						_Utils_Tuple2(key, vdom),
-						pairs),
-					finalStyles);
-			case 'NodeNS':
-				var ns = html.a;
-				var elemType = html.b;
-				var properties = html.c;
-				var children = html.d;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n10 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n10.a;
-				var finalStyles = _n10.b;
-				var vdom = A4(
-					elm$virtual_dom$VirtualDom$nodeNS,
-					ns,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(
-						elm$core$List$cons,
-						_Utils_Tuple2(key, vdom),
-						pairs),
-					finalStyles);
-			case 'KeyedNode':
-				var elemType = html.a;
-				var properties = html.b;
-				var children = html.c;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n11 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n11.a;
-				var finalStyles = _n11.b;
-				var vdom = A3(
-					elm$virtual_dom$VirtualDom$keyedNode,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(
-						elm$core$List$cons,
-						_Utils_Tuple2(key, vdom),
-						pairs),
-					finalStyles);
-			default:
-				var ns = html.a;
-				var elemType = html.b;
-				var properties = html.c;
-				var children = html.d;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n12 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n12.a;
-				var finalStyles = _n12.b;
-				var vdom = A4(
-					elm$virtual_dom$VirtualDom$keyedNodeNS,
-					ns,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(
-						elm$core$List$cons,
-						_Utils_Tuple2(key, vdom),
-						pairs),
-					finalStyles);
-		}
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml = F2(
-	function (html, _n0) {
-		var nodes = _n0.a;
-		var styles = _n0.b;
-		switch (html.$) {
-			case 'Unstyled':
-				var vdomNode = html.a;
-				return _Utils_Tuple2(
-					A2(elm$core$List$cons, vdomNode, nodes),
-					styles);
-			case 'Node':
-				var elemType = html.a;
-				var properties = html.b;
-				var children = html.c;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n2 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n2.a;
-				var finalStyles = _n2.b;
-				var vdomNode = A3(
-					elm$virtual_dom$VirtualDom$node,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(elm$core$List$cons, vdomNode, nodes),
-					finalStyles);
-			case 'NodeNS':
-				var ns = html.a;
-				var elemType = html.b;
-				var properties = html.c;
-				var children = html.d;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n3 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n3.a;
-				var finalStyles = _n3.b;
-				var vdomNode = A4(
-					elm$virtual_dom$VirtualDom$nodeNS,
-					ns,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(elm$core$List$cons, vdomNode, nodes),
-					finalStyles);
-			case 'KeyedNode':
-				var elemType = html.a;
-				var properties = html.b;
-				var children = html.c;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n4 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n4.a;
-				var finalStyles = _n4.b;
-				var vdomNode = A3(
-					elm$virtual_dom$VirtualDom$keyedNode,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(elm$core$List$cons, vdomNode, nodes),
-					finalStyles);
-			default:
-				var ns = html.a;
-				var elemType = html.b;
-				var properties = html.c;
-				var children = html.d;
-				var combinedStyles = A3(elm$core$List$foldl, rtfeldman$elm_css$VirtualDom$Styled$accumulateStyles, styles, properties);
-				var _n5 = A3(
-					elm$core$List$foldl,
-					rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-					_Utils_Tuple2(_List_Nil, combinedStyles),
-					children);
-				var childNodes = _n5.a;
-				var finalStyles = _n5.b;
-				var vdomNode = A4(
-					elm$virtual_dom$VirtualDom$keyedNodeNS,
-					ns,
-					elemType,
-					A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties),
-					elm$core$List$reverse(childNodes));
-				return _Utils_Tuple2(
-					A2(elm$core$List$cons, vdomNode, nodes),
-					finalStyles);
-		}
-	});
-var elm$core$Dict$singleton = F2(
-	function (key, value) {
-		return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, key, value, elm$core$Dict$RBEmpty_elm_builtin, elm$core$Dict$RBEmpty_elm_builtin);
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp = F2(
-	function (candidate, properties) {
-		stylesFromPropertiesHelp:
-		while (true) {
-			if (!properties.b) {
-				return candidate;
-			} else {
-				var _n1 = properties.a;
-				var styles = _n1.b;
-				var classname = _n1.c;
-				var rest = properties.b;
-				if (elm$core$String$isEmpty(classname)) {
-					var $temp$candidate = candidate,
-						$temp$properties = rest;
-					candidate = $temp$candidate;
-					properties = $temp$properties;
-					continue stylesFromPropertiesHelp;
-				} else {
-					var $temp$candidate = elm$core$Maybe$Just(
-						_Utils_Tuple2(classname, styles)),
-						$temp$properties = rest;
-					candidate = $temp$candidate;
-					properties = $temp$properties;
-					continue stylesFromPropertiesHelp;
-				}
-			}
-		}
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties = function (properties) {
-	var _n0 = A2(rtfeldman$elm_css$VirtualDom$Styled$stylesFromPropertiesHelp, elm$core$Maybe$Nothing, properties);
-	if (_n0.$ === 'Nothing') {
-		return elm$core$Dict$empty;
-	} else {
-		var _n1 = _n0.a;
-		var classname = _n1.a;
-		var styles = _n1.b;
-		return A2(elm$core$Dict$singleton, classname, styles);
-	}
-};
-var rtfeldman$elm_css$Css$Structure$ClassSelector = function (a) {
-	return {$: 'ClassSelector', a: a};
-};
-var rtfeldman$elm_css$VirtualDom$Styled$snippetFromPair = function (_n0) {
-	var classname = _n0.a;
-	var styles = _n0.b;
-	return A2(
-		rtfeldman$elm_css$VirtualDom$Styled$makeSnippet,
-		styles,
-		rtfeldman$elm_css$Css$Structure$UniversalSelectorSequence(
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Css$Structure$ClassSelector(classname)
-				])));
-};
-var rtfeldman$elm_css$VirtualDom$Styled$toDeclaration = function (dict) {
-	return rtfeldman$elm_css$Css$Preprocess$Resolve$compile(
-		elm$core$List$singleton(
-			rtfeldman$elm_css$Css$Preprocess$stylesheet(
-				A2(
-					elm$core$List$map,
-					rtfeldman$elm_css$VirtualDom$Styled$snippetFromPair,
-					elm$core$Dict$toList(dict)))));
-};
-var rtfeldman$elm_css$VirtualDom$Styled$toStyleNode = function (styles) {
-	return A3(
-		elm$virtual_dom$VirtualDom$node,
-		'style',
-		_List_Nil,
-		elm$core$List$singleton(
-			elm$virtual_dom$VirtualDom$text(
-				rtfeldman$elm_css$VirtualDom$Styled$toDeclaration(styles))));
-};
-var rtfeldman$elm_css$VirtualDom$Styled$unstyle = F3(
-	function (elemType, properties, children) {
-		var unstyledProperties = A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
-		var initialStyles = rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
-		var _n0 = A3(
-			elm$core$List$foldl,
-			rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-			_Utils_Tuple2(_List_Nil, initialStyles),
-			children);
-		var childNodes = _n0.a;
-		var styles = _n0.b;
-		var styleNode = rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(styles);
-		return A3(
-			elm$virtual_dom$VirtualDom$node,
-			elemType,
-			unstyledProperties,
-			A2(
-				elm$core$List$cons,
-				styleNode,
-				elm$core$List$reverse(childNodes)));
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$containsKey = F2(
-	function (key, pairs) {
-		containsKey:
-		while (true) {
-			if (!pairs.b) {
-				return false;
-			} else {
-				var _n1 = pairs.a;
-				var str = _n1.a;
-				var rest = pairs.b;
-				if (_Utils_eq(key, str)) {
-					return true;
-				} else {
-					var $temp$key = key,
-						$temp$pairs = rest;
-					key = $temp$key;
-					pairs = $temp$pairs;
-					continue containsKey;
-				}
-			}
-		}
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$getUnusedKey = F2(
-	function (_default, pairs) {
-		getUnusedKey:
-		while (true) {
-			if (!pairs.b) {
-				return _default;
-			} else {
-				var _n1 = pairs.a;
-				var firstKey = _n1.a;
-				var rest = pairs.b;
-				var newKey = '_' + firstKey;
-				if (A2(rtfeldman$elm_css$VirtualDom$Styled$containsKey, newKey, rest)) {
-					var $temp$default = newKey,
-						$temp$pairs = rest;
-					_default = $temp$default;
-					pairs = $temp$pairs;
-					continue getUnusedKey;
-				} else {
-					return newKey;
-				}
-			}
-		}
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode = F2(
-	function (allStyles, keyedChildNodes) {
-		var styleNodeKey = A2(rtfeldman$elm_css$VirtualDom$Styled$getUnusedKey, '_', keyedChildNodes);
-		var finalNode = rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(allStyles);
-		return _Utils_Tuple2(styleNodeKey, finalNode);
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyed = F3(
-	function (elemType, properties, keyedChildren) {
-		var unstyledProperties = A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
-		var initialStyles = rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
-		var _n0 = A3(
-			elm$core$List$foldl,
-			rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-			_Utils_Tuple2(_List_Nil, initialStyles),
-			keyedChildren);
-		var keyedChildNodes = _n0.a;
-		var styles = _n0.b;
-		var keyedStyleNode = A2(rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode, styles, keyedChildNodes);
-		return A3(
-			elm$virtual_dom$VirtualDom$keyedNode,
-			elemType,
-			unstyledProperties,
-			A2(
-				elm$core$List$cons,
-				keyedStyleNode,
-				elm$core$List$reverse(keyedChildNodes)));
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyedNS = F4(
-	function (ns, elemType, properties, keyedChildren) {
-		var unstyledProperties = A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
-		var initialStyles = rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
-		var _n0 = A3(
-			elm$core$List$foldl,
-			rtfeldman$elm_css$VirtualDom$Styled$accumulateKeyedStyledHtml,
-			_Utils_Tuple2(_List_Nil, initialStyles),
-			keyedChildren);
-		var keyedChildNodes = _n0.a;
-		var styles = _n0.b;
-		var keyedStyleNode = A2(rtfeldman$elm_css$VirtualDom$Styled$toKeyedStyleNode, styles, keyedChildNodes);
-		return A4(
-			elm$virtual_dom$VirtualDom$keyedNodeNS,
-			ns,
-			elemType,
-			unstyledProperties,
-			A2(
-				elm$core$List$cons,
-				keyedStyleNode,
-				elm$core$List$reverse(keyedChildNodes)));
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$unstyleNS = F4(
-	function (ns, elemType, properties, children) {
-		var unstyledProperties = A2(elm$core$List$map, rtfeldman$elm_css$VirtualDom$Styled$extractUnstyledAttribute, properties);
-		var initialStyles = rtfeldman$elm_css$VirtualDom$Styled$stylesFromProperties(properties);
-		var _n0 = A3(
-			elm$core$List$foldl,
-			rtfeldman$elm_css$VirtualDom$Styled$accumulateStyledHtml,
-			_Utils_Tuple2(_List_Nil, initialStyles),
-			children);
-		var childNodes = _n0.a;
-		var styles = _n0.b;
-		var styleNode = rtfeldman$elm_css$VirtualDom$Styled$toStyleNode(styles);
-		return A4(
-			elm$virtual_dom$VirtualDom$nodeNS,
-			ns,
-			elemType,
-			unstyledProperties,
-			A2(
-				elm$core$List$cons,
-				styleNode,
-				elm$core$List$reverse(childNodes)));
-	});
-var rtfeldman$elm_css$VirtualDom$Styled$toUnstyled = function (vdom) {
-	switch (vdom.$) {
-		case 'Unstyled':
-			var plainNode = vdom.a;
-			return plainNode;
-		case 'Node':
-			var elemType = vdom.a;
-			var properties = vdom.b;
-			var children = vdom.c;
-			return A3(rtfeldman$elm_css$VirtualDom$Styled$unstyle, elemType, properties, children);
-		case 'NodeNS':
-			var ns = vdom.a;
-			var elemType = vdom.b;
-			var properties = vdom.c;
-			var children = vdom.d;
-			return A4(rtfeldman$elm_css$VirtualDom$Styled$unstyleNS, ns, elemType, properties, children);
-		case 'KeyedNode':
-			var elemType = vdom.a;
-			var properties = vdom.b;
-			var children = vdom.c;
-			return A3(rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyed, elemType, properties, children);
-		default:
-			var ns = vdom.a;
-			var elemType = vdom.b;
-			var properties = vdom.c;
-			var children = vdom.d;
-			return A4(rtfeldman$elm_css$VirtualDom$Styled$unstyleKeyedNS, ns, elemType, properties, children);
-	}
-};
-var rtfeldman$elm_css$Html$Styled$toUnstyled = rtfeldman$elm_css$VirtualDom$Styled$toUnstyled;
-var author$project$Page$Pokedex$view = function (model) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
+var $author$project$Page$Pokedex$view = function (model) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
-			rtfeldman$elm_css$Html$Styled$div,
+			$rtfeldman$elm_css$Html$Styled$div,
 			_List_Nil,
 			_List_fromArray(
 				[
-					author$project$View$pageTitle('Pokédex'),
-					author$project$Page$Pokedex$viewPokedex(model)
+					$author$project$View$pageTitle('Pokédex'),
+					$author$project$Page$Pokedex$viewPokedex(model)
 				])));
 };
-var author$project$Msg$AddToTeam = function (a) {
-	return {$: 'AddToTeam', a: a};
+var $author$project$Msg$AddToTeam = function (a) {
+	return {$: 7, a: a};
 };
-var author$project$Msg$RemoveFromTeam = function (a) {
-	return {$: 'RemoveFromTeam', a: a};
+var $author$project$Msg$RemoveFromTeam = function (a) {
+	return {$: 8, a: a};
 };
-var author$project$Page$Pokemon$pokemonImageSrc = function (id) {
-	return 'assets/images/pokemon/' + (elm$core$String$fromInt(id) + '.png');
+var $rtfeldman$elm_css$Css$auto = {b2: 0, a: 0, ab: 0, aO: 0, cr: 0, af: 0, G: 0, y: 0, ai: 0, u: 0, aY: 0, ao: 0, q: 0, A: 'auto'};
+var $rtfeldman$elm_css$Css$Transitions$BackgroundColor = 1;
+var $rtfeldman$elm_css$Css$Transitions$backgroundColor3 = $rtfeldman$elm_css$Css$Transitions$fullTransition(1);
+var $rtfeldman$elm_css$Html$Styled$button = $rtfeldman$elm_css$Html$Styled$node('button');
+var $rtfeldman$elm_css$Html$Styled$img = $rtfeldman$elm_css$Html$Styled$node('img');
+var $rtfeldman$elm_css$Css$margin2 = $rtfeldman$elm_css$Css$prop2('margin');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 0, a: a};
 };
-var author$project$Page$Pokemon$shinyImageSrc = function (id) {
-	return 'assets/images/shiny/' + (elm$core$String$fromInt(id) + '.png');
-};
-var rtfeldman$elm_css$Css$alignItems = function (fn) {
-	return A3(
-		rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
-		'alignItems',
-		'align-items',
-		fn(rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
-};
-var author$project$Page$Pokemon$viewEvolution = function (evolution) {
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $rtfeldman$elm_css$VirtualDom$Styled$on = F2(
+	function (eventName, handler) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$on, eventName, handler),
+			_List_Nil,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
-		_List_fromArray(
-			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
-				_List_fromArray(
-					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
-					]))
-			]),
-		_List_fromArray(
-			[
-				A2(author$project$View$pokemon, evolution.name, evolution.id),
-				function () {
-				var _n0 = evolution.evolutionChain;
-				var evolutions = _n0.a;
-				return A2(
-					rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					A2(elm$core$List$map, author$project$Page$Pokemon$viewEvolution, evolutions));
-			}()
-			]));
+		$rtfeldman$elm_css$Html$Styled$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
 };
-var author$project$View$typeColor = function (typeName) {
+var $author$project$Page$Pokemon$pokemonImageSrc = function (id) {
+	return 'assets/images/pokemon/' + ($elm$core$String$fromInt(id) + '.png');
+};
+var $author$project$View$typeColor = function (typeName) {
 	switch (typeName) {
 		case 'normal':
 			return '#A8A77A';
@@ -10768,554 +10786,543 @@ var author$project$View$typeColor = function (typeName) {
 			return '#000000';
 	}
 };
-var rtfeldman$elm_css$Css$uppercase = {textTransform: rtfeldman$elm_css$Css$Structure$Compatible, value: 'uppercase'};
-var rtfeldman$elm_css$Css$Transitions$BackgroundColor = {$: 'BackgroundColor'};
-var rtfeldman$elm_css$Css$Transitions$backgroundColor3 = rtfeldman$elm_css$Css$Transitions$fullTransition(rtfeldman$elm_css$Css$Transitions$BackgroundColor);
-var author$project$View$pokemonType = function (typeName) {
+var $rtfeldman$elm_css$Css$uppercase = {V: 0, A: 'uppercase'};
+var $author$project$View$pokemonType = function (typeName) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$a,
+		$rtfeldman$elm_css$Html$Styled$a,
 		_List_fromArray(
 			[
-				author$project$Route$styledHref(
-				author$project$Route$PokemonType(typeName)),
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$author$project$Route$styledHref(
+				$author$project$Route$PokemonType(typeName)),
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$backgroundColor(
-						rtfeldman$elm_css$Css$hex(
-							author$project$View$typeColor(typeName) + '80')),
-						rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
-						rtfeldman$elm_css$Css$margin(
-						rtfeldman$elm_css$Css$px(8)),
-						rtfeldman$elm_css$Css$width(
-						rtfeldman$elm_css$Css$px(120)),
+						$rtfeldman$elm_css$Css$backgroundColor(
+						$rtfeldman$elm_css$Css$hex(
+							$author$project$View$typeColor(typeName) + '80')),
+						$rtfeldman$elm_css$Css$display($rtfeldman$elm_css$Css$block),
+						$rtfeldman$elm_css$Css$margin(
+						$rtfeldman$elm_css$Css$px(8)),
+						$rtfeldman$elm_css$Css$width(
+						$rtfeldman$elm_css$Css$px(120)),
 						A2(
-						rtfeldman$elm_css$Css$padding2,
-						rtfeldman$elm_css$Css$px(12),
-						rtfeldman$elm_css$Css$px(16)),
-						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$uppercase),
-						rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
-						rtfeldman$elm_css$Css$color(
-						rtfeldman$elm_css$Css$hex('#000000')),
-						rtfeldman$elm_css$Css$borderRadius(
-						rtfeldman$elm_css$Css$px(3)),
+						$rtfeldman$elm_css$Css$padding2,
+						$rtfeldman$elm_css$Css$px(12),
+						$rtfeldman$elm_css$Css$px(16)),
+						$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$uppercase),
+						$rtfeldman$elm_css$Css$textDecoration($rtfeldman$elm_css$Css$none),
+						$rtfeldman$elm_css$Css$color(
+						$rtfeldman$elm_css$Css$hex('#000000')),
+						$rtfeldman$elm_css$Css$borderRadius(
+						$rtfeldman$elm_css$Css$px(3)),
 						A5(
-						rtfeldman$elm_css$Css$boxShadow5,
-						rtfeldman$elm_css$Css$px(0),
-						rtfeldman$elm_css$Css$px(1),
-						rtfeldman$elm_css$Css$px(3),
-						rtfeldman$elm_css$Css$px(1),
-						A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
-						rtfeldman$elm_css$Css$hover(
+						$rtfeldman$elm_css$Css$boxShadow5,
+						$rtfeldman$elm_css$Css$px(0),
+						$rtfeldman$elm_css$Css$px(1),
+						$rtfeldman$elm_css$Css$px(3),
+						$rtfeldman$elm_css$Css$px(1),
+						A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
+						$rtfeldman$elm_css$Css$hover(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$backgroundColor(
-								rtfeldman$elm_css$Css$hex(
-									author$project$View$typeColor(typeName) + '95')),
+								$rtfeldman$elm_css$Css$backgroundColor(
+								$rtfeldman$elm_css$Css$hex(
+									$author$project$View$typeColor(typeName) + '95')),
 								A5(
-								rtfeldman$elm_css$Css$boxShadow5,
-								rtfeldman$elm_css$Css$px(0),
-								rtfeldman$elm_css$Css$px(2),
-								rtfeldman$elm_css$Css$px(8),
-								rtfeldman$elm_css$Css$px(4),
-								A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
+								$rtfeldman$elm_css$Css$boxShadow5,
+								$rtfeldman$elm_css$Css$px(0),
+								$rtfeldman$elm_css$Css$px(2),
+								$rtfeldman$elm_css$Css$px(8),
+								$rtfeldman$elm_css$Css$px(4),
+								A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
 							])),
-						rtfeldman$elm_css$Css$Transitions$transition(
+						$rtfeldman$elm_css$Css$Transitions$transition(
 						_List_fromArray(
 							[
 								A3(
-								rtfeldman$elm_css$Css$Transitions$backgroundColor3,
+								$rtfeldman$elm_css$Css$Transitions$backgroundColor3,
 								135,
 								0,
-								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
+								A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
 								A3(
-								rtfeldman$elm_css$Css$Transitions$background3,
+								$rtfeldman$elm_css$Css$Transitions$background3,
 								135,
 								0,
-								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+								A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
 							]))
 					]))
 			]),
 		_List_fromArray(
 			[
 				A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$text(typeName)
+						$rtfeldman$elm_css$Html$Styled$text(typeName)
 					]))
 			]));
 };
-var rtfeldman$elm_css$Html$Styled$h2 = rtfeldman$elm_css$Html$Styled$node('h2');
-var author$project$View$subTitle = function (text) {
+var $author$project$Page$Pokemon$shinyImageSrc = function (id) {
+	return 'assets/images/shiny/' + ($elm$core$String$fromInt(id) + '.png');
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$src = function (url) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'src', url);
+};
+var $rtfeldman$elm_css$Html$Styled$h2 = $rtfeldman$elm_css$Html$Styled$node('h2');
+var $author$project$View$subTitle = function (text) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$h2,
+		$rtfeldman$elm_css$Html$Styled$h2,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize)
+						$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$capitalize)
 					]))
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(text)
+				$rtfeldman$elm_css$Html$Styled$text(text)
 			]));
 };
-var rtfeldman$elm_css$Css$auto = {alignItemsOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, flexBasis: rtfeldman$elm_css$Css$Structure$Compatible, intOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, justifyContentOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, overflow: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, tableLayout: rtfeldman$elm_css$Css$Structure$Compatible, textRendering: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, value: 'auto'};
-var rtfeldman$elm_css$Css$margin2 = rtfeldman$elm_css$Css$prop2('margin');
-var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');
-var rtfeldman$elm_css$Html$Styled$img = rtfeldman$elm_css$Html$Styled$node('img');
-var rtfeldman$elm_css$Html$Styled$Attributes$src = function (url) {
-	return A2(rtfeldman$elm_css$Html$Styled$Attributes$stringProperty, 'src', url);
+var $rtfeldman$elm_css$Css$alignItems = function (fn) {
+	return A3(
+		$rtfeldman$elm_css$Css$Internal$getOverloadedProperty,
+		'alignItems',
+		'align-items',
+		fn($rtfeldman$elm_css$Css$Internal$lengthForOverloadedProperty));
 };
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var rtfeldman$elm_css$VirtualDom$Styled$on = F2(
-	function (eventName, handler) {
-		return A3(
-			rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2(elm$virtual_dom$VirtualDom$on, eventName, handler),
-			_List_Nil,
-			'');
-	});
-var rtfeldman$elm_css$Html$Styled$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			rtfeldman$elm_css$VirtualDom$Styled$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var rtfeldman$elm_css$Html$Styled$Events$onClick = function (msg) {
+var $author$project$Page$Pokemon$viewEvolution = function (evolution) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$Events$on,
-		'click',
-		elm$json$Json$Decode$succeed(msg));
+		$rtfeldman$elm_css$Html$Styled$div,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$alignItems($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
+					]))
+			]),
+		_List_fromArray(
+			[
+				A2($author$project$View$pokemon, evolution.aB, evolution.ax),
+				function () {
+				var _v0 = evolution.a$;
+				var evolutions = _v0;
+				return A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_Nil,
+					A2($elm$core$List$map, $author$project$Page$Pokemon$viewEvolution, evolutions));
+			}()
+			]));
 };
-var author$project$Page$Pokemon$viewPokemonDetails = F2(
+var $author$project$Page$Pokemon$viewPokemonDetails = F2(
 	function (pokemon, teamMembers) {
 		return A2(
-			rtfeldman$elm_css$Html$Styled$div,
+			$rtfeldman$elm_css$Html$Styled$div,
 			_List_Nil,
 			_List_fromArray(
 				[
-					author$project$View$pageTitle(
-					elm$core$String$fromInt(pokemon.id) + (': ' + pokemon.name)),
+					$author$project$View$pageTitle(
+					$elm$core$String$fromInt(pokemon.ax) + (': ' + pokemon.aB)),
 					A2(
-					rtfeldman$elm_css$Html$Styled$div,
+					$rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$displayFlex,
-									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+									$rtfeldman$elm_css$Css$displayFlex,
+									$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 								]))
 						]),
 					_List_fromArray(
 						[
 							A2(
-							rtfeldman$elm_css$Html$Styled$img,
+							$rtfeldman$elm_css$Html$Styled$img,
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Html$Styled$Attributes$src(
-									author$project$Page$Pokemon$pokemonImageSrc(pokemon.id))
+									$rtfeldman$elm_css$Html$Styled$Attributes$src(
+									$author$project$Page$Pokemon$pokemonImageSrc(pokemon.ax))
 								]),
 							_List_Nil),
 							A2(
-							rtfeldman$elm_css$Html$Styled$img,
+							$rtfeldman$elm_css$Html$Styled$img,
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Html$Styled$Attributes$src(
-									author$project$Page$Pokemon$shinyImageSrc(pokemon.id))
+									$rtfeldman$elm_css$Html$Styled$Attributes$src(
+									$author$project$Page$Pokemon$shinyImageSrc(pokemon.ax))
 								]),
 							_List_Nil)
 						])),
 					A2(
-					rtfeldman$elm_css$Html$Styled$button,
+					$rtfeldman$elm_css$Html$Styled$button,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Events$onClick(
-							A2(elm$core$List$member, pokemon, teamMembers) ? author$project$Msg$RemoveFromTeam(pokemon) : author$project$Msg$AddToTeam(pokemon)),
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Events$onClick(
+							A2($elm$core$List$member, pokemon, teamMembers) ? $author$project$Msg$RemoveFromTeam(pokemon) : $author$project$Msg$AddToTeam(pokemon)),
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$backgroundColor(
-									rtfeldman$elm_css$Css$hex('#ffffff')),
-									rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
+									$rtfeldman$elm_css$Css$backgroundColor(
+									$rtfeldman$elm_css$Css$hex('#ffffff')),
+									$rtfeldman$elm_css$Css$display($rtfeldman$elm_css$Css$block),
 									A2(
-									rtfeldman$elm_css$Css$margin2,
-									rtfeldman$elm_css$Css$px(8),
-									rtfeldman$elm_css$Css$auto),
+									$rtfeldman$elm_css$Css$margin2,
+									$rtfeldman$elm_css$Css$px(8),
+									$rtfeldman$elm_css$Css$auto),
 									A2(
-									rtfeldman$elm_css$Css$padding2,
-									rtfeldman$elm_css$Css$px(12),
-									rtfeldman$elm_css$Css$px(16)),
-									rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center),
-									rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
-									rtfeldman$elm_css$Css$color(
-									rtfeldman$elm_css$Css$hex('#000000')),
-									rtfeldman$elm_css$Css$borderRadius(
-									rtfeldman$elm_css$Css$px(3)),
+									$rtfeldman$elm_css$Css$padding2,
+									$rtfeldman$elm_css$Css$px(12),
+									$rtfeldman$elm_css$Css$px(16)),
+									$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center),
+									$rtfeldman$elm_css$Css$textDecoration($rtfeldman$elm_css$Css$none),
+									$rtfeldman$elm_css$Css$color(
+									$rtfeldman$elm_css$Css$hex('#000000')),
+									$rtfeldman$elm_css$Css$borderRadius(
+									$rtfeldman$elm_css$Css$px(3)),
 									A5(
-									rtfeldman$elm_css$Css$boxShadow5,
-									rtfeldman$elm_css$Css$px(0),
-									rtfeldman$elm_css$Css$px(1),
-									rtfeldman$elm_css$Css$px(3),
-									rtfeldman$elm_css$Css$px(1),
-									A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
-									rtfeldman$elm_css$Css$hover(
+									$rtfeldman$elm_css$Css$boxShadow5,
+									$rtfeldman$elm_css$Css$px(0),
+									$rtfeldman$elm_css$Css$px(1),
+									$rtfeldman$elm_css$Css$px(3),
+									$rtfeldman$elm_css$Css$px(1),
+									A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.16)),
+									$rtfeldman$elm_css$Css$hover(
 									_List_fromArray(
 										[
-											rtfeldman$elm_css$Css$backgroundColor(
-											rtfeldman$elm_css$Css$hex('#00000005')),
+											$rtfeldman$elm_css$Css$backgroundColor(
+											$rtfeldman$elm_css$Css$hex('#00000005')),
 											A5(
-											rtfeldman$elm_css$Css$boxShadow5,
-											rtfeldman$elm_css$Css$px(0),
-											rtfeldman$elm_css$Css$px(2),
-											rtfeldman$elm_css$Css$px(8),
-											rtfeldman$elm_css$Css$px(4),
-											A4(rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
+											$rtfeldman$elm_css$Css$boxShadow5,
+											$rtfeldman$elm_css$Css$px(0),
+											$rtfeldman$elm_css$Css$px(2),
+											$rtfeldman$elm_css$Css$px(8),
+											$rtfeldman$elm_css$Css$px(4),
+											A4($rtfeldman$elm_css$Css$rgba, 60, 64, 67, 0.1))
 										])),
-									rtfeldman$elm_css$Css$Transitions$transition(
+									$rtfeldman$elm_css$Css$Transitions$transition(
 									_List_fromArray(
 										[
 											A3(
-											rtfeldman$elm_css$Css$Transitions$backgroundColor3,
+											$rtfeldman$elm_css$Css$Transitions$backgroundColor3,
 											135,
 											0,
-											A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
+											A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1)),
 											A3(
-											rtfeldman$elm_css$Css$Transitions$background3,
+											$rtfeldman$elm_css$Css$Transitions$background3,
 											135,
 											0,
-											A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+											A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
 										]))
 								]))
 						]),
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$text(
-							A2(elm$core$List$member, pokemon, teamMembers) ? 'Remove from Team' : 'Add to Team')
+							$rtfeldman$elm_css$Html$Styled$text(
+							A2($elm$core$List$member, pokemon, teamMembers) ? 'Remove from Team' : 'Add to Team')
 						])),
-					author$project$View$subTitle('Types'),
+					$author$project$View$subTitle('Types'),
 					A2(
-					rtfeldman$elm_css$Html$Styled$div,
+					$rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$displayFlex,
-									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+									$rtfeldman$elm_css$Css$displayFlex,
+									$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 								]))
 						]),
 					A2(
-						elm$core$List$map,
+						$elm$core$List$map,
 						function (pokemonType) {
-							return author$project$View$pokemonType(pokemonType.name);
+							return $author$project$View$pokemonType(pokemonType.aB);
 						},
-						pokemon.types)),
-					author$project$View$subTitle('Evolution Chain'),
+						pokemon.bY)),
+					$author$project$View$subTitle('Evolution Chain'),
 					A2(
-					rtfeldman$elm_css$Html$Styled$div,
+					$rtfeldman$elm_css$Html$Styled$div,
 					_List_Nil,
 					_List_fromArray(
 						[
-							author$project$Page$Pokemon$viewEvolution(pokemon.evolutionChain)
+							$author$project$Page$Pokemon$viewEvolution(pokemon.a$)
 						])),
-					author$project$View$subTitle('Varieties'),
+					$author$project$View$subTitle('Varieties'),
 					A2(
-					rtfeldman$elm_css$Html$Styled$div,
+					$rtfeldman$elm_css$Html$Styled$div,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$displayFlex,
-									rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-									rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+									$rtfeldman$elm_css$Css$displayFlex,
+									$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap),
+									$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 								]))
 						]),
 					A2(
-						elm$core$List$map,
+						$elm$core$List$map,
 						function (variety) {
-							return A2(author$project$View$pokemon, variety.name, variety.id);
+							return A2($author$project$View$pokemon, variety.aB, variety.ax);
 						},
-						pokemon.varieties))
+						pokemon.bf))
 				]));
 	});
-var author$project$Page$Pokemon$viewPokemon = F2(
+var $author$project$Page$Pokemon$viewPokemon = F2(
 	function (model, teamMembers) {
 		switch (model.$) {
-			case 'NotAsked':
-				return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-			case 'Loading':
-				return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-			case 'Failure':
+			case 0:
+				return $rtfeldman$elm_css$Html$Styled$text('Not Asked');
+			case 1:
+				return $rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
+			case 2:
 				var error = model.a;
-				return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
+				return $rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 			default:
 				var pokemon = model.a;
-				return A2(author$project$Page$Pokemon$viewPokemonDetails, pokemon, teamMembers);
+				return A2($author$project$Page$Pokemon$viewPokemonDetails, pokemon, teamMembers);
 		}
 	});
-var author$project$Page$Pokemon$view = F2(
+var $author$project$Page$Pokemon$view = F2(
 	function (model, teamMembers) {
-		return rtfeldman$elm_css$Html$Styled$toUnstyled(
-			A2(author$project$Page$Pokemon$viewPokemon, model, teamMembers));
+		return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+			A2($author$project$Page$Pokemon$viewPokemon, model, teamMembers));
 	});
-var rtfeldman$elm_css$Css$prop3 = F4(
+var $rtfeldman$elm_css$Css$prop3 = F4(
 	function (key, argA, argB, argC) {
 		return A2(
-			rtfeldman$elm_css$Css$property,
+			$rtfeldman$elm_css$Css$property,
 			key,
 			A2(
-				elm$core$String$join,
+				$elm$core$String$join,
 				' ',
 				_List_fromArray(
-					[argA.value, argB.value, argC.value])));
+					[argA.A, argB.A, argC.A])));
 	});
-var rtfeldman$elm_css$Css$border3 = rtfeldman$elm_css$Css$prop3('border');
-var rtfeldman$elm_css$Css$row = {flexDirection: rtfeldman$elm_css$Css$Structure$Compatible, flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, value: 'row'};
-var rtfeldman$elm_css$Css$column = _Utils_update(
-	rtfeldman$elm_css$Css$row,
-	{value: 'column'});
-var rtfeldman$elm_css$Css$flexDirection = rtfeldman$elm_css$Css$prop1('flex-direction');
-var rtfeldman$elm_css$Css$padding3 = rtfeldman$elm_css$Css$prop3('padding');
-var rtfeldman$elm_css$Css$solid = {borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, value: 'solid'};
-var rtfeldman$elm_css$Html$Styled$h4 = rtfeldman$elm_css$Html$Styled$node('h4');
-var author$project$Page$PokemonType$viewDamageRelation = F2(
+var $rtfeldman$elm_css$Css$border3 = $rtfeldman$elm_css$Css$prop3('border');
+var $rtfeldman$elm_css$Css$row = {a1: 0, av: 0, A: 'row'};
+var $rtfeldman$elm_css$Css$column = _Utils_update(
+	$rtfeldman$elm_css$Css$row,
+	{A: 'column'});
+var $rtfeldman$elm_css$Css$flexDirection = $rtfeldman$elm_css$Css$prop1('flex-direction');
+var $rtfeldman$elm_css$Html$Styled$h4 = $rtfeldman$elm_css$Html$Styled$node('h4');
+var $rtfeldman$elm_css$Css$padding3 = $rtfeldman$elm_css$Css$prop3('padding');
+var $rtfeldman$elm_css$Css$solid = {n: 0, U: 0, A: 'solid'};
+var $author$project$Page$PokemonType$viewDamageRelation = F2(
 	function (sectionTitle, pokemonTypes) {
-		var _n0 = elm$core$List$isEmpty(pokemonTypes);
-		if (_n0) {
-			return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+		var _v0 = $elm$core$List$isEmpty(pokemonTypes);
+		if (_v0) {
+			return A2($rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
 		} else {
 			return A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$margin(
-								rtfeldman$elm_css$Css$px(4)),
-								rtfeldman$elm_css$Css$width(
-								rtfeldman$elm_css$Css$px(250)),
+								$rtfeldman$elm_css$Css$margin(
+								$rtfeldman$elm_css$Css$px(4)),
+								$rtfeldman$elm_css$Css$width(
+								$rtfeldman$elm_css$Css$px(250)),
 								A3(
-								rtfeldman$elm_css$Css$padding3,
-								rtfeldman$elm_css$Css$px(0),
-								rtfeldman$elm_css$Css$px(20),
-								rtfeldman$elm_css$Css$px(16)),
+								$rtfeldman$elm_css$Css$padding3,
+								$rtfeldman$elm_css$Css$px(0),
+								$rtfeldman$elm_css$Css$px(20),
+								$rtfeldman$elm_css$Css$px(16)),
 								A3(
-								rtfeldman$elm_css$Css$border3,
-								rtfeldman$elm_css$Css$px(1),
-								rtfeldman$elm_css$Css$solid,
-								rtfeldman$elm_css$Css$hex('#dedede'))
+								$rtfeldman$elm_css$Css$border3,
+								$rtfeldman$elm_css$Css$px(1),
+								$rtfeldman$elm_css$Css$solid,
+								$rtfeldman$elm_css$Css$hex('#dedede'))
 							]))
 					]),
 				_List_fromArray(
 					[
 						A2(
-						rtfeldman$elm_css$Html$Styled$h4,
+						$rtfeldman$elm_css$Html$Styled$h4,
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
 								_List_fromArray(
 									[
-										rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
-										rtfeldman$elm_css$Css$textAlign(rtfeldman$elm_css$Css$center)
+										$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$capitalize),
+										$rtfeldman$elm_css$Css$textAlign($rtfeldman$elm_css$Css$center)
 									]))
 							]),
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Html$Styled$text(sectionTitle)
+								$rtfeldman$elm_css$Html$Styled$text(sectionTitle)
 							])),
 						A2(
-						rtfeldman$elm_css$Html$Styled$div,
+						$rtfeldman$elm_css$Html$Styled$div,
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Html$Styled$Attributes$css(
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
 								_List_fromArray(
 									[
-										rtfeldman$elm_css$Css$displayFlex,
-										rtfeldman$elm_css$Css$flexDirection(rtfeldman$elm_css$Css$column),
-										rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center)
+										$rtfeldman$elm_css$Css$displayFlex,
+										$rtfeldman$elm_css$Css$flexDirection($rtfeldman$elm_css$Css$column),
+										$rtfeldman$elm_css$Css$alignItems($rtfeldman$elm_css$Css$center)
 									]))
 							]),
 						A2(
-							elm$core$List$map,
+							$elm$core$List$map,
 							function (pokemonType) {
-								return author$project$View$pokemonType(pokemonType.name);
+								return $author$project$View$pokemonType(pokemonType.aB);
 							},
 							pokemonTypes))
 					]));
 		}
 	});
-var author$project$Page$PokemonType$viewDamageRelations = function (damageRelations) {
+var $author$project$Page$PokemonType$viewDamageRelations = function (damageRelations) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap),
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 					]))
 			]),
 		_List_fromArray(
 			[
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take double damage from', damageRelations.doubleDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal double damage to', damageRelations.doubleDamageTo),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take half damage from', damageRelations.halfDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.halfDamageTo),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.noDamageFrom),
-				A2(author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.noDamageTo)
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'take double damage from', damageRelations.cb),
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'deal double damage to', damageRelations.cc),
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'take half damage from', damageRelations.ck),
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'deal half damage to', damageRelations.cl),
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'take no damage from', damageRelations.cu),
+				A2($author$project$Page$PokemonType$viewDamageRelation, 'deal no damage to', damageRelations.cv)
 			]));
 };
-var author$project$Page$PokemonType$viewType = function (pokemonType) {
+var $author$project$Page$PokemonType$viewType = function (pokemonType) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				author$project$View$pageTitle(pokemonType.name),
+				$author$project$View$pageTitle(pokemonType.aB),
 				A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						author$project$View$subTitle('Damage Relations'),
-						author$project$Page$PokemonType$viewDamageRelations(pokemonType.damageRelations)
+						$author$project$View$subTitle('Damage Relations'),
+						$author$project$Page$PokemonType$viewDamageRelations(pokemonType.b8)
 					])),
-				author$project$View$subTitle(pokemonType.name + ' type Pokemon'),
+				$author$project$View$subTitle(pokemonType.aB + ' type Pokemon'),
 				A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$displayFlex,
-								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								$rtfeldman$elm_css$Css$displayFlex,
+								$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap),
+								$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 							]))
 					]),
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (pokemon) {
-						return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+						return A2($author$project$View$pokemon, pokemon.aB, pokemon.ax);
 					},
-					pokemonType.pokemon))
+					pokemonType.aT))
 			]));
 };
-var author$project$Page$PokemonType$viewPokemonType = function (model) {
+var $author$project$Page$PokemonType$viewPokemonType = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
-			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-		case 'Loading':
-			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Type...');
-		case 'Failure':
+		case 0:
+			return $rtfeldman$elm_css$Html$Styled$text('Not Asked');
+		case 1:
+			return $rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Type...');
+		case 2:
 			var error = model.a;
-			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon Type');
+			return $rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon Type');
 		default:
 			var pokemonType = model.a;
-			return author$project$Page$PokemonType$viewType(pokemonType);
+			return $author$project$Page$PokemonType$viewType(pokemonType);
 	}
 };
-var author$project$Page$PokemonType$view = function (model) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
-		author$project$Page$PokemonType$viewPokemonType(model));
+var $author$project$Page$PokemonType$view = function (model) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+		$author$project$Page$PokemonType$viewPokemonType(model));
 };
-var elm$core$Set$remove = F2(
-	function (key, _n0) {
-		var dict = _n0.a;
-		return elm$core$Set$Set_elm_builtin(
-			A2(elm$core$Dict$remove, key, dict));
+var $elm$core$Set$remove = F2(
+	function (key, _v0) {
+		var dict = _v0;
+		return A2($elm$core$Dict$remove, key, dict);
 	});
-var author$project$Page$PokemonTypes$viewTypes = function (model) {
+var $author$project$Page$PokemonTypes$viewTypes = function (model) {
 	switch (model.$) {
-		case 'NotAsked':
-			return rtfeldman$elm_css$Html$Styled$text('Not Asked');
-		case 'Loading':
-			return rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
-		case 'Failure':
+		case 0:
+			return $rtfeldman$elm_css$Html$Styled$text('Not Asked');
+		case 1:
+			return $rtfeldman$elm_css$Html$Styled$text('Loading Pokemon...');
+		case 2:
 			var error = model.a;
-			return rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
+			return $rtfeldman$elm_css$Html$Styled$text('There was an error fetching your Pokemon');
 		default:
 			var pokemonTypes = model.a;
 			return A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$displayFlex,
-								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap),
-								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+								$rtfeldman$elm_css$Css$displayFlex,
+								$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap),
+								$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 							]))
 					]),
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (filteredType) {
-						return author$project$View$pokemonType(filteredType);
+						return $author$project$View$pokemonType(filteredType);
 					},
-					elm$core$Set$toList(
+					$elm$core$Set$toList(
 						A2(
-							elm$core$Set$remove,
+							$elm$core$Set$remove,
 							'unknown',
 							A2(
-								elm$core$Set$remove,
+								$elm$core$Set$remove,
 								'shadow',
-								elm$core$Set$fromList(
+								$elm$core$Set$fromList(
 									A2(
-										elm$core$List$map,
+										$elm$core$List$map,
 										function (pokemonType) {
-											return pokemonType.name;
+											return pokemonType.aB;
 										},
 										pokemonTypes)))))));
 	}
 };
-var author$project$Page$PokemonTypes$view = function (model) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
+var $author$project$Page$PokemonTypes$view = function (model) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
-			rtfeldman$elm_css$Html$Styled$div,
+			$rtfeldman$elm_css$Html$Styled$div,
 			_List_Nil,
 			_List_fromArray(
 				[
-					author$project$View$pageTitle('Types'),
-					author$project$Page$PokemonTypes$viewTypes(model)
+					$author$project$View$pageTitle('Types'),
+					$author$project$Page$PokemonTypes$viewTypes(model)
 				])));
 };
-var author$project$Page$Team$teamSTABCoverage = function (pokemonTypes) {
-	return elm$core$Set$fromList(
-		elm$core$List$concat(
-			A2(
-				elm$core$List$map,
-				function (pokemonType) {
-					return A2(
-						elm$core$List$map,
-						function (base) {
-							return base.name;
-						},
-						pokemonType.damageRelations.doubleDamageTo);
-				},
-				pokemonTypes)));
-};
-var elm$core$Dict$foldl = F3(
+var $elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
 		foldl:
 		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
+			if (dict.$ === -2) {
 				return acc;
 			} else {
 				var key = dict.b;
@@ -11327,7 +11334,7 @@ var elm$core$Dict$foldl = F3(
 					func,
 					key,
 					value,
-					A3(elm$core$Dict$foldl, func, acc, left)),
+					A3($elm$core$Dict$foldl, func, acc, left)),
 					$temp$dict = right;
 				func = $temp$func;
 				acc = $temp$acc;
@@ -11336,573 +11343,573 @@ var elm$core$Dict$foldl = F3(
 			}
 		}
 	});
-var elm$core$Dict$diff = F2(
+var $elm$core$Dict$diff = F2(
 	function (t1, t2) {
 		return A3(
-			elm$core$Dict$foldl,
+			$elm$core$Dict$foldl,
 			F3(
 				function (k, v, t) {
-					return A2(elm$core$Dict$remove, k, t);
+					return A2($elm$core$Dict$remove, k, t);
 				}),
 			t1,
 			t2);
 	});
-var elm$core$Set$diff = F2(
-	function (_n0, _n1) {
-		var dict1 = _n0.a;
-		var dict2 = _n1.a;
-		return elm$core$Set$Set_elm_builtin(
-			A2(elm$core$Dict$diff, dict1, dict2));
+var $elm$core$Set$diff = F2(
+	function (_v0, _v1) {
+		var dict1 = _v0;
+		var dict2 = _v1;
+		return A2($elm$core$Dict$diff, dict1, dict2);
 	});
-var author$project$Page$Team$missingSTABCoverage = F2(
+var $author$project$Page$Team$teamSTABCoverage = function (pokemonTypes) {
+	return $elm$core$Set$fromList(
+		$elm$core$List$concat(
+			A2(
+				$elm$core$List$map,
+				function (pokemonType) {
+					return A2(
+						$elm$core$List$map,
+						function (base) {
+							return base.aB;
+						},
+						pokemonType.b8.cc);
+				},
+				pokemonTypes)));
+};
+var $author$project$Page$Team$missingSTABCoverage = F2(
 	function (teamPokemonTypes, allPokemonTypes) {
 		return A2(
-			elm$core$Set$diff,
+			$elm$core$Set$diff,
 			A2(
-				elm$core$Set$remove,
+				$elm$core$Set$remove,
 				'unknown',
 				A2(
-					elm$core$Set$remove,
+					$elm$core$Set$remove,
 					'shadow',
-					elm$core$Set$fromList(
+					$elm$core$Set$fromList(
 						A2(
-							elm$core$List$map,
+							$elm$core$List$map,
 							function (base) {
-								return base.name;
+								return base.aB;
 							},
 							allPokemonTypes)))),
-			author$project$Page$Team$teamSTABCoverage(teamPokemonTypes));
+			$author$project$Page$Team$teamSTABCoverage(teamPokemonTypes));
 	});
-var author$project$Page$Team$viewMissingSTABCoverage = F2(
+var $author$project$Page$Team$viewMissingSTABCoverage = F2(
 	function (teamPokemonTypes, pokemonTypesWebData) {
-		if (pokemonTypesWebData.$ === 'Success') {
+		if (pokemonTypesWebData.$ === 3) {
 			var allPokemonTypes = pokemonTypesWebData.a;
 			return A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$displayFlex,
-								rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-								rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+								$rtfeldman$elm_css$Css$displayFlex,
+								$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+								$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap)
 							]))
 					]),
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (missingSTABType) {
-						return author$project$View$pokemonType(missingSTABType);
+						return $author$project$View$pokemonType(missingSTABType);
 					},
-					elm$core$Set$toList(
-						A2(author$project$Page$Team$missingSTABCoverage, teamPokemonTypes, allPokemonTypes))));
+					$elm$core$Set$toList(
+						A2($author$project$Page$Team$missingSTABCoverage, teamPokemonTypes, allPokemonTypes))));
 		} else {
 			return A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Types...')
+						$rtfeldman$elm_css$Html$Styled$text('Loading Pokemon Types...')
 					]));
 		}
 	});
-var author$project$Page$Team$viewTeamMembers = function (members) {
+var $author$project$Page$Team$viewTeamMembers = function (members) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap)
 					]))
 			]),
 		A2(
-			elm$core$List$map,
+			$elm$core$List$map,
 			function (pokemon) {
-				return A2(author$project$View$pokemon, pokemon.name, pokemon.id);
+				return A2($author$project$View$pokemon, pokemon.aB, pokemon.ax);
 			},
 			members));
 };
-var author$project$Page$Team$viewTeamNumber = function (members) {
+var $author$project$Page$Team$viewTeamNumber = function (members) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center)
 					]))
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(
-				elm$core$String$fromInt(
-					elm$core$List$length(members)) + ' of 6')
+				$rtfeldman$elm_css$Html$Styled$text(
+				$elm$core$String$fromInt(
+					$elm$core$List$length(members)) + ' of 6')
 			]));
 };
-var author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
+var $author$project$Page$Team$viewTeamPokemonTypes = function (pokemonTypes) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap)
 					]))
 			]),
 		A2(
-			elm$core$List$map,
+			$elm$core$List$map,
 			function (pokemonType) {
-				return author$project$View$pokemonType(pokemonType.name);
+				return $author$project$View$pokemonType(pokemonType.aB);
 			},
 			pokemonTypes));
 };
-var author$project$Page$Team$viewTeamSTABCoverage = function (pokemonTypes) {
+var $author$project$Page$Team$viewTeamSTABCoverage = function (pokemonTypes) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap)
 					]))
 			]),
 		A2(
-			elm$core$List$map,
+			$elm$core$List$map,
 			function (stabType) {
-				return author$project$View$pokemonType(stabType);
+				return $author$project$View$pokemonType(stabType);
 			},
-			elm$core$Set$toList(
-				author$project$Page$Team$teamSTABCoverage(pokemonTypes))));
+			$elm$core$Set$toList(
+				$author$project$Page$Team$teamSTABCoverage(pokemonTypes))));
 };
-var author$project$Page$Team$teamStrengths = function (pokemonTypes) {
-	return elm$core$Set$fromList(
-		elm$core$List$concat(
+var $author$project$Page$Team$teamStrengths = function (pokemonTypes) {
+	return $elm$core$Set$fromList(
+		$elm$core$List$concat(
 			A2(
-				elm$core$List$map,
+				$elm$core$List$map,
 				function (pokemonType) {
 					return A2(
-						elm$core$List$map,
+						$elm$core$List$map,
 						function (base) {
-							return base.name;
+							return base.aB;
 						},
 						A2(
-							elm$core$List$append,
-							pokemonType.damageRelations.noDamageFrom,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageFrom, pokemonType.damageRelations.doubleDamageTo)));
+							$elm$core$List$append,
+							pokemonType.b8.cu,
+							A2($elm$core$List$append, pokemonType.b8.ck, pokemonType.b8.cc)));
 				},
 				pokemonTypes)));
 };
-var author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
-	return elm$core$Set$fromList(
-		elm$core$List$concat(
+var $author$project$Page$Team$teamWeaknesses = function (pokemonTypes) {
+	return $elm$core$Set$fromList(
+		$elm$core$List$concat(
 			A2(
-				elm$core$List$map,
+				$elm$core$List$map,
 				function (pokemonType) {
 					return A2(
-						elm$core$List$map,
+						$elm$core$List$map,
 						function (base) {
-							return base.name;
+							return base.aB;
 						},
 						A2(
-							elm$core$List$append,
-							pokemonType.damageRelations.noDamageTo,
-							A2(elm$core$List$append, pokemonType.damageRelations.halfDamageTo, pokemonType.damageRelations.doubleDamageFrom)));
+							$elm$core$List$append,
+							pokemonType.b8.cv,
+							A2($elm$core$List$append, pokemonType.b8.cl, pokemonType.b8.cb)));
 				},
 				pokemonTypes)));
 };
-var author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
+var $author$project$Page$Team$viewTeamWeaknesses = function (pokemonTypes) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$div,
+		$rtfeldman$elm_css$Html$Styled$div,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$displayFlex,
-						rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-						rtfeldman$elm_css$Css$flexWrap(rtfeldman$elm_css$Css$wrap)
+						$rtfeldman$elm_css$Css$displayFlex,
+						$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+						$rtfeldman$elm_css$Css$flexWrap($rtfeldman$elm_css$Css$wrap)
 					]))
 			]),
 		A2(
-			elm$core$List$map,
+			$elm$core$List$map,
 			function (filteredType) {
-				return author$project$View$pokemonType(filteredType);
+				return $author$project$View$pokemonType(filteredType);
 			},
-			elm$core$Set$toList(
+			$elm$core$Set$toList(
 				A2(
-					elm$core$Set$diff,
-					author$project$Page$Team$teamWeaknesses(pokemonTypes),
-					author$project$Page$Team$teamStrengths(pokemonTypes)))));
+					$elm$core$Set$diff,
+					$author$project$Page$Team$teamWeaknesses(pokemonTypes),
+					$author$project$Page$Team$teamStrengths(pokemonTypes)))));
 };
-var author$project$Page$Team$view = F2(
+var $author$project$Page$Team$view = F2(
 	function (team, pokemonTypesWebData) {
-		return rtfeldman$elm_css$Html$Styled$toUnstyled(
+		return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 			A2(
-				rtfeldman$elm_css$Html$Styled$div,
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						author$project$View$pageTitle('Team'),
-						author$project$Page$Team$viewTeamNumber(team.members),
-						author$project$Page$Team$viewTeamMembers(team.members),
-						author$project$View$subTitle('Team Types'),
-						author$project$Page$Team$viewTeamPokemonTypes(team.pokemonTypes),
-						author$project$View$subTitle('Team Weaknesses'),
-						author$project$Page$Team$viewTeamWeaknesses(team.pokemonTypes),
-						author$project$View$subTitle('Team STAB Coverage'),
-						author$project$Page$Team$viewTeamSTABCoverage(team.pokemonTypes),
-						author$project$View$subTitle('Missing STAB Coverage'),
-						A2(author$project$Page$Team$viewMissingSTABCoverage, team.pokemonTypes, pokemonTypesWebData)
+						$author$project$View$pageTitle('Team'),
+						$author$project$Page$Team$viewTeamNumber(team.aA),
+						$author$project$Page$Team$viewTeamMembers(team.aA),
+						$author$project$View$subTitle('Team Types'),
+						$author$project$Page$Team$viewTeamPokemonTypes(team.J),
+						$author$project$View$subTitle('Team Weaknesses'),
+						$author$project$Page$Team$viewTeamWeaknesses(team.J),
+						$author$project$View$subTitle('Team STAB Coverage'),
+						$author$project$Page$Team$viewTeamSTABCoverage(team.J),
+						$author$project$View$subTitle('Missing STAB Coverage'),
+						A2($author$project$Page$Team$viewMissingSTABCoverage, team.J, pokemonTypesWebData)
 					])));
 	});
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var author$project$Main$contentView = function (model) {
-	var _n0 = model.route;
-	switch (_n0.$) {
-		case 'NotFound':
-			return elm$html$Html$text('Not Found');
-		case 'Pokedex':
-			return author$project$Page$Pokedex$view(model.pokedex);
-		case 'Pokemon':
-			var id = _n0.a;
-			return A2(author$project$Page$Pokemon$view, model.pokemon, model.team.members);
-		case 'PokemonTypes':
-			return author$project$Page$PokemonTypes$view(model.pokemonTypes);
-		case 'PokemonType':
-			var id = _n0.a;
-			return author$project$Page$PokemonType$view(model.pokemonType);
+var $author$project$Main$contentView = function (model) {
+	var _v0 = model.a9;
+	switch (_v0.$) {
+		case 0:
+			return $elm$html$Html$text('Not Found');
+		case 1:
+			return $author$project$Page$Pokedex$view(model.a7);
+		case 2:
+			var id = _v0.a;
+			return A2($author$project$Page$Pokemon$view, model.aT, model.v.aA);
+		case 3:
+			return $author$project$Page$PokemonTypes$view(model.J);
+		case 4:
+			var id = _v0.a;
+			return $author$project$Page$PokemonType$view(model.aU);
 		default:
-			return A2(author$project$Page$Team$view, model.team, model.pokemonTypes);
+			return A2($author$project$Page$Team$view, model.v, model.J);
 	}
 };
-var rtfeldman$elm_css$Css$marginRight = rtfeldman$elm_css$Css$prop1('margin-right');
-var author$project$Navigation$viewNavLink = F2(
-	function (route, name) {
-		return A2(
-			rtfeldman$elm_css$Html$Styled$a,
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
+var $rtfeldman$elm_css$Html$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
+var $rtfeldman$elm_css$Css$marginBottom = $rtfeldman$elm_css$Css$prop1('margin-bottom');
+var $rtfeldman$elm_css$Css$marginTop = $rtfeldman$elm_css$Css$prop1('margin-top');
+var $author$project$View$pageContent = function (content) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
+		A2(
+			$rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Css$marginRight(
-							rtfeldman$elm_css$Css$px(20)),
-							rtfeldman$elm_css$Css$color(
-							rtfeldman$elm_css$Css$hex('#ffffff'))
-						])),
-					author$project$Route$styledHref(route)
+							$rtfeldman$elm_css$Css$displayFlex,
+							$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$center),
+							$rtfeldman$elm_css$Css$marginTop(
+							$rtfeldman$elm_css$Css$px(40)),
+							$rtfeldman$elm_css$Css$marginBottom(
+							$rtfeldman$elm_css$Css$px(60))
+						]))
 				]),
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$text(name)
+					$rtfeldman$elm_css$Html$Styled$fromUnstyled(content)
+				])));
+};
+var $rtfeldman$elm_css$Css$flexEnd = $rtfeldman$elm_css$Css$prop1('flex-end');
+var $rtfeldman$elm_css$Html$Styled$nav = $rtfeldman$elm_css$Html$Styled$node('nav');
+var $rtfeldman$elm_css$Css$marginRight = $rtfeldman$elm_css$Css$prop1('margin-right');
+var $author$project$Navigation$viewNavLink = F2(
+	function (route, name) {
+		return A2(
+			$rtfeldman$elm_css$Html$Styled$a,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Css$marginRight(
+							$rtfeldman$elm_css$Css$px(20)),
+							$rtfeldman$elm_css$Css$color(
+							$rtfeldman$elm_css$Css$hex('#ffffff'))
+						])),
+					$author$project$Route$styledHref(route)
+				]),
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$text(name)
 				]));
 	});
-var author$project$Msg$SearchQueryChange = function (a) {
-	return {$: 'SearchQueryChange', a: a};
+var $author$project$Msg$SearchQueryChange = function (a) {
+	return {$: 6, a: a};
 };
-var author$project$Navigation$isMatch = F2(
+var $rtfeldman$elm_css$Css$border = $rtfeldman$elm_css$Css$prop1('border');
+var $rtfeldman$elm_css$Css$initial = {bi: 0, bj: 0, at: 0, bk: 0, X: 0, bl: 0, Y: 0, C: 0, n: 0, aL: 0, x: 0, a: 0, f: 0, ab: 0, a1: 0, av: 0, aN: 0, N: 0, l: 0, ac: 0, d: 0, F: 0, aO: 0, bC: 0, a2: 0, ay: 0, af: 0, G: 0, ag: 0, ah: 0, P: 0, Q: 0, y: 0, aP: 0, c: 0, b: 0, a4: 0, aC: 0, I: 0, aS: 0, ai: 0, u: 0, aY: 0, am: 0, U: 0, an: 0, ao: 0, V: 0, q: 0, ap: '', aI: 0, A: 'initial', aJ: 0, M: 0};
+var $rtfeldman$elm_css$Css$inherit = _Utils_update(
+	$rtfeldman$elm_css$Css$initial,
+	{A: 'inherit'});
+var $rtfeldman$elm_css$Html$Styled$input = $rtfeldman$elm_css$Html$Styled$node('input');
+var $rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 1, a: a};
+};
+var $rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$rtfeldman$elm_css$VirtualDom$Styled$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $rtfeldman$elm_css$Html$Styled$Events$targetValue)));
+};
+var $rtfeldman$elm_css$Html$Styled$Attributes$placeholder = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
+var $rtfeldman$elm_css$Html$Styled$Attributes$value = $rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
+var $rtfeldman$elm_css$Css$absolute = {aD: 0, A: 'absolute'};
+var $author$project$Navigation$isMatch = F2(
 	function (queryString, pokemon) {
 		return A2(
-			elm$core$String$contains,
-			elm$core$String$toLower(queryString),
-			pokemon.name);
+			$elm$core$String$contains,
+			$elm$core$String$toLower(queryString),
+			pokemon.aB);
 	});
-var author$project$Navigation$findMatches = F2(
+var $author$project$Navigation$findMatches = F2(
 	function (queryString, pokedex) {
 		return A2(
-			elm$core$List$filter,
-			author$project$Navigation$isMatch(queryString),
+			$elm$core$List$filter,
+			$author$project$Navigation$isMatch(queryString),
 			pokedex);
 	});
-var rtfeldman$elm_css$Css$borderTop3 = rtfeldman$elm_css$Css$prop3('border-top');
-var rtfeldman$elm_css$Css$firstOfType = rtfeldman$elm_css$Css$pseudoClass('first-of-type');
-var author$project$Navigation$viewMatch = function (pokemon) {
+var $rtfeldman$elm_css$Css$position = $rtfeldman$elm_css$Css$prop1('position');
+var $rtfeldman$elm_css$Css$borderTop3 = $rtfeldman$elm_css$Css$prop3('border-top');
+var $rtfeldman$elm_css$Css$firstOfType = $rtfeldman$elm_css$Css$pseudoClass('first-of-type');
+var $author$project$Navigation$viewMatch = function (pokemon) {
 	return A2(
-		rtfeldman$elm_css$Html$Styled$a,
+		$rtfeldman$elm_css$Html$Styled$a,
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$Attributes$css(
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
+						$rtfeldman$elm_css$Css$display($rtfeldman$elm_css$Css$block),
 						A2(
-						rtfeldman$elm_css$Css$padding2,
-						rtfeldman$elm_css$Css$px(8),
-						rtfeldman$elm_css$Css$px(12)),
+						$rtfeldman$elm_css$Css$padding2,
+						$rtfeldman$elm_css$Css$px(8),
+						$rtfeldman$elm_css$Css$px(12)),
 						A3(
-						rtfeldman$elm_css$Css$borderTop3,
-						rtfeldman$elm_css$Css$px(1),
-						rtfeldman$elm_css$Css$solid,
-						rtfeldman$elm_css$Css$hex('#f1f1f1')),
-						rtfeldman$elm_css$Css$color(
-						rtfeldman$elm_css$Css$hex('#000000')),
-						rtfeldman$elm_css$Css$textDecoration(rtfeldman$elm_css$Css$none),
-						rtfeldman$elm_css$Css$textTransform(rtfeldman$elm_css$Css$capitalize),
-						rtfeldman$elm_css$Css$firstOfType(
+						$rtfeldman$elm_css$Css$borderTop3,
+						$rtfeldman$elm_css$Css$px(1),
+						$rtfeldman$elm_css$Css$solid,
+						$rtfeldman$elm_css$Css$hex('#f1f1f1')),
+						$rtfeldman$elm_css$Css$color(
+						$rtfeldman$elm_css$Css$hex('#000000')),
+						$rtfeldman$elm_css$Css$textDecoration($rtfeldman$elm_css$Css$none),
+						$rtfeldman$elm_css$Css$textTransform($rtfeldman$elm_css$Css$capitalize),
+						$rtfeldman$elm_css$Css$firstOfType(
 						_List_fromArray(
 							[
 								A3(
-								rtfeldman$elm_css$Css$borderTop3,
-								rtfeldman$elm_css$Css$px(2),
-								rtfeldman$elm_css$Css$solid,
-								rtfeldman$elm_css$Css$hex('#f1f1f1'))
+								$rtfeldman$elm_css$Css$borderTop3,
+								$rtfeldman$elm_css$Css$px(2),
+								$rtfeldman$elm_css$Css$solid,
+								$rtfeldman$elm_css$Css$hex('#f1f1f1'))
 							])),
-						rtfeldman$elm_css$Css$hover(
+						$rtfeldman$elm_css$Css$hover(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$backgroundColor(
-								rtfeldman$elm_css$Css$hex('#f1f1f1'))
+								$rtfeldman$elm_css$Css$backgroundColor(
+								$rtfeldman$elm_css$Css$hex('#f1f1f1'))
 							])),
-						rtfeldman$elm_css$Css$Transitions$transition(
+						$rtfeldman$elm_css$Css$Transitions$transition(
 						_List_fromArray(
 							[
 								A3(
-								rtfeldman$elm_css$Css$Transitions$background3,
+								$rtfeldman$elm_css$Css$Transitions$background3,
 								135,
 								0,
-								A4(rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
+								A4($rtfeldman$elm_css$Css$Transitions$cubicBezier, 0.4, 0, 0.2, 1))
 							]))
 					])),
-				author$project$Route$styledHref(
-				author$project$Route$Pokemon(
-					elm$core$String$fromInt(pokemon.id)))
+				$author$project$Route$styledHref(
+				$author$project$Route$Pokemon(
+					$elm$core$String$fromInt(pokemon.ax)))
 			]),
 		_List_fromArray(
 			[
-				rtfeldman$elm_css$Html$Styled$text(pokemon.name)
+				$rtfeldman$elm_css$Html$Styled$text(pokemon.aB)
 			]));
 };
-var rtfeldman$elm_css$Css$absolute = {position: rtfeldman$elm_css$Css$Structure$Compatible, value: 'absolute'};
-var rtfeldman$elm_css$Css$initial = {alignItems: rtfeldman$elm_css$Css$Structure$Compatible, all: rtfeldman$elm_css$Css$Structure$Compatible, backgroundAttachment: rtfeldman$elm_css$Css$Structure$Compatible, backgroundBlendMode: rtfeldman$elm_css$Css$Structure$Compatible, backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, backgroundOrigin: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeat: rtfeldman$elm_css$Css$Structure$Compatible, backgroundRepeatShorthand: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, boxSizing: rtfeldman$elm_css$Css$Structure$Compatible, color: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, flexBasis: rtfeldman$elm_css$Css$Structure$Compatible, flexDirection: rtfeldman$elm_css$Css$Structure$Compatible, flexDirectionOrWrap: rtfeldman$elm_css$Css$Structure$Compatible, flexWrap: rtfeldman$elm_css$Css$Structure$Compatible, fontFamily: rtfeldman$elm_css$Css$Structure$Compatible, fontSize: rtfeldman$elm_css$Css$Structure$Compatible, fontStyle: rtfeldman$elm_css$Css$Structure$Compatible, fontVariant: rtfeldman$elm_css$Css$Structure$Compatible, fontWeight: rtfeldman$elm_css$Css$Structure$Compatible, intOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, justifyContent: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, length: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAuto: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrAutoOrCoverOrContain: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumber: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStylePosition: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, number: rtfeldman$elm_css$Css$Structure$Compatible, numericValue: 0, outline: rtfeldman$elm_css$Css$Structure$Compatible, overflow: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, tableLayout: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, textIndent: rtfeldman$elm_css$Css$Structure$Compatible, textRendering: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, unitLabel: '', units: rtfeldman$elm_css$Css$Internal$IncompatibleUnits, value: 'initial', visibility: rtfeldman$elm_css$Css$Structure$Compatible, whiteSpace: rtfeldman$elm_css$Css$Structure$Compatible};
-var rtfeldman$elm_css$Css$inherit = _Utils_update(
-	rtfeldman$elm_css$Css$initial,
-	{value: 'inherit'});
-var rtfeldman$elm_css$Css$position = rtfeldman$elm_css$Css$prop1('position');
-var author$project$Navigation$viewSearchResults = F2(
+var $author$project$Navigation$viewSearchResults = F2(
 	function (queryString, pokedexModel) {
-		if (pokedexModel.$ === 'Success') {
+		if (pokedexModel.$ === 3) {
 			var pokedex = pokedexModel.a;
-			return elm$core$String$isEmpty(queryString) ? A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil) : A2(
-				rtfeldman$elm_css$Html$Styled$div,
+			return $elm$core$String$isEmpty(queryString) ? A2($rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil) : A2(
+				$rtfeldman$elm_css$Html$Styled$div,
 				_List_fromArray(
 					[
-						rtfeldman$elm_css$Html$Styled$Attributes$css(
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
 						_List_fromArray(
 							[
-								rtfeldman$elm_css$Css$position(rtfeldman$elm_css$Css$absolute),
-								rtfeldman$elm_css$Css$width(rtfeldman$elm_css$Css$inherit),
-								rtfeldman$elm_css$Css$backgroundColor(
-								rtfeldman$elm_css$Css$hex('#ffffff')),
+								$rtfeldman$elm_css$Css$position($rtfeldman$elm_css$Css$absolute),
+								$rtfeldman$elm_css$Css$width($rtfeldman$elm_css$Css$inherit),
+								$rtfeldman$elm_css$Css$backgroundColor(
+								$rtfeldman$elm_css$Css$hex('#ffffff')),
 								A5(
-								rtfeldman$elm_css$Css$boxShadow5,
-								rtfeldman$elm_css$Css$px(0),
-								rtfeldman$elm_css$Css$px(4),
-								rtfeldman$elm_css$Css$px(10),
-								rtfeldman$elm_css$Css$px(-1),
-								A4(rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.2)),
-								rtfeldman$elm_css$Css$borderRadius(
-								rtfeldman$elm_css$Css$px(3))
+								$rtfeldman$elm_css$Css$boxShadow5,
+								$rtfeldman$elm_css$Css$px(0),
+								$rtfeldman$elm_css$Css$px(4),
+								$rtfeldman$elm_css$Css$px(10),
+								$rtfeldman$elm_css$Css$px(-1),
+								A4($rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.2)),
+								$rtfeldman$elm_css$Css$borderRadius(
+								$rtfeldman$elm_css$Css$px(3))
 							]))
 					]),
 				A2(
-					elm$core$List$map,
+					$elm$core$List$map,
 					function (match) {
-						return author$project$Navigation$viewMatch(match);
+						return $author$project$Navigation$viewMatch(match);
 					},
-					A2(author$project$Navigation$findMatches, queryString, pokedex)));
+					A2($author$project$Navigation$findMatches, queryString, pokedex)));
 		} else {
-			return A2(rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
+			return A2($rtfeldman$elm_css$Html$Styled$div, _List_Nil, _List_Nil);
 		}
 	});
-var rtfeldman$elm_css$Css$border = rtfeldman$elm_css$Css$prop1('border');
-var rtfeldman$elm_css$Html$Styled$input = rtfeldman$elm_css$Html$Styled$node('input');
-var rtfeldman$elm_css$Html$Styled$Attributes$placeholder = rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('placeholder');
-var rtfeldman$elm_css$Html$Styled$Attributes$value = rtfeldman$elm_css$Html$Styled$Attributes$stringProperty('value');
-var rtfeldman$elm_css$Html$Styled$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			rtfeldman$elm_css$VirtualDom$Styled$on,
-			event,
-			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var rtfeldman$elm_css$Html$Styled$Events$targetValue = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	elm$json$Json$Decode$string);
-var rtfeldman$elm_css$Html$Styled$Events$onInput = function (tagger) {
-	return A2(
-		rtfeldman$elm_css$Html$Styled$Events$stopPropagationOn,
-		'input',
-		A2(
-			elm$json$Json$Decode$map,
-			rtfeldman$elm_css$Html$Styled$Events$alwaysStop,
-			A2(elm$json$Json$Decode$map, tagger, rtfeldman$elm_css$Html$Styled$Events$targetValue)));
-};
-var author$project$Navigation$viewSearch = F2(
+var $author$project$Navigation$viewSearch = F2(
 	function (queryString, pokedex) {
 		return A2(
-			rtfeldman$elm_css$Html$Styled$div,
+			$rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Css$width(
-							rtfeldman$elm_css$Css$px(160)),
-							rtfeldman$elm_css$Css$marginRight(
-							rtfeldman$elm_css$Css$px(40))
+							$rtfeldman$elm_css$Css$width(
+							$rtfeldman$elm_css$Css$px(160)),
+							$rtfeldman$elm_css$Css$marginRight(
+							$rtfeldman$elm_css$Css$px(40))
 						]))
 				]),
 			_List_fromArray(
 				[
 					A2(
-					rtfeldman$elm_css$Html$Styled$input,
+					$rtfeldman$elm_css$Html$Styled$input,
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search Pokemon'),
-							rtfeldman$elm_css$Html$Styled$Attributes$value(queryString),
-							rtfeldman$elm_css$Html$Styled$Events$onInput(author$project$Msg$SearchQueryChange),
-							rtfeldman$elm_css$Html$Styled$Attributes$css(
+							$rtfeldman$elm_css$Html$Styled$Attributes$placeholder('Search Pokemon'),
+							$rtfeldman$elm_css$Html$Styled$Attributes$value(queryString),
+							$rtfeldman$elm_css$Html$Styled$Events$onInput($author$project$Msg$SearchQueryChange),
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
 							_List_fromArray(
 								[
-									rtfeldman$elm_css$Css$width(rtfeldman$elm_css$Css$inherit),
+									$rtfeldman$elm_css$Css$width($rtfeldman$elm_css$Css$inherit),
 									A2(
-									rtfeldman$elm_css$Css$padding2,
-									rtfeldman$elm_css$Css$px(8),
-									rtfeldman$elm_css$Css$px(12)),
-									rtfeldman$elm_css$Css$border(
-									rtfeldman$elm_css$Css$px(0)),
-									rtfeldman$elm_css$Css$borderRadius(
-									rtfeldman$elm_css$Css$px(3))
+									$rtfeldman$elm_css$Css$padding2,
+									$rtfeldman$elm_css$Css$px(8),
+									$rtfeldman$elm_css$Css$px(12)),
+									$rtfeldman$elm_css$Css$border(
+									$rtfeldman$elm_css$Css$px(0)),
+									$rtfeldman$elm_css$Css$borderRadius(
+									$rtfeldman$elm_css$Css$px(3))
 								]))
 						]),
 					_List_Nil),
-					A2(author$project$Navigation$viewSearchResults, queryString, pokedex)
+					A2($author$project$Navigation$viewSearchResults, queryString, pokedex)
 				]));
 	});
-var rtfeldman$elm_css$Css$flexEnd = rtfeldman$elm_css$Css$prop1('flex-end');
-var rtfeldman$elm_css$Html$Styled$nav = rtfeldman$elm_css$Html$Styled$node('nav');
-var author$project$Navigation$view = function (model) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
+var $author$project$Navigation$view = function (model) {
+	return $rtfeldman$elm_css$Html$Styled$toUnstyled(
 		A2(
-			rtfeldman$elm_css$Html$Styled$nav,
+			$rtfeldman$elm_css$Html$Styled$nav,
 			_List_fromArray(
 				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							rtfeldman$elm_css$Css$displayFlex,
-							rtfeldman$elm_css$Css$height(
-							rtfeldman$elm_css$Css$px(72)),
-							rtfeldman$elm_css$Css$alignItems(rtfeldman$elm_css$Css$center),
-							rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$flexEnd),
-							rtfeldman$elm_css$Css$backgroundColor(
-							rtfeldman$elm_css$Css$hex('#202124')),
+							$rtfeldman$elm_css$Css$displayFlex,
+							$rtfeldman$elm_css$Css$height(
+							$rtfeldman$elm_css$Css$px(72)),
+							$rtfeldman$elm_css$Css$alignItems($rtfeldman$elm_css$Css$center),
+							$rtfeldman$elm_css$Css$justifyContent($rtfeldman$elm_css$Css$flexEnd),
+							$rtfeldman$elm_css$Css$backgroundColor(
+							$rtfeldman$elm_css$Css$hex('#202124')),
 							A5(
-							rtfeldman$elm_css$Css$boxShadow5,
-							rtfeldman$elm_css$Css$px(0),
-							rtfeldman$elm_css$Css$px(4),
-							rtfeldman$elm_css$Css$px(10),
-							rtfeldman$elm_css$Css$px(-1),
-							A4(rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.2)),
+							$rtfeldman$elm_css$Css$boxShadow5,
+							$rtfeldman$elm_css$Css$px(0),
+							$rtfeldman$elm_css$Css$px(4),
+							$rtfeldman$elm_css$Css$px(10),
+							$rtfeldman$elm_css$Css$px(-1),
+							A4($rtfeldman$elm_css$Css$rgba, 0, 0, 0, 0.2)),
 							A2(
-							rtfeldman$elm_css$Css$padding2,
-							rtfeldman$elm_css$Css$px(0),
-							rtfeldman$elm_css$Css$px(40))
+							$rtfeldman$elm_css$Css$padding2,
+							$rtfeldman$elm_css$Css$px(0),
+							$rtfeldman$elm_css$Css$px(40))
 						]))
 				]),
 			_List_fromArray(
 				[
-					A2(author$project$Navigation$viewSearch, model.search, model.pokedex),
-					A2(author$project$Navigation$viewNavLink, author$project$Route$Pokedex, 'Home'),
-					A2(author$project$Navigation$viewNavLink, author$project$Route$PokemonTypes, 'Types'),
-					A2(author$project$Navigation$viewNavLink, author$project$Route$Team, 'Team')
+					A2($author$project$Navigation$viewSearch, model.ba, model.a7),
+					A2($author$project$Navigation$viewNavLink, $author$project$Route$Pokedex, 'Home'),
+					A2($author$project$Navigation$viewNavLink, $author$project$Route$PokemonTypes, 'Types'),
+					A2($author$project$Navigation$viewNavLink, $author$project$Route$Team, 'Team')
 				])));
 };
-var rtfeldman$elm_css$Css$marginBottom = rtfeldman$elm_css$Css$prop1('margin-bottom');
-var rtfeldman$elm_css$Css$marginTop = rtfeldman$elm_css$Css$prop1('margin-top');
-var rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
-var rtfeldman$elm_css$Html$Styled$fromUnstyled = rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
-var author$project$View$pageContent = function (content) {
-	return rtfeldman$elm_css$Html$Styled$toUnstyled(
-		A2(
-			rtfeldman$elm_css$Html$Styled$div,
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Html$Styled$Attributes$css(
-					_List_fromArray(
-						[
-							rtfeldman$elm_css$Css$displayFlex,
-							rtfeldman$elm_css$Css$justifyContent(rtfeldman$elm_css$Css$center),
-							rtfeldman$elm_css$Css$marginTop(
-							rtfeldman$elm_css$Css$px(40)),
-							rtfeldman$elm_css$Css$marginBottom(
-							rtfeldman$elm_css$Css$px(60))
-						]))
-				]),
-			_List_fromArray(
-				[
-					rtfeldman$elm_css$Html$Styled$fromUnstyled(content)
-				])));
-};
-var elm$html$Html$div = _VirtualDom_node('div');
-var author$project$Main$view = function (model) {
+var $author$project$Main$view = function (model) {
 	return {
-		body: _List_fromArray(
+		b6: _List_fromArray(
 			[
 				A2(
-				elm$html$Html$div,
+				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						author$project$Navigation$view(model),
-						author$project$View$pageContent(
-						author$project$Main$contentView(model))
+						$author$project$Navigation$view(model),
+						$author$project$View$pageContent(
+						$author$project$Main$contentView(model))
 					]))
 			]),
-		title: 'PokElm'
+		cP: 'PokElm'
 	};
 };
-var author$project$Msg$UrlChange = function (a) {
-	return {$: 'UrlChange', a: a};
-};
-var author$project$Msg$UrlRequest = function (a) {
-	return {$: 'UrlRequest', a: a};
-};
-var elm$browser$Browser$application = _Browser_application;
-var elm$core$Basics$always = F2(
-	function (a, _n0) {
-		return a;
-	});
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
-var author$project$Main$main = elm$browser$Browser$application(
+var $author$project$Main$main = $elm$browser$Browser$application(
 	{
-		init: author$project$Main$init,
-		onUrlChange: author$project$Msg$UrlChange,
-		onUrlRequest: author$project$Msg$UrlRequest,
-		subscriptions: elm$core$Basics$always(elm$core$Platform$Sub$none),
-		update: author$project$Main$update,
-		view: author$project$Main$view
+		cq: $author$project$Main$init,
+		cw: $author$project$Msg$UrlChange,
+		cx: $author$project$Msg$UrlRequest,
+		cN: $elm$core$Basics$always($elm$core$Platform$Sub$none),
+		cQ: $author$project$Main$update,
+		cT: $author$project$Main$view
 	});
-_Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+_Platform_export({'Main':{'init':$author$project$Main$main(
+	$elm$json$Json$Decode$succeed(0))(0)}});}(this));

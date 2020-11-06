@@ -2,6 +2,10 @@
 
 A Pokédex written in Elm hosted at https://ajcumine.github.io/pokelm/ using GitHub Pages.
 
+### To Do
+
+Add production build steps using script outlined [here](https://github.com/elm/compiler/blob/master/hints/optimize.md)
+
 ### Development
 
 Uses node/yarn for build and development tooling
