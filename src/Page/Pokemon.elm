@@ -6,15 +6,13 @@ import Html exposing (Html)
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick)
-import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
-import Model exposing (Base, BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonWebData, Species, Team)
+import Model exposing (Base, BasePokemon, EvolutionChain, Evolutions(..), Pokemon, PokemonDetail, PokemonWebData, Species)
 import Msg exposing (Msg(..))
 import Parse
 import RemoteData exposing (WebData)
 import RemoteData.Http
-import Route
 import Task exposing (Task)
 import View
 
@@ -52,12 +50,12 @@ viewEvolution evolution =
 
 pokemonImageSrc : Int -> String
 pokemonImageSrc id =
-    "assets/images/pokemon/" ++ String.fromInt id ++ ".png"
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ String.fromInt id ++ ".png"
 
 
 shinyImageSrc : Int -> String
 shinyImageSrc id =
-    "assets/images/shiny/" ++ String.fromInt id ++ ".png"
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ String.fromInt id ++ ".png"
 
 
 viewPokemonDetails : Pokemon -> List Pokemon -> Styled.Html Msg
@@ -140,7 +138,7 @@ viewPokemon model teamMembers =
         RemoteData.Loading ->
             Styled.text "Loading Pokemon..."
 
-        RemoteData.Failure error ->
+        RemoteData.Failure _ ->
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokemon ->

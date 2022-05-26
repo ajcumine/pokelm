@@ -4,11 +4,11 @@ import Css exposing (..)
 import Css.Transitions exposing (transition)
 import Html exposing (Html)
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css, placeholder, src, value)
+import Html.Styled.Attributes exposing (css, placeholder, value)
 import Html.Styled.Events exposing (onInput)
 import Model exposing (Base, Model, Pokedex, PokedexWebData)
 import Msg exposing (Msg(..))
-import RemoteData exposing (WebData)
+import RemoteData
 import Route exposing (Route)
 
 

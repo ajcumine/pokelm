@@ -8,7 +8,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Base, Pokedex, PokedexWebData)
 import Parse
-import RemoteData exposing (WebData)
+import RemoteData
 import View
 
 
@@ -25,7 +25,7 @@ viewPokedex model =
         RemoteData.Loading ->
             Styled.text "Loading Pokemon..."
 
-        RemoteData.Failure error ->
+        RemoteData.Failure _ ->
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokedex ->
@@ -72,6 +72,6 @@ pokedexDecoder =
 fetch : Cmd PokedexWebData
 fetch =
     Http.get
-        { url = "https://pokeapi.co/api/v2/pokemon-species?limit=809"
+        { url = "https://pokeapi.co/api/v2/pokemon-species?limit=1000"
         , expect = Http.expectJson RemoteData.fromResult pokedexDecoder
         }

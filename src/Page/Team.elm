@@ -9,7 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, DamageRelations, Pokemon, PokemonType, PokemonTypeWebData, PokemonTypesWebData, Team)
 import Parse
-import RemoteData exposing (WebData)
+import RemoteData
 import Set exposing (Set)
 import View
 

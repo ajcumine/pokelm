@@ -2,7 +2,6 @@ module Msg exposing (Msg(..))
 
 import Browser
 import Model exposing (PokedexWebData, Pokemon, PokemonTypeWebData, PokemonTypesWebData, PokemonWebData)
-import Page.PokemonTypes as PokemonTypes
 import Url exposing (Url)
 
 

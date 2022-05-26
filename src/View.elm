@@ -10,12 +10,12 @@ import Route
 
 pokemonImageSrc : Int -> String
 pokemonImageSrc id =
-    "assets/images/pokemon/" ++ String.fromInt id ++ ".png"
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ String.fromInt id ++ ".png"
 
 
 shinyImageSrc : Int -> String
 shinyImageSrc id =
-    "assets/images/shiny/" ++ String.fromInt id ++ ".png"
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" ++ String.fromInt id ++ ".png"
 
 
 pokemon : String -> Int -> Styled.Html msg
@@ -24,11 +24,11 @@ pokemon name id =
         [ css
             [ display block
             , margin (px 8)
-            , width (px 120)
-            , height (px 160)
-            , borderRadius (px 3)
+            , width (px 102)
+            , height (px 142)
+            , borderRadius (px 8)
+            , border3 (px 1) solid (hex "#000000")
             , boxShadow5 (px 0) (px 1) (px 3) (px 1) (rgba 60 64 67 0.16)
-            , paddingTop (px 16)
             , textDecoration none
             , textTransform capitalize
             , color (hex "#000000")
@@ -37,7 +37,7 @@ pokemon name id =
             , backgroundPosition center
             , backgroundRepeat noRepeat
             , hover
-                [ boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.1)
+                [ boxShadow5 (px 0) (px 2) (px 8) (px 4) (rgba 60 64 67 0.3)
                 , backgroundImage (url (shinyImageSrc id))
                 ]
             , transition
@@ -52,6 +52,8 @@ pokemon name id =
                 [ display block
                 , backgroundColor (hex "#f1f1f1")
                 , padding2 (px 4) (px 0)
+                , borderTopRightRadius (px 8)
+                , borderTopLeftRadius (px 8)
                 ]
             ]
             [ Styled.text name ]
