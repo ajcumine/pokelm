@@ -3,7 +3,6 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Html as H exposing (Html)
-import Http
 import Model exposing (Model, Pokemon, PokemonTypeWebData, Team)
 import Msg exposing (Msg(..))
 import Navigation
@@ -19,7 +18,7 @@ import View
 
 
 init : a -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url navKey =
+init _ url navKey =
     let
         route =
             Route.fromUrl url
@@ -187,13 +186,13 @@ contentView model =
         Route.Pokedex ->
             Pokedex.view model.pokedex
 
-        Route.Pokemon id ->
+        Route.Pokemon _ ->
             Pokemon.view model.pokemon model.team.members
 
         Route.PokemonTypes ->
             PokemonTypes.view model.pokemonTypes
 
-        Route.PokemonType id ->
+        Route.PokemonType _ ->
             PokemonType.view model.pokemonType
 
         Route.Team ->

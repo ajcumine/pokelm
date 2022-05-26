@@ -9,7 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, PokemonTypesWebData)
 import Parse
-import RemoteData exposing (WebData)
+import RemoteData
 import Set
 import View
 
@@ -27,7 +27,7 @@ viewTypes model =
         RemoteData.Loading ->
             Styled.text "Loading Pokemon..."
 
-        RemoteData.Failure error ->
+        RemoteData.Failure _ ->
             Styled.text "There was an error fetching your Pokemon"
 
         RemoteData.Success pokemonTypes ->

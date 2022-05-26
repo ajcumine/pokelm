@@ -9,7 +9,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Model exposing (Base, DamageRelations, PokemonType, PokemonTypeWebData)
 import Parse
-import RemoteData exposing (WebData)
+import RemoteData
 import View
 
 
@@ -28,35 +28,34 @@ init =
 
 viewDamageRelation : String -> List Base -> Styled.Html msg
 viewDamageRelation sectionTitle pokemonTypes =
-    case List.isEmpty pokemonTypes of
-        True ->
-            Styled.div [] []
+    if List.isEmpty pokemonTypes == True then
+        Styled.div [] []
 
-        False ->
-            Styled.div
+    else
+        Styled.div
+            [ css
+                [ margin (px 4)
+                , width (px 250)
+                , padding3 (px 0) (px 20) (px 16)
+                , border3 (px 1) solid (hex "#dedede")
+                ]
+            ]
+            [ Styled.h4
                 [ css
-                    [ margin (px 4)
-                    , width (px 250)
-                    , padding3 (px 0) (px 20) (px 16)
-                    , border3 (px 1) solid (hex "#dedede")
+                    [ textTransform capitalize
+                    , textAlign center
                     ]
                 ]
-                [ Styled.h4
-                    [ css
-                        [ textTransform capitalize
-                        , textAlign center
-                        ]
+                [ Styled.text sectionTitle ]
+            , Styled.div
+                [ css
+                    [ displayFlex
+                    , flexDirection column
+                    , alignItems center
                     ]
-                    [ Styled.text sectionTitle ]
-                , Styled.div
-                    [ css
-                        [ displayFlex
-                        , flexDirection column
-                        , alignItems center
-                        ]
-                    ]
-                    (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
                 ]
+                (List.map (\pokemonType -> View.pokemonType pokemonType.name) pokemonTypes)
+            ]
 
 
 viewDamageRelations : DamageRelations -> Styled.Html msg
@@ -107,7 +106,7 @@ viewPokemonType model =
         RemoteData.Loading ->
             Styled.text "Loading Pokemon Type..."
 
-        RemoteData.Failure error ->
+        RemoteData.Failure _ ->
             Styled.text "There was an error fetching your Pokemon Type"
 
         RemoteData.Success pokemonType ->
