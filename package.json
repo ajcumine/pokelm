@@ -1,20 +1,19 @@
 {
   "name": "pokelm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.html",
   "repository": "https://github.com/ajcumine/pokelm.git",
   "author": "ajcumine <ajcumine@gmail.com>",
   "license": "MIT",
   "scripts": {
     "build": "elm make ./src/Main.elm --output elm.js",
-    "dev": "ecstatic . --port 9966 & chokidar 'src/**/*.elm' -c 'yarn build'",
-    "start": "ecstatic . --port 9966"
+    "dev": "ws --port 9966 & chokidar 'src/**/*.elm' -c 'yarn build'",
+    "start": "ws --port 9966"
   },
   "devDependencies": {
-    "chokidar-cli": "^2.1.0",
-    "ecstatic": "^4.1.4",
-    "elm": "^0.19.1-3",
+    "chokidar-cli": "^3.0.0",
+    "elm": "^0.19.1-5",
     "elm-format": "^0.8.5",
-    "uglify-js": "^3.11.5"
+    "local-web-server": "^5.2.1"
   }
 }
